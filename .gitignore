@@ -1,0 +1,18 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+.idea
+.env
+yarn-error.log*
+.pnpm-debug.log*
+yarn.lock
+# TS
+*.tsbuildinfo
+
+# Turbo
+.turbo
+
+.vscode/settings.json
+.vercel
