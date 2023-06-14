@@ -1,4 +1,4 @@
-import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { CloseIcon, ArrowUpDownIcon } from "@chakra-ui/icons";
 import {
   Avatar,
   AvatarBadge,
@@ -243,9 +243,8 @@ const Header = () => {
         </Modal>
         <IconButton
             size="md"
-            icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
+            icon={isOpen ? <CloseIcon /> : <ArrowUpDownIcon />}
             aria-label="Open Menu"
-            display={{ md: "none" }}
             onClick={isOpen ? onClose : onOpen}
         />
         <HStack spacing={8}>
