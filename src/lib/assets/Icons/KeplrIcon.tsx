@@ -1,11 +1,11 @@
-import { createIcon } from "@chakra-ui/react";
+import { createIcon } from '@chakra-ui/react';
 /**
  * Keplr Icon
  *
  * @see https://github.com/chainapsis/keplr-wallet/blob/master/packages/extension/src/public/assets/temp-icon.svg
  */
 export const KeplrIcon = createIcon({
-  displayName: "KeplrIcon",
+  displayName: 'KeplrIcon',
   path: (
     <svg>
       <defs>
@@ -58,34 +58,14 @@ export const KeplrIcon = createIcon({
           <stop stopColor="#000000" stopOpacity="0.184877622" offset="0%" />
           <stop stopColor="#101010" offset="100%" />
         </radialGradient>
-        <linearGradient
-          x1="94.2375438%"
-          y1="58.966132%"
-          x2="0%"
-          y2="0%"
-          id="linearGradient-5"
-        >
+        <linearGradient x1="94.2375438%" y1="58.966132%" x2="0%" y2="0%" id="linearGradient-5">
           <stop stopColor="#FFFFFF" stopOpacity="0.184877622" offset="0%" />
           <stop stopColor="#FFFFFF" offset="100%" />
         </linearGradient>
       </defs>
-      <g
-        id="Artboard-Copy-6"
-        stroke="none"
-        strokeWidth="1"
-        fill="none"
-        fillRule="evenodd"
-      >
+      <g id="Artboard-Copy-6" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g id="Group">
-          <rect
-            id="Rectangle"
-            fill="url(#radialGradient-1)"
-            x="0"
-            y="0"
-            width="200"
-            height="200"
-            rx="16"
-          />
+          <rect id="Rectangle" fill="url(#radialGradient-1)" x="0" y="0" width="200" height="200" rx="16" />
           <rect
             id="Rectangle-Copy-2"
             fillOpacity="0.57"
@@ -136,5 +116,5 @@ export const KeplrIcon = createIcon({
       </g>
     </svg>
   ),
-  viewBox: "0 0 200 200",
+  viewBox: '0 0 200 200',
 });

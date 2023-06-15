@@ -32,19 +32,19 @@ import {
   TabPanels,
   Tab,
   TabPanel,
-} from "@chakra-ui/react";
-import { Select as SelectImported, components } from "chakra-react-select";
-import { Steps, Step } from "chakra-ui-steps";
-import React, { useEffect, useState } from "react";
+} from '@chakra-ui/react';
+import { Select as SelectImported, components } from 'chakra-react-select';
+import { Steps, Step } from 'chakra-ui-steps';
+import React, { useEffect, useState } from 'react';
 
-import { protocols, features } from "./Constants";
+import { protocols, features } from './Constants';
 
 const SubmitDapps = () => {
-  const [name, setName] = React.useState("");
-  const [app, setApp] = React.useState("");
-  const [image, setImage] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  const [minVersion, setMinVersion] = React.useState("");
+  const [name, setName] = React.useState('');
+  const [app, setApp] = React.useState('');
+  const [image, setImage] = React.useState('');
+  const [description, setDescription] = React.useState('');
+  const [minVersion, setMinVersion] = React.useState('');
   const [blockchains, setBlockchains] = React.useState([]);
   const [protocolsSupported, setProtocolsSupported] = React.useState([]);
   const [featuresSupported, setFeaturesSupported] = React.useState([]);
@@ -55,11 +55,10 @@ const SubmitDapps = () => {
   const handleInputChangeApp = (e: any) => setApp(e.target.value);
   const handleInputChangeImage = (e: any) => setImage(e.target.value);
   const handleInputChangeMinVersion = (e: any) => setMinVersion(e.target.value);
-  const handleInputChangeDescription = (e: any) =>
-    setDescription(e.target.value);
+  const handleInputChangeDescription = (e: any) => setDescription(e.target.value);
   const handleSelectedBlockchains = async function (inputs: any) {
     try {
-      console.log("input: onSelectedBlockchains: ", inputs);
+      console.log('input: onSelectedBlockchains: ', inputs);
       const blockchains: any = [];
       for (let i = 0; i < inputs.length; i++) {
         const input = inputs[i];
@@ -72,12 +71,12 @@ const SubmitDapps = () => {
   };
   const handleSelectedProtocols = async function (input: any) {
     try {
-      console.log("input: onSelectedProtocols: ", input);
+      console.log('input: onSelectedProtocols: ', input);
       setProtocolsSupported(input);
       let isRestFound;
       for (let i = 0; i < input.length; i++) {
         const protocol = input[i];
-        if (protocol.value === "REST") {
+        if (protocol.value === 'REST') {
           setIsRest(true);
           isRestFound = true;
         }
@@ -91,7 +90,7 @@ const SubmitDapps = () => {
   };
   const handleSelectedFeatures = async function (input: any) {
     try {
-      console.log("input: onSelectedFeatures: ", input);
+      console.log('input: onSelectedFeatures: ', input);
       setFeaturesSupported(input);
     } catch (e) {
       console.error(e);
@@ -115,9 +114,9 @@ const SubmitDapps = () => {
   };
   const onSubmit = async function () {
     try {
-      console.log("name: ", name);
-      console.log("app: ", app);
-      console.log("image: ", image);
+      console.log('name: ', name);
+      console.log('app: ', app);
+      console.log('image: ', image);
 
       const dapp: any = {};
       dapp.name = name;
@@ -148,37 +147,24 @@ const SubmitDapps = () => {
             <FormControl isInvalid={isError}>
               <FormLabel>App URL</FormLabel>
               <Input value={app} onChange={handleInputChangeApp} />
-              <FormHelperText>
-                Enter the URL of the dapp application
-              </FormHelperText>
+              <FormHelperText>Enter the URL of the dapp application</FormHelperText>
             </FormControl>
             <FormControl isInvalid={isError}>
               <FormLabel>Image URL</FormLabel>
               <Input value={image} onChange={handleInputChangeImage} />
               <FormHelperText>
-                Enter the URL of image for the Dapp. this MUST be a valid URL,
-                and not a encoding!
+                Enter the URL of image for the Dapp. this MUST be a valid URL, and not a encoding!
               </FormHelperText>
             </FormControl>
             <FormControl isInvalid={isError}>
               <FormLabel>Dapp Desription</FormLabel>
-              <Textarea
-                value={description}
-                onChange={handleInputChangeDescription}
-              />
-              <FormHelperText>
-                Enter a small description about the Dapp
-              </FormHelperText>
+              <Textarea value={description} onChange={handleInputChangeDescription} />
+              <FormHelperText>Enter a small description about the Dapp</FormHelperText>
             </FormControl>
             <FormControl isInvalid={isError}>
               <FormLabel>Minimum Version</FormLabel>
-              <Input
-                value={minVersion}
-                onChange={handleInputChangeMinVersion}
-              />
-              <FormHelperText>
-                Minimum version that the wallet must support
-              </FormHelperText>
+              <Input value={minVersion} onChange={handleInputChangeMinVersion} />
+              <FormHelperText>Minimum version that the wallet must support</FormHelperText>
             </FormControl>
           </Box>
           <Button onClick={onNext}>Next</Button>
@@ -198,9 +184,7 @@ const SubmitDapps = () => {
                 closeMenuOnSelect
                 onChange={handleSelectedProtocols}
               />
-              <FormHelperText>
-                Enter all the protocols that the dapp supports.
-              </FormHelperText>
+              <FormHelperText>Enter all the protocols that the dapp supports.</FormHelperText>
             </FormControl>
             <FormControl isInvalid={isError}>
               <FormLabel>Features Supported</FormLabel>
@@ -212,9 +196,7 @@ const SubmitDapps = () => {
                 closeMenuOnSelect
                 onChange={handleSelectedFeatures}
               />
-              <FormHelperText>
-                Enter all the features that the dapp supports.
-              </FormHelperText>
+              <FormHelperText>Enter all the features that the dapp supports.</FormHelperText>
             </FormControl>
             <FormControl isInvalid={isError}>
               <FormLabel>Blockchains Supported</FormLabel>
@@ -226,9 +208,7 @@ const SubmitDapps = () => {
                 closeMenuOnSelect
                 onChange={handleSelectedBlockchains}
               />
-              <FormHelperText>
-                Enter all the blockchains that the dapp supports.
-              </FormHelperText>
+              <FormHelperText>Enter all the blockchains that the dapp supports.</FormHelperText>
             </FormControl>
           </Box>
           <Button onClick={onBack}>Back</Button>

@@ -1,36 +1,36 @@
-import React from "react";
-import type { PathRouteProps } from "react-router-dom";
+import React from 'react';
+import type { PathRouteProps } from 'react-router-dom';
 
-const Home = React.lazy(() => import("lib/pages/home"));
-const ExploreDapps = React.lazy(() => import("lib/pages/dapps"));
-const ExploreBlockchains = React.lazy(() => import("lib/pages/blockchains"));
-const ExploreAssets = React.lazy(() => import("lib/pages/assets"));
-const ExploreNodes = React.lazy(() => import("lib/pages/nodes"));
-const BecomePioneer = React.lazy(() => import("lib/pages/pioneer"));
+const Home = React.lazy(() => import('lib/pages/home'));
+const ExploreDapps = React.lazy(() => import('lib/pages/dapps'));
+const ExploreBlockchains = React.lazy(() => import('lib/pages/blockchains'));
+const ExploreAssets = React.lazy(() => import('lib/pages/assets'));
+const ExploreNodes = React.lazy(() => import('lib/pages/nodes'));
+const BecomePioneer = React.lazy(() => import('lib/pages/pioneer'));
 
 export const routes: Array<PathRouteProps> = [
   {
-    path: "/",
+    path: '/',
     element: <Home />,
   },
   {
-    path: "/dapps",
+    path: '/dapps',
     element: <ExploreDapps />,
   },
   {
-    path: "/blockchains",
+    path: '/blockchains',
     element: <ExploreBlockchains />,
   },
   {
-    path: "/assets",
+    path: '/assets',
     element: <ExploreAssets />,
   },
   {
-    path: "/nodes",
+    path: '/nodes',
     element: <ExploreNodes />,
   },
   {
-    path: "/become-pioneer",
+    path: '/become-pioneer',
     element: <BecomePioneer />,
   },
 ];

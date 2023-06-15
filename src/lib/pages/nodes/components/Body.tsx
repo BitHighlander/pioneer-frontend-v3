@@ -1,16 +1,5 @@
-import {
-  Box,
-  Heading,
-  Button,
-  Card,
-  CardBody,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-} from "@chakra-ui/react";
-import React from "react";
+import { Box, Heading, Button, Card, CardBody, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
+import React from 'react';
 
 const Body = () => {
   return (

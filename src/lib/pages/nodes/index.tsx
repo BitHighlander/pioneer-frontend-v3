@@ -1,5 +1,5 @@
-import { Box, Heading, Button } from "@chakra-ui/react";
-import React from "react";
+import { Box, Heading, Button } from '@chakra-ui/react';
+import React from 'react';
 
 const Header = () => (
   <Box p={5}>

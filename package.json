@@ -9,17 +9,19 @@
     "build": "pnpm type-check && vite build",
     "build:turbo": "npx turbo build",
     "serve": "vite preview",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix && pnpm format",
+    "lint": "eslint src && yarn format-check",
+    "lint:fix": "eslint src --fix && yarn format",
     "lint:turbo": "npx turbo lint",
     "type-check": "tsc",
     "type-check:turbo": "npx turbo type-check",
-    "format": "prettier --write src",
     "up-interactive": "pnpm up -i",
     "up-latest": "pnpm up-interactive -L",
     "release": "standard-version",
     "push-release": "git push --follow-tags origin main",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "format-check": "prettier --check \"src/**/*.+(js|jsx|ts|tsx)\"",
+    "format": "prettier --write \"src/**/*.+(js|jsx|ts|tsx)\""
+
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.19",
@@ -40,6 +42,8 @@
     "assert": "^2.0.0",
     "chakra-react-select": "^4.6.0",
     "chakra-ui-steps": "^2.1.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "framer-motion": "^10.12.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

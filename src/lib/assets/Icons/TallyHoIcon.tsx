@@ -1,7 +1,7 @@
-import { createIcon } from "@chakra-ui/react";
+import { createIcon } from '@chakra-ui/react';
 
 export const TallyHoIcon = createIcon({
-  displayName: "TallyHoIcon",
+  displayName: 'TallyHoIcon',
   path: (
     <g>
       <circle cx="150" cy="150" r="150" fill="#D08E39" />
@@ -13,5 +13,5 @@ export const TallyHoIcon = createIcon({
       />
     </g>
   ),
-  viewBox: "0 0 300 300",
+  viewBox: '0 0 300 300',
 });
