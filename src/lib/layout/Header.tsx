@@ -120,41 +120,43 @@ const Header = () => {
 
   const setUser = async function () {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      const { wallets, walletDescriptions, balances, pubkeys } = user;
-      // eslint-disable-next-line no-console
-      console.log('wallets: ', wallets);
+      if(user && user.wallets){
+        const { wallets, walletDescriptions, balances, pubkeys } = user;
+        // eslint-disable-next-line no-console
+        console.log('wallets: ', wallets);
 
-      for (let i = 0; i < walletDescriptions.length; i++) {
-        const wallet = walletDescriptions[i];
-        if (wallet.type === 'keepkey') {
-          wallet.icon = KeepKeyIcon;
+        for (let i = 0; i < walletDescriptions.length; i++) {
+          const wallet = walletDescriptions[i];
+          if (wallet.type === 'keepkey') {
+            wallet.icon = KeepKeyIcon;
+          }
+          if (wallet.type === 'metamask') {
+            setMetamaskPaired(true);
+          }
+          if (wallet.type === 'keepkey') {
+            setKeepkeyPaired(true);
+          }
+          if (wallet.type === 'native') {
+            setNativePaired(true);
+          }
+          wallet.paired = true;
+          walletDescriptions[i] = wallet;
         }
-        if (wallet.type === 'metamask') {
-          setMetamaskPaired(true);
-        }
-        if (wallet.type === 'keepkey') {
-          setKeepkeyPaired(true);
-        }
-        if (wallet.type === 'native') {
-          setNativePaired(true);
-        }
-        wallet.paired = true;
-        walletDescriptions[i] = wallet;
+        // eslint-disable-next-line no-console
+        console.log('walletDescriptions: ', walletDescriptions);
+        // setWalletsAvailable(walletsAvailable);
+        setWalletDescriptions(walletDescriptions);
+        setBalances(balances);
+        // eslint-disable-next-line no-console
+        console.log('walletsAvailable: ', walletsAvailable);
+
+        // eslint-disable-next-line no-console
+        console.log('balances: ', balances);
+
+        // eslint-disable-next-line no-console
+        console.log('pubkeys: ', pubkeys);
       }
-      // eslint-disable-next-line no-console
-      console.log('walletDescriptions: ', walletDescriptions);
-      // setWalletsAvailable(walletsAvailable);
-      setWalletDescriptions(walletDescriptions);
-      setBalances(balances);
-      // eslint-disable-next-line no-console
-      console.log('walletsAvailable: ', walletsAvailable);
 
-      // eslint-disable-next-line no-console
-      console.log('balances: ', balances);
-
-      // eslint-disable-next-line no-console
-      console.log('pubkeys: ', pubkeys);
     } catch (e) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore

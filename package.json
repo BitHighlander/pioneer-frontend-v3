@@ -21,7 +21,6 @@
     "prepare": "husky install",
     "format-check": "prettier --check \"src/**/*.+(js|jsx|ts|tsx)\"",
     "format": "prettier --write \"src/**/*.+(js|jsx|ts|tsx)\""
-
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.19",
