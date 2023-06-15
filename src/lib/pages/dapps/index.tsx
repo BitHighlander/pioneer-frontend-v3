@@ -1,23 +1,21 @@
 import React from "react";
-import {
-    Box,
-    Heading,
-    Button,
-} from "@chakra-ui/react";
+import { Box, Heading, Button, Card, CardBody, Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
+import Body from "./components/Body";
 
 const Header = () => (
     <Box p={5}>
-        <Heading>Dapps</Heading>
-        <br/>
-        <Button colorScheme="blue" size="md">Chart a dapp</Button>
+        <Heading>Exploring Dapps</Heading>
     </Box>
 );
 
 const Dapps = () => {
     return (
-        <Box>
-            <Header />
-        </Box>
+        <div>
+            <Card>
+                <Header></Header>
+                <Body></Body>
+            </Card>
+        </div>
     );
 };
 

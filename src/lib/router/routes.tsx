@@ -14,19 +14,19 @@ export const routes: Array<PathRouteProps> = [
     element: <Home />,
   },
   {
-    path: "/explore-dapps",
+    path: "/dapps",
     element: <ExploreDapps />,
   },
   {
-    path: "/explore-blockchains",
+    path: "/blockchains",
     element: <ExploreBlockchains />,
   },
   {
-    path: "/explore-assets",
+    path: "/assets",
     element: <ExploreAssets />,
   },
   {
-    path: "/explore-nodes",
+    path: "/nodes",
     element: <ExploreNodes />,
   },
   {

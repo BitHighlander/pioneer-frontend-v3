@@ -228,10 +228,10 @@ const Header = () => {
             <ModalHeader>Select Option</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/explore-dapps')}>Explore Dapps</Button>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/explore-blockchains')}>Explore Blockchains</Button>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/explore-assets')}>Explore Assets</Button>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/explore-nodes')}>Explore Nodes</Button>
+              <Button w="full" mb={2} onClick={() => handleNavigate('/dapps')}>Explore Dapps</Button>
+              <Button w="full" mb={2} onClick={() => handleNavigate('/blockchains')}>Explore Blockchains</Button>
+              <Button w="full" mb={2} onClick={() => handleNavigate('/assets')}>Explore Assets</Button>
+              <Button w="full" mb={2} onClick={() => handleNavigate('/nodes')}>Explore Nodes</Button>
               <Button w="full" mb={2} onClick={() => handleNavigate('/become-pioneer')}>Become a Pioneer</Button>
             </ModalBody>
             <ModalFooter>

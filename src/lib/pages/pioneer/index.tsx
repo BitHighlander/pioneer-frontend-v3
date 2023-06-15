@@ -7,9 +7,8 @@ import {
 
 const Header = () => (
     <Box p={5}>
-        <Heading>Pioneers.dev</Heading>
+        <Heading>Profile Page</Heading>
         <br/>
-        <Button colorScheme="blue" size="md">Become a Pioneer</Button>
     </Box>
 );
 

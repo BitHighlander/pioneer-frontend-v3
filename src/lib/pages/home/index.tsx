@@ -1,19 +1,8 @@
 import React from "react";
-import {
-    Box,
-    Heading,
-    Button,
-} from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
+import Header from "./components/Header";
 
-const Header = () => (
-    <Box p={5}>
-        <Heading>Home</Heading>
-        <br/>
-        <Button colorScheme="blue" size="md">Become a Pioneer</Button>
-    </Box>
-);
-
-const Home = () => {
+const Pioneer = () => {
     return (
         <Box>
             <Header />
@@ -21,4 +10,4 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default Pioneer;
