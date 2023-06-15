@@ -130,10 +130,9 @@ const Header = () => {
     try {
       // if(!wallet)
       //   await connect();
-      //set color mode dark
+      // set color mode dark
       localStorage.setItem("chakra-ui-color-mode", "dark");
       // eslint-disable-next-line no-console
-
     } catch (e) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -210,160 +209,177 @@ const Header = () => {
   const handleNavigate = (route: string) => {
     navigate(route);
     onClose();
-  }
+  };
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return (
-      <Flex
-          as="header"
-          width="full"
-          alignSelf="flex-start"
-          gridGap={2}
-          alignItems="center"
-      >
-        <Modal isOpen={isOpen} onClose={onClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Select Option</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/dapps')}>Explore Dapps</Button>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/blockchains')}>Explore Blockchains</Button>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/assets')}>Explore Assets</Button>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/nodes')}>Explore Nodes</Button>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/become-pioneer')}>Become a Pioneer</Button>
-            </ModalBody>
-            <ModalFooter>
-              <Button colorScheme="blue" mr={3} onClick={onClose}>
-                Close
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-        <IconButton
-            size="md"
-            icon={isOpen ? <CloseIcon /> : <ArrowUpDownIcon />}
-            aria-label="Open Menu"
-            onClick={isOpen ? onClose : onOpen}
-        />
-        <HStack spacing={8}>
-          {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-          <Link onClick={handleToHome}>
-            <Box>Pioneer</Box>
-          </Link>
-        </HStack>
-        <Spacer />
-        <Menu>
-          <MenuButton
-              as={Button}
-              rounded="full"
-              variant="link"
-              cursor="pointer"
-              minW={200}
-          >
-            <Avatar size="lg" src={PIONEER_ICON}>
-              {api ? (
+    <Flex
+      as="header"
+      width="full"
+      alignSelf="flex-start"
+      gridGap={2}
+      alignItems="center"
+    >
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Select Option</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Button w="full" mb={2} onClick={() => handleNavigate("/dapps")}>
+              Explore Dapps
+            </Button>
+            <Button
+              w="full"
+              mb={2}
+              onClick={() => handleNavigate("/blockchains")}
+            >
+              Explore Blockchains
+            </Button>
+            <Button w="full" mb={2} onClick={() => handleNavigate("/assets")}>
+              Explore Assets
+            </Button>
+            <Button w="full" mb={2} onClick={() => handleNavigate("/nodes")}>
+              Explore Nodes
+            </Button>
+            <Button
+              w="full"
+              mb={2}
+              onClick={() => handleNavigate("/become-pioneer")}
+            >
+              Become a Pioneer
+            </Button>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <IconButton
+        size="md"
+        icon={isOpen ? <CloseIcon /> : <ArrowUpDownIcon />}
+        aria-label="Open Menu"
+        onClick={isOpen ? onClose : onOpen}
+      />
+      <HStack spacing={8}>
+        <Link onClick={handleToHome}>
+          <Box>Pioneer</Box>
+        </Link>
+      </HStack>
+      <Spacer />
+      <Menu>
+        <MenuButton
+          as={Button}
+          rounded="full"
+          variant="link"
+          cursor="pointer"
+          minW={200}
+        >
+          <Avatar size="lg" src={PIONEER_ICON}>
+            {api ? (
+              <div>
+                {!metamaskPaired && !keepkeyPaired && !nativePaired ? (
                   <div>
-                    {!metamaskPaired && !keepkeyPaired && !nativePaired ? (
-                        <div>
-                          <AvatarBadge boxSize="1.25em" bg="green.500" />
-                        </div>
-                    ) : (
-                        <div />
-                    )}
-                    {metamaskPaired ? (
-                        <div>
-                          <AvatarBadge boxSize="1.25em" bg="green.500">
-                            <Image rounded="full" src={METAMASK_ICON} />
-                          </AvatarBadge>
-                        </div>
-                    ) : (
-                        <div />
-                    )}
+                    <AvatarBadge boxSize="1.25em" bg="green.500" />
                   </div>
-              ) : (
-                  <AvatarBadge boxSize="1.25em" bg="red.500" />
-              )}
-            </Avatar>
-          </MenuButton>
-          <MenuList>
-            <MenuItem>
-              <SimpleGrid columns={3} row={1}>
-                <Card align="center" onClick={() => setContextWallet("native")}>
-                  <CardBody>
-                    <Avatar src={PIONEER_ICON}>
-                      {nativePaired ? (
-                          <div>
-                            <AvatarBadge boxSize="1.25em" bg="green.500" />
-                          </div>
-                      ) : (
-                          <div>
-                            <AvatarBadge boxSize="1.25em" bg="red.500" />
-                          </div>
-                      )}
-                    </Avatar>
-                  </CardBody>
-                  <small>Pioneer</small>
-                </Card>
-                <Card align="center" onClick={() => setContextWallet("metamask")}>
-                  <CardBody>
-                    <Avatar src={METAMASK_ICON}>
-                      {metamaskPaired ? (
-                          <div>
-                            <AvatarBadge boxSize="1.25em" bg="green.500" />
-                          </div>
-                      ) : (
-                          <div>
-                            <AvatarBadge boxSize="1.25em" bg="red.500" />
-                          </div>
-                      )}
-                    </Avatar>
-                  </CardBody>
-                  <small>MetaMask</small>
-                </Card>
-                <Card align="center" onClick={() => setContextWallet("keepkey")}>
-                  <CardBody>
-                    <Avatar src={KEEPKEY_ICON}>
-                      {keepkeyPaired ? (
-                          <div>
-                            <AvatarBadge boxSize="1.25em" bg="green.500" />
-                          </div>
-                      ) : (
-                          <div>
-                            <AvatarBadge boxSize="1.25em" bg="red.500" />
-                          </div>
-                      )}
-                    </Avatar>
-                  </CardBody>
-                  <small>KeepKey</small>
-                </Card>
-              </SimpleGrid>
-            </MenuItem>
-            <Accordion defaultIndex={[0]} allowMultiple>
-              <AccordionItem>
-                <h2>
-                  <AccordionButton>
-                    <Box as="span" flex="1" textAlign="left">
-                      Balances {balances.length}
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4}>
-                  {balances.map((balance: any) => (
+                ) : (
+                  <div />
+                )}
+                {metamaskPaired ? (
+                  <div>
+                    <AvatarBadge boxSize="1.25em" bg="green.500">
+                      <Image rounded="full" src={METAMASK_ICON} />
+                    </AvatarBadge>
+                  </div>
+                ) : (
+                  <div />
+                )}
+              </div>
+            ) : (
+              <AvatarBadge boxSize="1.25em" bg="red.500" />
+            )}
+          </Avatar>
+        </MenuButton>
+        <MenuList>
+          <MenuItem>
+            <SimpleGrid columns={3} row={1}>
+              <Card align="center" onClick={() => setContextWallet("native")}>
+                <CardBody>
+                  <Avatar src={PIONEER_ICON}>
+                    {nativePaired ? (
                       <div>
-                        <Avatar size="sm" src={balance.image} />
-                        <small>symbol: {balance.symbol}</small>
-                        <small>balance: {balance.balance}</small>
+                        <AvatarBadge boxSize="1.25em" bg="green.500" />
                       </div>
-                  ))}
-                </AccordionPanel>
-              </AccordionItem>
-            </Accordion>
-          </MenuList>
-        </Menu>
-      </Flex>
+                    ) : (
+                      <div>
+                        <AvatarBadge boxSize="1.25em" bg="red.500" />
+                      </div>
+                    )}
+                  </Avatar>
+                </CardBody>
+                <small>Pioneer</small>
+              </Card>
+              <Card align="center" onClick={() => setContextWallet("metamask")}>
+                <CardBody>
+                  <Avatar src={METAMASK_ICON}>
+                    {metamaskPaired ? (
+                      <div>
+                        <AvatarBadge boxSize="1.25em" bg="green.500" />
+                      </div>
+                    ) : (
+                      <div>
+                        <AvatarBadge boxSize="1.25em" bg="red.500" />
+                      </div>
+                    )}
+                  </Avatar>
+                </CardBody>
+                <small>MetaMask</small>
+              </Card>
+              <Card align="center" onClick={() => setContextWallet("keepkey")}>
+                <CardBody>
+                  <Avatar src={KEEPKEY_ICON}>
+                    {keepkeyPaired ? (
+                      <div>
+                        <AvatarBadge boxSize="1.25em" bg="green.500" />
+                      </div>
+                    ) : (
+                      <div>
+                        <AvatarBadge boxSize="1.25em" bg="red.500" />
+                      </div>
+                    )}
+                  </Avatar>
+                </CardBody>
+                <small>KeepKey</small>
+              </Card>
+            </SimpleGrid>
+          </MenuItem>
+          <Accordion defaultIndex={[0]} allowMultiple>
+            <AccordionItem>
+              <h2>
+                <AccordionButton>
+                  <Box as="span" flex="1" textAlign="left">
+                    Balances {balances.length}
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+              </h2>
+              <AccordionPanel pb={4}>
+                {balances.map((balance: any) => (
+                  <div>
+                    <Avatar size="sm" src={balance.image} />
+                    <small>symbol: {balance.symbol}</small>
+                    <small>balance: {balance.balance}</small>
+                  </div>
+                ))}
+              </AccordionPanel>
+            </AccordionItem>
+          </Accordion>
+        </MenuList>
+      </Menu>
+    </Flex>
   );
 };
 
