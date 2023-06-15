@@ -11,7 +11,7 @@
     "serve": "vite preview",
     "lint": "eslint src && yarn format-check",
     "lint:fix": "eslint src --fix && yarn format",
-    "lint:turbo": "npx turbo lint",
+    "lint:turbo": "npx turbo lint --compiler-options --isolatedModules false",
     "type-check": "tsc",
     "type-check:turbo": "npx turbo type-check",
     "up-interactive": "pnpm up -i",
