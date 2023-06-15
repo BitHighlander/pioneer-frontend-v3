@@ -1,38 +1,4 @@
-import {
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
-  FormHelperText,
-  Input,
-  Button,
-  Stack,
-  CardBody,
-  Card,
-  Textarea,
-  Select,
-  CardFooter,
-  Heading,
-  Box,
-  Text,
-  VStack,
-  Grid,
-  theme,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  useDisclosure,
-  Image,
-  Spinner,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-} from '@chakra-ui/react';
+import { FormControl, FormLabel, FormErrorMessage, FormHelperText, Input, Button, Stack, CardBody, Card, Textarea, Select, CardFooter, Heading, Box, Text, VStack, Grid, theme, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, Image, Spinner, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
 import { Select as SelectImported, components } from 'chakra-react-select';
 import { Steps, Step } from 'chakra-ui-steps';
 import React, { useEffect, useState } from 'react';
@@ -152,9 +118,7 @@ const SubmitDapps = () => {
             <FormControl isInvalid={isError}>
               <FormLabel>Image URL</FormLabel>
               <Input value={image} onChange={handleInputChangeImage} />
-              <FormHelperText>
-                Enter the URL of image for the Dapp. this MUST be a valid URL, and not a encoding!
-              </FormHelperText>
+              <FormHelperText>Enter the URL of image for the Dapp. this MUST be a valid URL, and not a encoding!</FormHelperText>
             </FormControl>
             <FormControl isInvalid={isError}>
               <FormLabel>Dapp Desription</FormLabel>
@@ -176,38 +140,17 @@ const SubmitDapps = () => {
           <Box m={4}>
             <FormControl isInvalid={isError}>
               <FormLabel>Protocols Supported</FormLabel>
-              <SelectImported
-                isMulti
-                name="protocols"
-                options={protocols}
-                placeholder="Wallet Connect... REST..."
-                closeMenuOnSelect
-                onChange={handleSelectedProtocols}
-              />
+              <SelectImported isMulti name="protocols" options={protocols} placeholder="Wallet Connect... REST..." closeMenuOnSelect onChange={handleSelectedProtocols} />
               <FormHelperText>Enter all the protocols that the dapp supports.</FormHelperText>
             </FormControl>
             <FormControl isInvalid={isError}>
               <FormLabel>Features Supported</FormLabel>
-              <SelectImported
-                isMulti
-                name="features"
-                options={features}
-                placeholder="basic-transfers... defi-earn..."
-                closeMenuOnSelect
-                onChange={handleSelectedFeatures}
-              />
+              <SelectImported isMulti name="features" options={features} placeholder="basic-transfers... defi-earn..." closeMenuOnSelect onChange={handleSelectedFeatures} />
               <FormHelperText>Enter all the features that the dapp supports.</FormHelperText>
             </FormControl>
             <FormControl isInvalid={isError}>
               <FormLabel>Blockchains Supported</FormLabel>
-              <SelectImported
-                isMulti
-                name="blockchains"
-                options={blockchains}
-                placeholder="ethereum... bitcoin... avalanche...."
-                closeMenuOnSelect
-                onChange={handleSelectedBlockchains}
-              />
+              <SelectImported isMulti name="blockchains" options={blockchains} placeholder="ethereum... bitcoin... avalanche...." closeMenuOnSelect onChange={handleSelectedBlockchains} />
               <FormHelperText>Enter all the blockchains that the dapp supports.</FormHelperText>
             </FormControl>
           </Box>

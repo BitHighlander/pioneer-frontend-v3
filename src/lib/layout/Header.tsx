@@ -1,42 +1,5 @@
 import { CloseIcon, ArrowUpDownIcon } from '@chakra-ui/icons';
-import {
-  Avatar,
-  AvatarBadge,
-  Box,
-  Button,
-  Flex,
-  HStack,
-  IconButton,
-  Link,
-  Menu,
-  Image,
-  MenuButton,
-  MenuDivider,
-  Icon,
-  MenuItem,
-  MenuList,
-  Spacer,
-  Text,
-  useDisclosure,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionIcon,
-  AccordionPanel,
-  SimpleGrid,
-  Card,
-  CardHeader,
-  Heading,
-  CardBody,
-  CardFooter,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-} from '@chakra-ui/react';
+import { Avatar, AvatarBadge, Box, Button, Flex, HStack, IconButton, Link, Menu, Image, MenuButton, MenuDivider, Icon, MenuItem, MenuList, Spacer, Text, useDisclosure, Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, SimpleGrid, Card, CardHeader, Heading, CardBody, CardFooter, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter } from '@chakra-ui/react';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -244,12 +207,7 @@ const Header = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-      <IconButton
-        size="md"
-        icon={isOpen ? <CloseIcon /> : <ArrowUpDownIcon />}
-        aria-label="Open Menu"
-        onClick={isOpen ? onClose : onOpen}
-      />
+      <IconButton size="md" icon={isOpen ? <CloseIcon /> : <ArrowUpDownIcon />} aria-label="Open Menu" onClick={isOpen ? onClose : onOpen} />
       <HStack spacing={8}>
         <Link onClick={handleToHome}>
           <Box>Pioneer</Box>

@@ -17,13 +17,7 @@ const Header = () => {
           <Heading mb={4}>Pioneers.dev</Heading>
           <VStack spacing={4} alignItems="start">
             <Box>
-              <Button
-                colorScheme="blue"
-                size="md"
-                onClick={() =>
-                  window.open('https://nouns.build/dao/0x25EF864904d67e912B9eC491598A7E5A066B102F', '_blank')
-                }
-              >
+              <Button colorScheme="blue" size="md" onClick={() => window.open('https://nouns.build/dao/0x25EF864904d67e912B9eC491598A7E5A066B102F', '_blank')}>
                 Become a Pioneer
               </Button>
             </Box>

@@ -3,7 +3,11 @@
   "trailingComma": "es5",
   "tabWidth": 2,
   "semi": true,
-  "printWidth": 120,
+  "printWidth": 1200,
   "importOrder": ["^\\w", "^@\\w", "^[./]"],
-  "importOrderSeparation": true
+  "importOrderSeparation": true,
+  "importStatementFormatter": {
+    "maxLen": 1,
+    "default": "multiple"
+  }
 }
