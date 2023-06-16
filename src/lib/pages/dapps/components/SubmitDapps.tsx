@@ -1,6 +1,6 @@
 import { Popover, PopoverTrigger, PopoverContent, PopoverBody, InputGroup, Spinner, InputLeftAddon, FormControl, Textarea, FormLabel, FormHelperText, Input, Button, Box, FormErrorMessage } from '@chakra-ui/react';
 import { Steps, Step } from 'chakra-ui-steps';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import { usePioneer } from 'lib/context/Pioneer';
 import { protocols, features } from './Constants';
@@ -89,6 +89,7 @@ const SubmitDapps = () => {
                 homepage
             }
             console.log("input: ",input)
+
             let result = await api.SubmitUrl(input);
             console.log("result: ", result.data);
             setApp(name);
@@ -99,7 +100,23 @@ const SubmitDapps = () => {
             // Convert CSV string to array for blockchains
             if(result.data.blockchains){
                 const blockchainArray = result.data.blockchains.split(",");
-                onSelectedBlockchains(blockchainArray);
+                console.log("blockchainArray: ",blockchainArray)
+
+                let supportedBlockchains = []
+                for(let i = 0; i < blockchainArray.length; i++){
+                    let name = blockchainArray[i].trim().toLowerCase();
+
+                    //filter where name is included in blockchains{name}
+                    // @ts-ignore
+                    //let matchedEntries = blockchains.filter(blockchain => blockchain.name.toLowerCase().includes(name))
+                    let matchedEntries = blockchains.filter(blockchain => blockchain.name.includes(name))
+
+                    // Push each matched entry to supportedBlockchains array
+                    matchedEntries.forEach(entry => supportedBlockchains.push(entry))
+                }
+                //create
+                console.log("supportedBlockchains: ",supportedBlockchains)
+                onSelectedBlockchains(supportedBlockchains);
             }
 
             // Convert CSV string to array for blockchains
@@ -193,8 +210,9 @@ const SubmitDapps = () => {
             let blockchains:any = []
             for(let i = 0; i < inputs.length; i++){
                 let input = inputs[i]
-                blockchains.push(input.name)
+                blockchains.push({value:input.name || input.value,label:input.name || input.label})
             }
+            console.log("supportedBlockchains: ",blockchains)
             setBlockchainsSupported(blockchains)
         }catch(e){
             console.error(e)
@@ -240,6 +258,34 @@ const SubmitDapps = () => {
             '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
         return !!pattern.test(text);
     };
+
+    let onStart = async function(){
+        try{
+            if(api){
+                let blockchains = await api.SearchBlockchainsPaginate({limit:1000,skip:0})
+                blockchains = blockchains.data
+                console.log("blockchains: ",blockchains.length)
+                let blockchainsFormated:any = []
+                for(let i = 0; i < blockchains.length; i++){
+                    let blockchain = blockchains[i]
+                    blockchain.value = blockchain.name
+                    blockchain.label = blockchain.name
+                    blockchainsFormated.push(blockchain)
+                }
+                //console.log("assetsFormated: ",assetsFormated.length)
+                setBlockchains(blockchainsFormated)
+
+
+            }
+        }catch(e){
+            console.error(e)
+        }
+    }
+
+    // onStart()
+    useEffect(() => {
+        onStart()
+    }, [api]) //once on startup
 
     return (
         <Steps activeStep={activeStep} colorScheme="teal" size="lg">
@@ -402,6 +448,7 @@ const SubmitDapps = () => {
                             options={blockchains}
                             placeholder="ethereum... bitcoin... avalanche...."
                             closeMenuOnSelect={true}
+                            value={blockchainsSupported}
                             // components={{ Option: IconOption }}
                             onChange={onSelectedBlockchains}
                         ></SelectImported>
