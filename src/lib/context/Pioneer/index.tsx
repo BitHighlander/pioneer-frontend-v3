@@ -219,10 +219,10 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
 
       // add custom paths
       const paths: any = [];
-      const spec = 'https://pioneers.dev/spec/swagger.json';
-      const wss = 'wss://pioneers.dev';
-      // const spec = "http://127.0.0.1:9001/spec/swagger.json";
-      // const wss = "ws://127.0.0.1:9001";
+      // const spec = 'https://pioneers.dev/spec/swagger.json';
+      // const wss = 'wss://pioneers.dev';
+      const spec = "http://127.0.0.1:9001/spec/swagger.json";
+      const wss = "ws://127.0.0.1:9001";
       const configPioneer: any = {
         blockchains,
         username,
@@ -236,13 +236,11 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const api = await appInit.init(walletMetaMask);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // // @ts-ignore
-      // dispatch({ type: WalletActions.SET_WALLET, payload: walletMetaMask });
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
+      // @ts-ignore
+      dispatch({ type: WalletActions.SET_WALLET, payload: walletMetaMask });
       // @ts-ignore
       dispatch({ type: WalletActions.SET_APP, payload: appInit });
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       dispatch({ type: WalletActions.SET_API, payload: api });
       // @ts-ignore
