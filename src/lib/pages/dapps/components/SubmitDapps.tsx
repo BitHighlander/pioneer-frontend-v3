@@ -1,30 +1,64 @@
-import { FormControl, Textarea, FormLabel, FormHelperText, Input, Button, Box, FormErrorMessage } from '@chakra-ui/react';
+import { Popover, PopoverTrigger, PopoverContent, PopoverBody, InputGroup, Spinner, InputLeftAddon, FormControl, Textarea, FormLabel, FormHelperText, Input, Button, Box, FormErrorMessage } from '@chakra-ui/react';
 import { Steps, Step } from 'chakra-ui-steps';
 import React, { useState } from 'react';
 import Select from 'react-select';
 import { usePioneer } from 'lib/context/Pioneer';
 import { protocols, features } from './Constants';
 import { Select as SelectImported, components } from "chakra-react-select";
+
 const SubmitDapps = () => {
     const { state } = usePioneer();
     const { api, user, wallet } = state;
     const [name, setName] = useState('');
     const [app, setApp] = useState('');
     const [image, setImage] = useState('');
+    const [url, setUrl] = useState('');
+    const [isValid, setIsValid] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [description, setDescription] = useState('');
     const [minVersion, setMinVersion] = useState('');
+    const [homepage, setHomepage] = useState('');
+    const [urlError, setUrlError] = useState('');
+    const [homepageError, setHomepageError] = useState('');
     const [blockchainsSupported, setBlockchainsSupported] = useState([]);
-    const [protocolsSupported, setProtocolsSupported] = useState<string[]>([]);
+    const [protocolsSupported, setProtocolsSupported] = useState<string[]>(['wallet-connect']);
     const [featuresSupported, setFeaturesSupported] = useState([]);
     const [activeStep, setActiveStep] = useState(0);
     const [isRest, setIsRest] = React.useState(false)
     const [blockchains, setBlockchains] = React.useState([])
-    const handleInputChangeName = (e) => setName(e.target.value);
+    const [socialMedia, setSocialMedia] = useState({
+        twitter: '',
+        telegram: '',
+        github: 'https://github.com/shapeshift/'
+    });
+    const handleInputChangeName = (e) => {
+        setUrl(e.target.value);
+        setIsValid(validateURL(e.target.value));
+    };
     const handleInputChangeApp = (e) => setApp(e.target.value);
     const handleInputChangeImage = (e) => setImage(e.target.value);
     const handleInputChangeMinVersion = (e) => setMinVersion(e.target.value);
     const handleInputChangeDescription = (e) => setDescription(e.target.value);
+    const handleInputChangeHomepage = (e) => setHomepage(e.target.value);
+    const handleSocialMediaChange = (e) => {
+        const { name, value } = e.target;
+        setSocialMedia((prevState) => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
+    const handleUrlChange = (event) => {
+        setUrl(event.target.value);
+    };
 
+    const handleHomepageChange = (event) => {
+        setHomepage(event.target.value);
+    };
+
+    const handleDescriptionChange = (event) => {
+        setDescription(event.target.value);
+    };
+    const isError = false
     const handleSelectedBlockchains = (selectedOptions) => {
         const selectedBlockchains = selectedOptions.map((option) => option.value);
         setBlockchainsSupported(selectedBlockchains);
@@ -44,9 +78,18 @@ const SubmitDapps = () => {
     const onSubmitName = async () => {
         // Submit logic
         try{
-            console.log("name: ",name)
+            console.log("homepage: ",homepage)
+            console.log("app: ",app)
             console.log("api: ",api)
-            let result = await api.SubmitUrl({url: name, username: user.username});
+            if(!api) alert("Failed to load API, reload application")
+            if(!app) setApp(homepage)
+            if(!homepage) setHomepage(app)
+            let input = {
+                app,
+                homepage
+            }
+            console.log("input: ",input)
+            let result = await api.SubmitUrl(input);
             console.log("result: ", result.data);
             setApp(name);
             // Filter out protocols that are not supported
@@ -56,7 +99,7 @@ const SubmitDapps = () => {
             // Convert CSV string to array for blockchains
             if(result.data.blockchains){
                 const blockchainArray = result.data.blockchains.split(",");
-                setBlockchains(blockchainArray);
+                onSelectedBlockchains(blockchainArray);
             }
 
             // Convert CSV string to array for blockchains
@@ -64,21 +107,35 @@ const SubmitDapps = () => {
                 const featuresArray = result.data.features.split(",");
                 setFeaturesSupported(featuresArray);
             }
-
+            setName(result.data.name);
             setDescription(result.data.description);
             setImage(result.data.image);
             setFeaturesSupported(result.data.features);
-            
+            // @ts-ignore
+            setIsLoading(false);
+            if(result.data.name){
+                return true
+            }else{
+                alert("Invalid URL unable to load app")
+                return false
+            }
         }catch(e){
-            console.error(e)
+            console.error("submit error: ",e)
+            setIsLoading(false);
+            return false
         }
     };
 
     const onNext = async () => {
         if(activeStep === 0){
-            await onSubmitName();
+            setIsLoading(true);
+            let result = await onSubmitName();
+            if(result){
+                setActiveStep((prevStep) => prevStep + 1);
+            }
+        } else {
+            console.log("Must submit first!")
         }
-        setActiveStep((prevStep) => prevStep + 1);
     };
 
     const onBack = () => {
@@ -105,8 +162,8 @@ const SubmitDapps = () => {
             //sign
             let payload:any = {
                 name,
-                app,
-                homepage:app
+                app:url,
+                homepage:url
             }
             payload = JSON.stringify(payload)
 
@@ -173,19 +230,106 @@ const SubmitDapps = () => {
         }
     };
 
-    const isError = false
+    // simple url validation
+    const validateURL = (text) => {
+        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+            '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        return !!pattern.test(text);
+    };
 
     return (
         <Steps activeStep={activeStep} colorScheme="teal" size="lg">
             <Step label="Basic Information">
                 <Box padding={4}>
-                    <FormControl>
-                        <FormLabel>url</FormLabel>
-                        <Input value={name} onChange={handleInputChangeName} />
-                        <FormHelperText>Enter the url of the dApp.</FormHelperText>
-                    </FormControl>
-                    {/* Other form controls for basic information */}
-                    <Button onClick={onNext}>Next</Button>
+                    <div>
+                        {isLoading ? (
+                            <p><Spinner size='xl' ></Spinner>Loading...</p>
+                        ) : (
+                            <>
+                                <div>
+                                    <Popover isOpen={Boolean(urlError)} onClose={() => setUrlError('')}>
+                                        <PopoverTrigger>
+                                            <div> {/* Trigger element */}</div>
+                                        </PopoverTrigger>
+                                        <PopoverContent>
+                                            <PopoverBody>
+                                                <div style={{ padding: '10px' }}>{urlError}</div>
+                                            </PopoverBody>
+                                        </PopoverContent>
+                                    </Popover>
+
+                                    <Popover isOpen={Boolean(homepageError)} onClose={() => setHomepageError('')}>
+                                        <PopoverTrigger>
+                                            <div> {/* Trigger element */}</div>
+                                        </PopoverTrigger>
+                                        <PopoverContent>
+                                            <PopoverBody>
+                                                <div style={{ padding: '10px' }}>{homepageError}</div>
+                                            </PopoverBody>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                                <div>
+                                    <FormControl isInvalid={isError}>
+                                        <FormLabel>Homepage URL</FormLabel>
+                                        <Input type="email" value={homepage} onChange={handleInputChangeHomepage} />
+                                        {!isError ? (
+                                            <FormHelperText>
+                                                Homepage is the Landing, generally designed to be indexed by crawlers.
+                                            </FormHelperText>
+                                        ) : (
+                                            <FormErrorMessage>Homepage URL is required.</FormErrorMessage>
+                                        )}
+                                    </FormControl>
+                                </div>
+                                <div>
+                                    <FormControl isInvalid={isError}>
+                                        <FormLabel>App URL</FormLabel>
+                                        <Input type="email" value={app} onChange={handleInputChangeApp} />
+                                        {!isError ? (
+                                            <FormHelperText>
+                                                {'(optional) Enter the URL of the dapp application itself, generally app.serviceName*.com'}
+                                            </FormHelperText>
+                                        ) : (
+                                            <FormErrorMessage>App URL is required.</FormErrorMessage>
+                                        )}
+
+                                    </FormControl>
+                                </div>
+                                <div>
+                                    <FormLabel>Description</FormLabel>
+                                    <FormControl>
+                            <textarea
+                                rows={2}
+                                cols={50}
+                                placeholder="(optional) Describe why this app is useful and relevant."
+                                value={description}
+                                onChange={handleDescriptionChange}>
+                            </textarea>
+                                    </FormControl>
+                                </div>
+                                <Button
+                                    onClick={onNext}
+                                    disabled={activeStep === 0}
+                                    padding="10px 20px"
+                                    borderRadius="5px"
+                                    backgroundColor={activeStep === 0 ? 'gray' : 'blue'}
+                                    color="white"
+                                    boxShadow="0px 2px 4px rgba(0, 0, 0, 0.3)"
+                                    textTransform="uppercase"
+                                    fontWeight="bold"
+                                    transition="background-color 0.3s ease"
+                                    cursor={activeStep === 0 ? 'not-allowed' : 'pointer'}
+                                >
+                                    Next
+                                </Button>
+                            </>
+                        )}
+                    </div>
                 </Box>
             </Step>
             <Step label="Technical Details">
@@ -202,25 +346,41 @@ const SubmitDapps = () => {
                         )}
                     </FormControl>
                     <FormControl isInvalid={isError}>
-                        <FormLabel>App URL</FormLabel>
-                        <Input type='email' value={app} onChange={handleInputChangeApp} />
+                        <FormLabel>Homepage URL</FormLabel>
+                        <Input type='email' value={homepage} onChange={handleInputChangeApp} />
                         {!isError ? (
                             <FormHelperText>
-                                Enter the URL of the dapp application
+                                Homepage is the Landing, gernally designed to be indexed by crawlers.
                             </FormHelperText>
                         ) : (
                             <FormErrorMessage>URL is required.</FormErrorMessage>
                         )}
                     </FormControl>
                     <FormControl isInvalid={isError}>
-                        <FormLabel>Image URL</FormLabel>
-                        <Input type='email' value={image} onChange={handleInputChangeImage} />
+                        <FormLabel>App URL</FormLabel>
+                        <Input type='email' value={app} onChange={handleInputChangeApp} />
                         {!isError ? (
                             <FormHelperText>
-                                Enter the URL of image for the Dapp. this MUST be a valid URL, and not a encoding!
+                                Enter the URL of the dapp application itself, gerneally app.serviceName*.com
                             </FormHelperText>
                         ) : (
-                            <FormErrorMessage>image URL is required.</FormErrorMessage>
+                            <FormErrorMessage>URL is required.</FormErrorMessage>
+                        )}
+                    </FormControl>
+                    <FormControl isInvalid={isError}>
+                        <div style={{ border: '1px solid #ccc', padding: '10px', marginTop: '10px' }}>
+                            {image && (
+                                <img src={image} alt="Image Preview" style={{ width: '100px', height: '100px' }} />
+                            )}
+                            <FormLabel>Image URL</FormLabel>
+                            <Input type='email' value={image} onChange={handleInputChangeImage} />
+                        </div>
+                        {!isError ? (
+                            <FormHelperText>
+                                Enter the URL of the image for the Dapp. This MUST be a valid URL and not an encoding!
+                            </FormHelperText>
+                        ) : (
+                            <FormErrorMessage>Image URL is required.</FormErrorMessage>
                         )}
                     </FormControl>
                     <FormControl isInvalid={isError}>
@@ -273,6 +433,44 @@ const SubmitDapps = () => {
                             onChange={onSelectedFeatures}
                         ></SelectImported>
                     </FormControl>
+                    <FormControl isInvalid={isError}>
+                        <FormLabel>Social Media</FormLabel>
+                        <InputGroup>
+                            <InputLeftAddon children="Twitter" />
+                            <Input
+                                type="text"
+                                name="twitter"
+                                value={socialMedia.twitter}
+                                onChange={handleSocialMediaChange}
+                            />
+                        </InputGroup>
+                    </FormControl>
+
+                    <FormControl isInvalid={isError}>
+                        <FormLabel>Social Media</FormLabel>
+                        <InputGroup>
+                            <InputLeftAddon children="Telegram" />
+                            <Input
+                                type="text"
+                                name="telegram"
+                                value={socialMedia.telegram}
+                                onChange={handleSocialMediaChange}
+                            />
+                        </InputGroup>
+                    </FormControl>
+
+                    <FormControl isInvalid={isError}>
+                        <FormLabel>Social Media</FormLabel>
+                        <InputGroup>
+                            <InputLeftAddon children="GitHub" />
+                            <Input
+                                type="text"
+                                name="github"
+                                value={socialMedia.github}
+                                onChange={handleSocialMediaChange}
+                            />
+                        </InputGroup>
+                    </FormControl>
                     <Button
                         mt={4}
                         colorScheme='teal'
@@ -283,6 +481,7 @@ const SubmitDapps = () => {
                         Submit
                     </Button>
                 </div>
+                <Button onClick={onBack}>Back</Button>
             </Step>
             <Step label="Submit">
                 <Box padding={4}>
