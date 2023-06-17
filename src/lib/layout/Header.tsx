@@ -267,8 +267,8 @@ const Header = () => {
               <Button w="full" mb={2} onClick={() => handleNavigate('/nodes')}>
                 Explore Nodes
               </Button>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/become-pioneer')}>
-                Become a Pioneer
+              <Button w="full" mb={2} onClick={() => handleNavigate('/pioneers')}>
+                Pioneers
               </Button>
             </ModalBody>
             <ModalFooter>

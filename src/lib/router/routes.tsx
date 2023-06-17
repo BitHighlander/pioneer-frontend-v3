@@ -6,7 +6,7 @@ const ExploreDapps = React.lazy(() => import('lib/pages/dapps'));
 const ExploreBlockchains = React.lazy(() => import('lib/pages/blockchains'));
 const ExploreAssets = React.lazy(() => import('lib/pages/assets'));
 const ExploreNodes = React.lazy(() => import('lib/pages/nodes'));
-const BecomePioneer = React.lazy(() => import('lib/pages/pioneer'));
+const BecomePioneer = React.lazy(() => import('lib/pages/pioneers'));
 
 export const routes: Array<PathRouteProps> = [
   {
@@ -30,7 +30,7 @@ export const routes: Array<PathRouteProps> = [
     element: <ExploreNodes />,
   },
   {
-    path: '/become-pioneer',
+    path: '/pioneers',
     element: <BecomePioneer />,
   },
 ];

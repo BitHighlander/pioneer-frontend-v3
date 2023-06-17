@@ -187,15 +187,23 @@ const ReviewDapps = () => {
                 addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
                 message: payload,
             })
-            let address = wallet?.accounts[0]?.address
+            let addressInfo = {
+                addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+                coin: 'Ethereum',
+                scriptType: 'ethereum',
+                showDisplay: false
+            }
+            let address = await wallet.ethGetAddress(addressInfo);
             let update:any = {}
+
+            if(!address) throw Error("address required!")
             update.signer = address
             update.payload = payload
-            update.signature = signature
+            update.signature = signature.signature
             if(!address) throw Error("address required!")
             //submit as admin
             console.log("update: ",update)
-            let resultWhitelist = await api.VoteOnApp("",update)
+            let resultWhitelist = await api.VoteOnApp(update)
             console.log("resultWhitelist: ",resultWhitelist)
 
             toast({
@@ -705,7 +713,6 @@ const ReviewDapps = () => {
                     </tbody>
                 </table>
                 <div className="h-4" />
-                {/*<Button onClick={submitVotes}>Sign and Submit Votes</Button>*/}
             </div>
             <Button onClick={onStart}>Refresh</Button>
         </div>
