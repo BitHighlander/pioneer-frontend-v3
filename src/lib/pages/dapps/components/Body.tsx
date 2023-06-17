@@ -2,6 +2,8 @@ import { Box, Heading, Button, Card, CardBody, Tabs, TabList, TabPanels, Tab, Ta
 import React from 'react';
 
 import SubmitDapps from './SubmitDapps';
+import WhitelistDapps from './WhitelistDapps';
+import ReviewDapps from './ReviewDapps';
 
 const Body = () => {
   return (
@@ -18,10 +20,10 @@ const Body = () => {
               <SubmitDapps />
             </TabPanel>
             <TabPanel>
-              <p>Content for dApps pending review!</p>
+              <WhitelistDapps></WhitelistDapps>
             </TabPanel>
             <TabPanel>
-              <p>Content for Live for voting!</p>
+              <ReviewDapps></ReviewDapps>
             </TabPanel>
           </TabPanels>
         </Tabs>

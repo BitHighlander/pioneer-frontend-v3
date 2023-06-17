@@ -34,10 +34,6 @@
         * https://github.com/BitHighlander/pioneer/blob/master/docs/pioneerTxs.png
   
 */
-// import { KkRestAdapter } from "@keepkey/hdwallet-keepkey-rest";
-// import { KeepKeySdk } from "@keepkey/keepkey-sdk";
-// import { SDK } from "@pioneer-sdk/sdk";
-// import * as core from "@shapeshiftoss/hdwallet-core";
 import { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest';
 import { KeepKeySdk } from '@keepkey/keepkey-sdk';
 import { SDK } from '@pioneer-sdk/sdk';
@@ -48,11 +44,6 @@ import { NativeAdapter } from '@shapeshiftoss/hdwallet-native';
 import { entropyToMnemonic } from 'bip39';
 import { createContext, useReducer, useContext, useMemo, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-// import { v4 as uuidv4 } from "uuid";
-// metmask
-// keplr
-
-// import { Keyring } from "@shapeshiftoss/hdwallet-core";
 
 export enum WalletActions {
   SET_STATUS = 'SET_STATUS',
@@ -67,6 +58,7 @@ export enum WalletActions {
   SET_API = 'SET_API',
   SET_APP = 'SET_APP',
   SET_WALLET = 'SET_WALLET',
+  ADD_WALLET = 'ADD_WALLET',
   RESET_STATE = 'RESET_STATE',
 }
 
@@ -77,11 +69,11 @@ export interface InitialState {
   serviceKey: string;
   queryKey: string;
   context: string;
-  // balances: any[];
-  // pubkeys: any[];
-  // wallets: any[];
-  // walletDescriptions: any[];
-  // totalValueUsd: number;
+  balances: any[];
+  pubkeys: any[];
+  wallets: any[];
+  walletDescriptions: any[];
+  totalValueUsd: number;
   // app: any;
   user: any;
   wallet: any;
@@ -96,11 +88,11 @@ const initialState: InitialState = {
   serviceKey: '',
   queryKey: '',
   context: '',
-  // balances: [],
-  // pubkeys: [],
-  // wallets: [],
-  // walletDescriptions: [],
-  // totalValueUsd: 0,
+  balances: [],
+  pubkeys: [],
+  wallets: [],
+  walletDescriptions: [],
+  totalValueUsd: 0,
   // app: {} as any,
   user: null,
   wallet: null,
@@ -113,7 +105,7 @@ export interface IPioneerContext {
   username: string | null;
   context: string | null;
   status: string | null;
-  // totalValueUsd: number | null;
+  totalValueUsd: number | null;
   user: any;
   wallet: any;
   app: any;
@@ -121,16 +113,17 @@ export interface IPioneerContext {
 }
 
 export type ActionTypes =
-  | { type: WalletActions.SET_STATUS; payload: any }
-  | { type: WalletActions.SET_USERNAME; payload: string }
-  | { type: WalletActions.SET_WALLET; payload: any }
-  | { type: WalletActions.SET_APP; payload: any }
-  | { type: WalletActions.SET_API; payload: any }
-  | { type: WalletActions.SET_USER; payload: any }
-  | { type: WalletActions.SET_CONTEXT; payload: any }
-  // | { type: WalletActions.SET_WALLET_DESCRIPTIONS; payload: any }
-  // | { type: WalletActions.INIT_PIONEER; payload: boolean }
-  | { type: WalletActions.RESET_STATE };
+    | { type: WalletActions.SET_STATUS; payload: any }
+    | { type: WalletActions.SET_USERNAME; payload: string }
+    | { type: WalletActions.SET_WALLET; payload: any }
+    | { type: WalletActions.SET_APP; payload: any }
+    | { type: WalletActions.SET_API; payload: any }
+    | { type: WalletActions.SET_USER; payload: any }
+    | { type: WalletActions.SET_CONTEXT; payload: any }
+    | { type: WalletActions.ADD_WALLET; payload: any }
+    // | { type: WalletActions.SET_WALLET_DESCRIPTIONS; payload: any }
+    // | { type: WalletActions.INIT_PIONEER; payload: boolean }
+    | { type: WalletActions.RESET_STATE };
 
 const reducer = (state: InitialState, action: ActionTypes) => {
   switch (action.type) {
@@ -142,6 +135,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, username: action.payload };
     case WalletActions.SET_WALLET:
       return { ...state, wallet: action.payload };
+    case WalletActions.ADD_WALLET:
+      return { ...state, wallets: [...state.wallets, action.payload] };
     case WalletActions.SET_APP:
       return { ...state, app: action.payload };
     case WalletActions.SET_API:
@@ -170,7 +165,7 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
   const [state, dispatch] = useReducer(reducer, initialState);
   // const [username, setUsername] = useState<string | null>(null);
   // const [context, setContext] = useState<string | null>(null);
-  // const [wallets, setSetWallets] = useState([]);
+  const [wallets, setSetWallets] = useState([]);
   const [context, setContext] = useState<string | null>(null);
   const [blockchainContext, setBlockchainContext] = useState<string | null>(null);
   const [assetContext, setAssetContext] = useState<string | null>(null);
@@ -203,6 +198,8 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
         // eslint-disable-next-line no-console
         console.log('walletMetaMask: ', walletMetaMask);
         console.log('ethAddress: ', walletMetaMask.ethAddress);
+        // @ts-ignore
+        dispatch({ type: WalletActions.ADD_WALLET, payload: walletMetaMask });
       }
 
       if (!queryKey) {
@@ -236,7 +233,9 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const api = await appInit.init(walletMetaMask);
-
+      // @ts-ignore
+      dispatch({ type: WalletActions.SET_CONTEXT, payload: 'metamask' });
+      // setSetWallets(wallets.push(walletMetaMask))
       // @ts-ignore
       dispatch({ type: WalletActions.SET_WALLET, payload: walletMetaMask });
       // @ts-ignore
@@ -255,7 +254,11 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
 
       // eslint-disable-next-line no-console
       console.log('user.data.context: ', user.data.context);
-      setContext(user.data.context);
+      //@TODO move context back to lable of wallet not wallet type
+      // setContext(user.data.context);
+      // let context = user.data.context;
+      // let walletContext = user.data.walletDescriptions.filter(context);
+
       setBlockchainContext(user.data.blockchainContext);
       setAssetContext(user.data.assetContext);
       const nativeAdapter = NativeAdapter.useKeyring(keyring);
@@ -294,6 +297,8 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
         const successSoftware = await appInit.pairWallet(walletSoftware);
         // eslint-disable-next-line no-console
         console.log('successSoftware: ', successSoftware);
+        // @ts-ignore
+        dispatch({ type: WalletActions.ADD_WALLET, payload: walletSoftware });
       }
 
       const config: any = {
@@ -315,8 +320,8 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
       }
 
       const walletKeepKey = await KkRestAdapter.useKeyring(
-        keyring
-        // @ts-ignore
+          keyring
+          // @ts-ignore
       ).pairDevice(sdkKeepKey);
       // eslint-disable-next-line no-console
       console.log('walletKeepKey: ', walletKeepKey);
@@ -325,7 +330,8 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
       const successKeepKey = await appInit.pairWallet(walletKeepKey);
       // eslint-disable-next-line no-console
       console.log('successKeepKey: ', successKeepKey);
-
+      // @ts-ignore
+      dispatch({ type: WalletActions.ADD_WALLET, payload: walletKeepKey });
       // eslint-disable-next-line no-console
       // console.log("user: ", user);
     } catch (e) {

@@ -21,7 +21,7 @@ const SubmitDapps = () => {
     const [urlError, setUrlError] = useState('');
     const [homepageError, setHomepageError] = useState('');
     const [blockchainsSupported, setBlockchainsSupported] = useState([]);
-    const [protocolsSupported, setProtocolsSupported] = useState<string[]>(['wallet-connect']);
+    const [protocolsSupported, setProtocolsSupported] = useState<any[]>(['wallet-connect']);
     const [featuresSupported, setFeaturesSupported] = useState([]);
     const [activeStep, setActiveStep] = useState(0);
     const [isRest, setIsRest] = React.useState(false)
@@ -183,23 +183,40 @@ const SubmitDapps = () => {
         try{
             console.log("onSubmit()")
 
+            //convert blockchains protocols and features to array of strings
+            let blockchainsSupportedArray = []
+            for(let i = 0; i < blockchainsSupported.length; i++){
+                // @ts-ignore
+                blockchainsSupportedArray.push(blockchainsSupported[i].name)
+            }
+            let protocolsSupportedArray = []
+            for(let i = 0; i < protocolsSupported.length; i++){
+                // @ts-ignore
+                protocolsSupportedArray.push(protocolsSupported[i].value)
+            }
+            let featuresSupportedArray = []
+            for(let i = 0; i < featuresSupported.length; i++){
+                // @ts-ignore
+                featuresSupportedArray.push(featuresSupported[i].value)
+            }
+
             let dapp:any = {}
             dapp.name = name
             dapp.app = app
             dapp.homepage = app
-            dapp.tags = [...blockchainsSupported,...protocols]
+            dapp.tags = [...blockchainsSupportedArray,...protocolsSupportedArray,...featuresSupportedArray]
             dapp.image = image
             dapp.minVersion = minVersion
             dapp.description = description
-            dapp.protocols = protocolsSupported
-            dapp.blockchains = blockchainsSupported
-            dapp.features = featuresSupported
+            dapp.protocols = protocolsSupportedArray
+            dapp.blockchains = blockchainsSupportedArray
+            dapp.features = featuresSupportedArray
             
             //sign
             let payload:any = {
                 name,
-                app:url,
-                homepage:url
+                app,
+                homepage
             }
             payload = JSON.stringify(payload)
 
@@ -217,7 +234,12 @@ const SubmitDapps = () => {
             console.log("dapp: ",dapp)
             let txInfo = await api.ChartDapp(dapp)
             console.log("SUCCESS: ",txInfo.data)
-            
+            if(txInfo.success){
+                //show success message
+                console.log("SUCCESS: ",txInfo.data)
+            } else {
+                alert(txInfo.error)
+            }
         }catch(e){
             console.error(e)
         }
