@@ -92,10 +92,21 @@ const SubmitDapps = () => {
 
             let result = await api.SubmitUrl(input);
             console.log("result: ", result.data);
-            setApp(name);
             // Filter out protocols that are not supported
-            const supportedProtocols = Object.keys(result.data.protocols).filter(key => result.data.protocols[key]);
-            setProtocolsSupported(supportedProtocols);
+            if(result.data.protocols){
+                const supportedProtocols = Object.keys(result.data.protocols).filter(key => result.data.protocols[key]);
+                let formatedProtocols:any = []
+                console.log("supportedProtocols: ", supportedProtocols);
+                for(let i = 0; i < supportedProtocols.length; i++){
+                    formatedProtocols.push({
+                        label: supportedProtocols[i],
+                        value: supportedProtocols[i]
+                    })
+                }
+                console.log("formatedProtocols: ", formatedProtocols);
+                setProtocolsSupported(formatedProtocols);
+            }
+
 
             // Convert CSV string to array for blockchains
             if(result.data.blockchains){
@@ -122,7 +133,15 @@ const SubmitDapps = () => {
             // Convert CSV string to array for blockchains
             if(result.data.features){
                 const featuresArray = result.data.features.split(",");
-                setFeaturesSupported(featuresArray);
+                let featuresFormatted:any = []
+                for(let i = 0; i < featuresArray.length; i++){
+                    featuresFormatted.push({
+                        label: featuresArray[i],
+                        value: featuresArray[i]
+                    })
+                }
+                console.log("featuresFormatted: ", featuresFormatted);
+                setProtocolsSupported(featuresFormatted);
             }
             setName(result.data.name);
             setDescription(result.data.description);
@@ -219,21 +238,16 @@ const SubmitDapps = () => {
         }
     };
 
-    let onSelectedProtocols = async function(input: any){
+    let onSelectedProtocols = async function(inputs: any){
         try{
-            console.log("input: onSelectedProtocols: ",input)
-            setProtocolsSupported(input)
-            let isRestFound
-            for(let i = 0; i < input.length; i++){
-                let protocol = input[i]
-                if(protocol.value === 'REST'){
-                    setIsRest(true)
-                    isRestFound = true
-                }
+            console.log("input: onSelectedProtocols: ",inputs)
+            let protocols:any = []
+            for(let i = 0; i < inputs.length; i++){
+                let input = inputs[i]
+                protocols.push({value:input.name || input.value,label:input.name || input.label})
             }
-            if(!isRestFound){
-                setIsRest(false)
-            }
+            console.log("protocols: ",protocols)
+            setProtocolsSupported(protocols)
         }catch(e){
             console.error(e)
         }
@@ -464,6 +478,7 @@ const SubmitDapps = () => {
                             options={protocols}
                             placeholder="wallet-connect... wallet-connect-v2... REST...."
                             closeMenuOnSelect={true}
+                            value={protocolsSupported}
                             // components={{ Option: IconOption }}
                             onChange={onSelectedProtocols}
                         ></SelectImported>
