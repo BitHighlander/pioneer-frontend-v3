@@ -2,8 +2,9 @@ import { Flex, Img, Box, Heading, Button, VStack, Card, CardBody } from '@chakra
 import React from 'react';
 import type { To } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-// // @ts-ignore
-import PIONEER from 'lib/assets/png/art.png';
+
+const PIONEER = require('lib/assets/png/art.png').default;
+
 const Header = () => {
   const navigate = useNavigate();
 
