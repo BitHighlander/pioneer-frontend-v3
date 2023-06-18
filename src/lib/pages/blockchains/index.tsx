@@ -6,9 +6,6 @@ const Header = () => (
   <Box p={5}>
     <Heading>Blockchains</Heading>
     <br />
-    <Button colorScheme="blue" size="md">
-      Chart a Blockchain
-    </Button>
   </Box>
 );
 
