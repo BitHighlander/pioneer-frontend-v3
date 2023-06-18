@@ -36,7 +36,7 @@ const Header = () => {
                   <Button
                       colorScheme="green"
                       size="sm"
-                      onClick={() => handleButtonClick('/dapps')}
+                      onClick={() => handleButtonClick('/explore')}
                   >
                     Explore
                   </Button>

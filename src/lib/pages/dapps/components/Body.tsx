@@ -11,19 +11,19 @@ const Body = () => {
       <Box>
         <Tabs variant="enclosed" defaultIndex={0}>
           <TabList>
-            <Tab>Chart a new dapp</Tab>
-            <Tab>dApps pending review</Tab>
-            <Tab>Live for voting</Tab>
+            <Tab>Charted dApps</Tab>
+            <Tab>dApps discoverd</Tab>
+            <Tab>Chart a new dApps</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
-              <SubmitDapps />
+              <ReviewDapps></ReviewDapps>
             </TabPanel>
             <TabPanel>
               <WhitelistDapps></WhitelistDapps>
             </TabPanel>
             <TabPanel>
-              <ReviewDapps></ReviewDapps>
+              <SubmitDapps />
             </TabPanel>
           </TabPanels>
         </Tabs>
