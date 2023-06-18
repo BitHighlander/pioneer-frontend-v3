@@ -3,7 +3,7 @@ import React from 'react';
 import type { To } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 // // @ts-ignore
-// import PIONEER from 'lib/assets/png/art.png';
+import PIONEER from 'lib/assets/png/art.png';
 const Header = () => {
   const navigate = useNavigate();
 
@@ -43,7 +43,7 @@ const Header = () => {
                 </Box>
               </VStack>
             </Box>
-            {/*<Img src={PIONEER} title="Chakra UI" height={500} width={500} />*/}
+            <Img src={PIONEER} title="Chakra UI" height={500} width={500} />
           </Flex>
         </CardBody>
       </Card>
