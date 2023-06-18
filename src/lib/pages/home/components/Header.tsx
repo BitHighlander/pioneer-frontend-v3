@@ -3,7 +3,9 @@ import React from 'react';
 import type { To } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
-const PIONEER = require('lib/assets/png/art.png').default;
+// @ts-ignore
+import PIONEER from 'lib/assets/png/art.png';
+
 
 const Header = () => {
   const navigate = useNavigate();

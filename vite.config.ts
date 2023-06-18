@@ -4,6 +4,7 @@ import { defineConfig } from "vite";
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
 import rollupNodePolyFill from 'rollup-plugin-node-polyfills'
+import url from '@rollup/plugin-url';
 // import inject from '@rollup/plugin-inject'
 // import wasm from 'vite-plugin-wasm'
 
@@ -17,7 +18,7 @@ export default defineConfig(({}) => {
     define: {
       'process.env': {},
     },
-    plugins: [react()],
+    plugins: [react(),url()],
     resolve: {
       alias: {
         lib: resolve(__dirname, "src/lib"),
