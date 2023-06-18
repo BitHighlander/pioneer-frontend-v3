@@ -216,10 +216,10 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
 
       // add custom paths
       const paths: any = [];
-      // const spec = 'https://pioneers.dev/spec/swagger.json';
-      // const wss = 'wss://pioneers.dev';
-      const spec = "http://127.0.0.1:9001/spec/swagger.json";
-      const wss = "ws://127.0.0.1:9001";
+      const spec = 'https://pioneers.dev/spec/swagger.json';
+      const wss = 'wss://pioneers.dev';
+      // const spec = "http://127.0.0.1:9001/spec/swagger.json";
+      // const wss = "ws://127.0.0.1:9001";
       const configPioneer: any = {
         blockchains,
         username,
