@@ -216,8 +216,14 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
 
       // add custom paths
       const paths: any = [];
-      const spec = 'https://pioneers.dev/spec/swagger.json';
-      const wss = 'wss://pioneers.dev';
+      // @ts-ignore
+      const spec = import.meta.env.VITE_PIONEER_URL_SPEC || 'https://pioneers.dev/spec/swagger.json';
+      // @ts-ignore
+      const wss = import.meta.env.VITE_PIONEER_URL_WS || 'wss://pioneers.dev';
+      console.log("spec: ",spec)
+      console.log("wss: ",wss)
+      // const spec = process.env['REACT_APP_PIONEER_URL_SPEC'] || 'https://pioneers.dev/spec/swagger.json';
+      // const wss = process.env['REACT_APP_PIONEER_URL_WS'] || 'wss://pioneers.dev';
       // const spec = "http://127.0.0.1:9001/spec/swagger.json";
       // const wss = "ws://127.0.0.1:9001";
       const configPioneer: any = {
@@ -325,13 +331,17 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
       ).pairDevice(sdkKeepKey);
       // eslint-disable-next-line no-console
       console.log('walletKeepKey: ', walletKeepKey);
+      if(walletKeepKey){
+        // pair keepkey
+        const successKeepKey = await appInit.pairWallet(walletKeepKey);
+        // eslint-disable-next-line no-console
+        console.log('successKeepKey: ', successKeepKey);
+        // @ts-ignore
+        dispatch({ type: WalletActions.ADD_WALLET, payload: walletKeepKey });
+        // @ts-ignore
+        dispatch({ type: WalletActions.SET_CONTEXT, payload: 'keepkey' });
+      }
 
-      // pair keepkey
-      const successKeepKey = await appInit.pairWallet(walletKeepKey);
-      // eslint-disable-next-line no-console
-      console.log('successKeepKey: ', successKeepKey);
-      // @ts-ignore
-      dispatch({ type: WalletActions.ADD_WALLET, payload: walletKeepKey });
       // eslint-disable-next-line no-console
       // console.log("user: ", user);
     } catch (e) {

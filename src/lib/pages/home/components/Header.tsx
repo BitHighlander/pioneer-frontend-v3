@@ -24,14 +24,22 @@ const Header = () => {
               <Text as='cite' fontSize="md" mb={4}>"Pioneer is a human assisted AI project designed to chart and track the fast moving blockchain space"</Text>
               <br/>
               <VStack spacing={4} alignItems="start">
+                <br/>
                 <Box>
-                  <br/>
-                  <Button
-                      colorScheme="green"
-                      size="lg"
-                      onClick={() => handleButtonClick('/explore')}
-                  >
-                    <SearchIcon></SearchIcon>Explore
+                  <Button w="full" mb={2} size="lg" colorScheme="green" onClick={() => handleButtonClick('/dapps')}>
+                    Explore Dapps
+                  </Button>
+                  <Button w="full" mb={2} size="lg" colorScheme="green" onClick={() => handleButtonClick('/blockchains')}>
+                    Explore Blockchains
+                  </Button>
+                  <Button w="full" mb={2} size="lg" colorScheme="green" onClick={() => handleButtonClick('/assets')}>
+                    Explore Assets
+                  </Button>
+                  <Button w="full" mb={2} size="lg" colorScheme="green" onClick={() => handleButtonClick('/nodes')}>
+                    Explore Nodes
+                  </Button>
+                  <Button w="full" mb={2} size="lg" colorScheme="green" onClick={() => handleButtonClick('/pioneers')}>
+                    Leaderboard
                   </Button>
                 </Box>
                 <br/>

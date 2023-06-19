@@ -1,3 +1,4 @@
+require('dotenv').config();
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 import { defineConfig } from "vite";
@@ -5,6 +6,7 @@ import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfil
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
 import rollupNodePolyFill from 'rollup-plugin-node-polyfills'
 import url from '@rollup/plugin-url';
+const dotenv = require('dotenv');
 // import inject from '@rollup/plugin-inject'
 // import wasm from 'vite-plugin-wasm'
 
