@@ -30,4 +30,8 @@ export const features = [
     value: 'defi-governence',
     label: 'defi-governence',
   },
+  {
+    value: 'other',
+    label: 'other',
+  }
 ];

@@ -7,6 +7,8 @@ import {
     ModalContent,
     ModalHeader,
     ModalCloseButton,
+    InputGroup,
+    InputLeftAddon,
     ModalBody, Textarea, ModalFooter, useDisclosure, FormControl, FormLabel, Input, FormHelperText, FormErrorMessage
 } from "@chakra-ui/react";
 import React from 'react'
@@ -21,7 +23,7 @@ import {
     useReactTable,
 } from '@tanstack/react-table'
 import { protocols, features } from './Constants';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {Select as SelectImported} from "chakra-react-select";
 const columnHelper = createColumnHelper<any>()
 import { usePioneer } from 'lib/context/Pioneer';
@@ -31,27 +33,83 @@ const ReviewDapps = () => {
     const { api, user, wallet } = state;
     const { isOpen, onOpen, onClose } = useDisclosure()
     // const alert = useAlert()
-
+    const [entry, setEntry] = useState<any>({});
     const [votedUpNames, setVotedUpNames] = React.useState(() => [])
     const [votedDownNames, setVotedDownNames] = React.useState(() => [])
     const [data, setData] = React.useState(() => [])
-
-    const [name, setName] = React.useState('')
-    const [app, setApp] = React.useState('')
-    const [image, setImage] = React.useState('')
-    const [description, setDescription] = React.useState('')
+    const [name, setName] = useState('');
+    const [app, setApp] = useState('');
+    const [image, setImage] = useState('');
+    const [url, setUrl] = useState('');
+    const [isValid, setIsValid] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [description, setDescription] = useState('');
+    const [homepage, setHomepage] = useState('');
+    const [urlError, setUrlError] = useState('');
+    const [homepageError, setHomepageError] = useState('');
+    const [blockchainsSupported, setBlockchainsSupported] = useState([]);
+    const [protocolsSupported, setProtocolsSupported] = useState<any[]>(['wallet-connect']);
+    const [featuresSupported, setFeaturesSupported] = useState([]);
+    const [activeStep, setActiveStep] = useState(0);
     const [minVersion, setMinVersion] = React.useState([])
     const [blockchains, setBlockchains] = React.useState([])
-    const [protocolsSupported, setProtocolsSupported] = React.useState([])
-    const [featuresSupported, setFeaturesSupported] = React.useState([])
-    const [entry, setEntry] = React.useState(null)
     const [isRest, setIsRest] = React.useState(false)
-    const [blockchainsSupported, setBlockchainsSupported] = React.useState([])
-    const handleInputChangeName = (e:any) => setName(e.target.value)
-    const handleInputChangeApp = (e:any) => setApp(e.target.value)
-    const handleInputChangeImage = (e:any) => setImage(e.target.value)
-    const handleInputChangeMinVersion = (e:any) => setMinVersion(e.target.value)
-    const handleInputChangeDescription = (e:any) => setDescription(e.target.value)
+    const [socialMedia, setSocialMedia] = useState({
+        twitter: '',
+        telegram: '',
+        github: 'https://github.com/shapeshift/'
+    });
+    const handleInputChangeName = (e) => {
+        setUrl(e.target.value);
+        setIsValid(validateURL(e.target.value));
+    };
+    const handleInputChangeApp = (e) => setApp(e.target.value);
+    const handleInputChangeImage = (e) => setImage(e.target.value);
+    const handleInputChangeMinVersion = (e) => setMinVersion(e.target.value);
+    const handleInputChangeDescription = (e) => setDescription(e.target.value);
+    const handleInputChangeHomepage = (e) => setHomepage(e.target.value);
+    const handleSocialMediaChange = (e) => {
+        const { name, value } = e.target;
+        setSocialMedia((prevState) => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
+    // simple url validation
+    const validateURL = (text) => {
+        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+            '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        return !!pattern.test(text);
+    };
+    const handleUrlChange = (event) => {
+        setUrl(event.target.value);
+    };
+
+    const handleHomepageChange = (event) => {
+        setHomepage(event.target.value);
+    };
+
+    const handleDescriptionChange = (event) => {
+        setDescription(event.target.value);
+    };
+    const handleSelectedBlockchains = (selectedOptions) => {
+        const selectedBlockchains = selectedOptions.map((option) => option.value);
+        setBlockchainsSupported(selectedBlockchains);
+    };
+
+    const handleSelectedProtocols = (selectedOptions) => {
+        const selectedProtocolValues = selectedOptions.map((option) => option.value);
+        setProtocolsSupported(selectedProtocolValues);
+    };
+
+    const handleSelectedFeatures = (selectedOptions) => {
+        const selectedFeatureValues = selectedOptions.map((option) => option.value);
+        setFeaturesSupported(selectedFeatureValues);
+    };
     const isError = false
     const toast = useToast()
 
@@ -115,7 +173,11 @@ const ReviewDapps = () => {
         }),
         columnHelper.accessor('name', {
             id: 'edit',
-            cell: info => <Button onClick={() => editEntry(info.getValue())}>Edit</Button>,
+            cell: info => (
+                <Button onClick={() => editEntry(info.row.original.name)}>
+                    edit
+                </Button>
+            ),
             header: () => <span>edit</span>,
             footer: info => info.column.id,
         }),
@@ -278,92 +340,126 @@ const ReviewDapps = () => {
         }
     }
 
-    let editEntry = async function(name:string){
-        try{
+    let editEntry = async function(name) {
+        try {
+            console.log("Edit entry: ", name);
+            onOpen();
 
-            // let blockchains = await api.SearchBlockchainsPaginate({limit:1000,skip:0})
-            // blockchains = blockchains.data
-            // console.log("blockchains: ",blockchains.length)
-            // let blockchainsFormated:any = []
-            // for(let i = 0; i < blockchains.length; i++){
-            //     let blockchain = blockchains[i]
-            //     blockchain.value = blockchain.name.toLowerCase()
-            //     blockchain.label = blockchain.name.toLowerCase()
-            //     blockchainsFormated.push(blockchain)
-            // }
-            // console.log("blockchainsFormated: ",blockchainsFormated.length)
-            // setBlockchains(blockchainsFormated)
+            // Find the selected entry by name
+            // @ts-ignore
+            const selectedEntry = data.find(entry => entry.name === name);
+            if (!selectedEntry) {
+                console.error("Entry not found");
+                return;
+            }
 
-
-        }catch(e){
-            console.error(e)
-        }
-    }
-
-    let onSubmitEdit = async function(){
-        try{
-            console.log("onSubmitEdit: ")
-            const updateEntity = async (entryKey, newValue, action = null, type = null) => {
+            // Set the local state variables with the selected entry's values
+            // @ts-ignore
+            setName(selectedEntry.name);
+            // @ts-ignore
+            setApp(selectedEntry.app);
+            // @ts-ignore
+            setImage(selectedEntry.image);
+            // @ts-ignore
+            setDescription(selectedEntry.description);
+            // @ts-ignore
+            setHomepage(selectedEntry.homepage);
+            // @ts-ignore
+            setBlockchainsSupported(selectedEntry.blockchains);
+            // @ts-ignore
+            setProtocolsSupported(selectedEntry.protocols);
+            // @ts-ignore
+            setFeaturesSupported(selectedEntry.features);
+            // @ts-ignore
+            setSocialMedia({
                 // @ts-ignore
-                if (entry[entryKey] !== newValue) {
-                    console.log(`${entryKey} has changed!`)
-                    let diff = {
-                        name,
-                        key: entryKey,
-                        value: newValue,
-                    }
-                    if (type) { // @ts-ignore
-                        diff.type = type;
-                    }
-                    if (action) { // @ts-ignore
-                        diff.action = action;
-                    }
+                twitter: selectedEntry.socialMedia?.twitter || '',
+                // @ts-ignore
+                telegram: selectedEntry.socialMedia?.telegram || '',
+                // @ts-ignore
+                github: selectedEntry.socialMedia?.github || 'https://github.com/shapeshift/',
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    };
 
-                    let payload = JSON.stringify(diff)
-                    if (!wallet || !wallet.provider) throw Error("Onbord not setup!")
 
-                    let messageToSign = entryKey === 'image' ? "updated image" : payload;
-                    let signature = await wallet.ethSignMessage({
-                        addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
-                        message: messageToSign,
-                    })
-                    let address = wallet?.accounts[0]?.address
-                    let update: any = {};
-                    update.name = name;
-                    update.signer = address;
-                    update.payload = payload;
-                    update.signature = signature.signature;
-                    if (entryKey === 'image') {
-                        update.imageData = newValue;
-                    }
+    const onSubmitEdit = async () => {
+        try {
+            console.log("onSubmitEdit: ");
 
-                    if (!address) throw Error("address required!");
+            const updatePayload:any = {};
 
-                    console.log("update: ", update);
-                    let resultUpdate = await api.UpdateApp(update);
-                    console.log("resultUpdate: ", resultUpdate);
+            // Compare the form state with the selected entry's values
+            if (name !== entry.name) {
+                updatePayload.name = name;
+            }
+            if (app !== entry.app) {
+                updatePayload.app = app;
+            }
+            if (image !== entry.image) {
+                updatePayload.image = image;
+            }
+            if (description !== entry.description) {
+                updatePayload.description = description;
+            }
+            if (homepage !== entry.homepage) {
+                updatePayload.homepage = homepage;
+            }
+            if (JSON.stringify(blockchainsSupported) !== JSON.stringify(entry.blockchains)) {
+                updatePayload.blockchains = blockchainsSupported;
+            }
+            if (JSON.stringify(protocolsSupported) !== JSON.stringify(entry.protocols)) {
+                updatePayload.protocols = protocolsSupported;
+            }
+            if (JSON.stringify(featuresSupported) !== JSON.stringify(entry.features)) {
+                updatePayload.features = featuresSupported;
+            }
+            if (socialMedia.twitter !== (entry.socialMedia?.twitter || "")) {
+                updatePayload.socialMedia = { twitter: socialMedia.twitter };
+            }
+            if (socialMedia.telegram !== (entry.socialMedia?.telegram || "")) {
+                updatePayload.socialMedia = { ...updatePayload.socialMedia, telegram: socialMedia.telegram };
+            }
+            if (socialMedia.github !== (entry.socialMedia?.github || "https://github.com/shapeshift/")) {
+                updatePayload.socialMedia = { ...updatePayload.socialMedia, github: socialMedia.github };
+            }
+
+            const fieldChanged = Object.keys(updatePayload)[0]; // Get the first changed field
+
+            if (fieldChanged) {
+                // Sign the message indicating the changed field
+                const signature = await wallet.ethSignMessage({
+                    addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+                    message: `Changed ${fieldChanged} field`,
+                });
+
+                console.log("Signature:", signature);
+                let addressInfo = {
+                    addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+                    coin: 'Ethereum',
+                    scriptType: 'ethereum',
+                    showDisplay: false
                 }
-            }
+                let address = await wallet.ethGetAddress(addressInfo);
+                // Submit the updated fields to the API
+                const updateData = {
+                    name: entry.name,
+                    signer: address,
+                    field: fieldChanged,
+                    value: updatePayload[fieldChanged],
+                    signature: signature.signature,
+                };
 
-            try {
-                await updateEntity("name", name);
-                await updateEntity("app", app);
-                await updateEntity("image", image);
-                await updateEntity("description", description);
-                // @ts-ignore
-                await updateEntity("blockchains", blockchainsSupported, "replace", "array");
-                // @ts-ignore
-                await updateEntity("protocols", protocolsSupported, "replace", "array");
-                // @ts-ignore
-                await updateEntity("features", featuresSupported, "replace", "array");
-
-            } catch(e) {
-                console.error("e: ",e)
+                const result = await api.UpdateApp(updateData);
+                console.log("API Response:", result);
             }
-        }catch(e){
-            console.error(e)
+        } catch (e) {
+            console.error(e);
         }
-    }
+    };
+
 
     const table = useReactTable({
         data,
@@ -475,25 +571,41 @@ const ReviewDapps = () => {
                             )}
                         </FormControl>
                         <FormControl isInvalid={isError}>
-                            <FormLabel>App URL</FormLabel>
-                            <Input type='email' value={app} onChange={handleInputChangeApp} />
+                            <FormLabel>Homepage URL</FormLabel>
+                            <Input type='email' value={homepage} onChange={handleInputChangeApp} />
                             {!isError ? (
                                 <FormHelperText>
-                                    Enter the URL of the dapp application
+                                    Homepage is the Landing, gernally designed to be indexed by crawlers.
                                 </FormHelperText>
                             ) : (
                                 <FormErrorMessage>URL is required.</FormErrorMessage>
                             )}
                         </FormControl>
                         <FormControl isInvalid={isError}>
-                            <FormLabel>Image URL</FormLabel>
-                            <Input type='email' value={image} onChange={handleInputChangeImage} />
+                            <FormLabel>App URL</FormLabel>
+                            <Input type='email' value={app} onChange={handleInputChangeApp} />
                             {!isError ? (
                                 <FormHelperText>
-                                    Enter the URL of image for the Dapp. this MUST be a valid URL, and not a encoding!
+                                    Enter the URL of the dapp application itself, gerneally app.serviceName*.com
                                 </FormHelperText>
                             ) : (
-                                <FormErrorMessage>image URL is required.</FormErrorMessage>
+                                <FormErrorMessage>URL is required.</FormErrorMessage>
+                            )}
+                        </FormControl>
+                        <FormControl isInvalid={isError}>
+                            <div style={{ border: '1px solid #ccc', padding: '10px', marginTop: '10px' }}>
+                                {image && (
+                                    <img src={image} alt="Image Preview" style={{ width: '100px', height: '100px' }} />
+                                )}
+                                <FormLabel>Image URL</FormLabel>
+                                <Input type='email' value={image} onChange={handleInputChangeImage} />
+                            </div>
+                            {!isError ? (
+                                <FormHelperText>
+                                    Enter the URL of the image for the Dapp. This MUST be a valid URL and not an encoding!
+                                </FormHelperText>
+                            ) : (
+                                <FormErrorMessage>Image URL is required.</FormErrorMessage>
                             )}
                         </FormControl>
                         <FormControl isInvalid={isError}>
@@ -515,6 +627,7 @@ const ReviewDapps = () => {
                                 options={blockchains}
                                 placeholder="ethereum... bitcoin... avalanche...."
                                 closeMenuOnSelect={true}
+                                value={blockchainsSupported}
                                 // components={{ Option: IconOption }}
                                 onChange={onSelectedBlockchains}
                             ></SelectImported>
@@ -530,23 +643,11 @@ const ReviewDapps = () => {
                                 options={protocols}
                                 placeholder="wallet-connect... wallet-connect-v2... REST...."
                                 closeMenuOnSelect={true}
+                                value={protocolsSupported}
                                 // components={{ Option: IconOption }}
                                 onChange={onSelectedProtocols}
                             ></SelectImported>
                         </FormControl>
-                        {isRest ? <div>
-                            <FormControl isInvalid={isError}>
-                                <FormLabel>Minimum Version Requirements</FormLabel>
-                                <Input type='email' value={minVersion} onChange={handleInputChangeMinVersion} />
-                                {!isError ? (
-                                    <FormHelperText>
-                                        (REST ONLY) Enter the VERSION of keepkey-desktop required for the dapp to work.
-                                    </FormHelperText>
-                                ) : (
-                                    <FormErrorMessage>min version is required.</FormErrorMessage>
-                                )}
-                            </FormControl>
-                        </div>:<div></div>}
                         <FormControl isInvalid={isError}>
                             <FormLabel>Features Supported</FormLabel>
                             <SelectImported
@@ -558,6 +659,44 @@ const ReviewDapps = () => {
                                 // components={{ Option: IconOption }}
                                 onChange={onSelectedFeatures}
                             ></SelectImported>
+                        </FormControl>
+                        <FormControl isInvalid={isError}>
+                            <FormLabel>Social Media</FormLabel>
+                            <InputGroup>
+                                <InputLeftAddon children="Twitter" />
+                                <Input
+                                    type="text"
+                                    name="twitter"
+                                    value={socialMedia.twitter}
+                                    onChange={handleSocialMediaChange}
+                                />
+                            </InputGroup>
+                        </FormControl>
+
+                        <FormControl isInvalid={isError}>
+                            <FormLabel>Social Media</FormLabel>
+                            <InputGroup>
+                                <InputLeftAddon children="Telegram" />
+                                <Input
+                                    type="text"
+                                    name="telegram"
+                                    value={socialMedia.telegram}
+                                    onChange={handleSocialMediaChange}
+                                />
+                            </InputGroup>
+                        </FormControl>
+
+                        <FormControl isInvalid={isError}>
+                            <FormLabel>Social Media</FormLabel>
+                            <InputGroup>
+                                <InputLeftAddon children="GitHub" />
+                                <Input
+                                    type="text"
+                                    name="github"
+                                    value={socialMedia.github}
+                                    onChange={handleSocialMediaChange}
+                                />
+                            </InputGroup>
                         </FormControl>
                     </ModalBody>
 

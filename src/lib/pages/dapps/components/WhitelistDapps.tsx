@@ -79,8 +79,10 @@ const WhitelistDapps = () => {
         }),
         columnHelper.accessor("name", {
             id: "reject",
-            cell: (info) => (
-                <Button color='red' onClick={() => rejectEntry(info.getValue())}>reject</Button>
+            cell: info => (
+                <Button colorScheme='red' onClick={() => rejectEntry(info.row.original.app)}>
+                    reject
+                </Button>
             ),
             header: () => <span>reject</span>,
             footer: (info) => info.column.id,
@@ -104,18 +106,36 @@ const WhitelistDapps = () => {
         }
     };
 
-    let rejectEntry = async function (name: string) {
+    let rejectEntry = async function (app: string) {
         try {
             // open modal
-            console.log("edit name: ", name);
-            onOpen();
-            const entry = data.filter(function (e) {
-                // @ts-ignore
-                return e.name === name;
-            })[0];
-            console.log("entry: ", entry);
-            const prettyJson = JSON.stringify(entry, null, 2);
-            setValue(prettyJson);
+            console.log("revoke entry: ",app)
+            //submit as pioneer
+
+            let payload = `{"type": "revoke", "app": "${app}"}`
+            console.log("payload: ", payload);
+
+            //
+            let signature = await wallet.ethSignMessage({
+                addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+                message: payload,
+            })
+            const revoke: any = {};
+            let addressInfo = {
+                addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+                coin: 'Ethereum',
+                scriptType: 'ethereum',
+                showDisplay: false
+            }
+            revoke.signer = await wallet.ethGetAddress(addressInfo);
+            revoke.payload = payload;
+            revoke.signature = signature.signature;
+            if (!revoke.signer) throw Error("address required!");
+
+            let resultWhitelist = await api.RevokeApp(revoke)
+            console.log("resultWhitelist: ",resultWhitelist)
+
+            onStart()
             //sign
         } catch (e) {
             console.error(e);

@@ -29,17 +29,14 @@ const SubmitDapps = () => {
     const [socialMedia, setSocialMedia] = useState({
         twitter: '',
         telegram: '',
-        github: 'https://github.com/shapeshift/'
+        github: ''
     });
-    const handleInputChangeName = (e) => {
-        setUrl(e.target.value);
-        setIsValid(validateURL(e.target.value));
-    };
+    const handleInputChangeName = (e) => setName(e.target.value);
     const handleInputChangeApp = (e) => setApp(e.target.value);
+    const handleInputChangeHomepage = (e) => setHomepage(e.target.value);
     const handleInputChangeImage = (e) => setImage(e.target.value);
     const handleInputChangeMinVersion = (e) => setMinVersion(e.target.value);
     const handleInputChangeDescription = (e) => setDescription(e.target.value);
-    const handleInputChangeHomepage = (e) => setHomepage(e.target.value);
     const handleSocialMediaChange = (e) => {
         const { name, value } = e.target;
         setSocialMedia((prevState) => ({
@@ -92,62 +89,65 @@ const SubmitDapps = () => {
 
             let result = await api.SubmitUrl(input);
             console.log("result: ", result.data);
-            // Filter out protocols that are not supported
-            if(result.data.protocols){
-                const supportedProtocols = Object.keys(result.data.protocols).filter(key => result.data.protocols[key]);
-                let formatedProtocols:any = []
-                console.log("supportedProtocols: ", supportedProtocols);
-                for(let i = 0; i < supportedProtocols.length; i++){
-                    formatedProtocols.push({
-                        label: supportedProtocols[i],
-                        value: supportedProtocols[i]
-                    })
+            if(result.data){
+                // Filter out protocols that are not supported
+                if(result.data.protocols){
+                    const supportedProtocols = Object.keys(result.data.protocols).filter(key => result.data.protocols[key]);
+                    let formatedProtocols:any = []
+                    console.log("supportedProtocols: ", supportedProtocols);
+                    for(let i = 0; i < supportedProtocols.length; i++){
+                        formatedProtocols.push({
+                            label: supportedProtocols[i],
+                            value: supportedProtocols[i]
+                        })
+                    }
+                    console.log("formatedProtocols: ", formatedProtocols);
+                    setProtocolsSupported(formatedProtocols);
                 }
-                console.log("formatedProtocols: ", formatedProtocols);
-                setProtocolsSupported(formatedProtocols);
-            }
 
 
-            // Convert CSV string to array for blockchains
-            if(result.data.blockchains){
-                const blockchainArray = result.data.blockchains.split(",");
-                console.log("blockchainArray: ",blockchainArray)
+                // Convert CSV string to array for blockchains
+                if(result.data.blockchains){
+                    const blockchainArray = result.data.blockchains.split(",");
+                    console.log("blockchainArray: ",blockchainArray)
 
-                let supportedBlockchains = []
-                for(let i = 0; i < blockchainArray.length; i++){
-                    let name = blockchainArray[i].trim().toLowerCase();
+                    let supportedBlockchains = []
+                    for(let i = 0; i < blockchainArray.length; i++){
+                        let name = blockchainArray[i].trim().toLowerCase();
 
-                    //filter where name is included in blockchains{name}
-                    // @ts-ignore
-                    //let matchedEntries = blockchains.filter(blockchain => blockchain.name.toLowerCase().includes(name))
-                    let matchedEntries = blockchains.filter(blockchain => blockchain.name.includes(name))
+                        //filter where name is included in blockchains{name}
+                        // @ts-ignore
+                        //let matchedEntries = blockchains.filter(blockchain => blockchain.name.toLowerCase().includes(name))
+                        let matchedEntries = blockchains.filter(blockchain => blockchain.name.includes(name))
 
-                    // Push each matched entry to supportedBlockchains array
-                    matchedEntries.forEach(entry => supportedBlockchains.push(entry))
+                        // Push each matched entry to supportedBlockchains array
+                        matchedEntries.forEach(entry => supportedBlockchains.push(entry))
+                    }
+                    //create
+                    console.log("supportedBlockchains: ",supportedBlockchains)
+                    onSelectedBlockchains(supportedBlockchains);
                 }
-                //create
-                console.log("supportedBlockchains: ",supportedBlockchains)
-                onSelectedBlockchains(supportedBlockchains);
-            }
 
-            // Convert CSV string to array for blockchains
-            if(result.data.features){
-                const featuresArray = result.data.features.split(",");
-                let featuresFormatted:any = []
-                for(let i = 0; i < featuresArray.length; i++){
-                    featuresFormatted.push({
-                        label: featuresArray[i],
-                        value: featuresArray[i]
-                    })
+                // Convert CSV string to array for blockchains
+                if(result.data.features){
+                    const featuresArray = result.data.features.split(",");
+                    let featuresFormatted:any = []
+                    for(let i = 0; i < featuresArray.length; i++){
+                        featuresFormatted.push({
+                            label: featuresArray[i],
+                            value: featuresArray[i]
+                        })
+                    }
+                    console.log("featuresFormatted: ", featuresFormatted);
+                    setProtocolsSupported(featuresFormatted);
                 }
-                console.log("featuresFormatted: ", featuresFormatted);
-                setProtocolsSupported(featuresFormatted);
+                setName(result.data.name);
+                setDescription(result.data.description);
+                setImage(result.data.image);
+                setFeaturesSupported(result.data.features);
+                // @ts-ignore
+
             }
-            setName(result.data.name);
-            setDescription(result.data.description);
-            setImage(result.data.image);
-            setFeaturesSupported(result.data.features);
-            // @ts-ignore
             setIsLoading(false);
             if(result.data.name){
                 return true
@@ -227,6 +227,7 @@ const SubmitDapps = () => {
                 message: payload,
             })
             console.log("signature: ",signature)
+            let address 
             dapp.developer = wallet.ethAddress.toLowerCase()
             dapp.signer = wallet.ethAddress.toLowerCase()
             dapp.payload = payload
@@ -234,7 +235,7 @@ const SubmitDapps = () => {
             console.log("dapp: ",dapp)
             let txInfo = await api.ChartDapp(dapp)
             console.log("SUCCESS: ",txInfo.data)
-            if(txInfo.success){
+            if(txInfo.data.success){
                 //show success message
                 console.log("SUCCESS: ",txInfo.data)
             } else {
