@@ -89,7 +89,11 @@ const ReviewDapps = () => {
             footer: info => info.column.id,
         }),
         columnHelper.accessor('app', {
-            cell: info => <a href={info.getValue()}>{info.getValue()}</a> ,
+            cell: info => (
+                <div style={{ width: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <a href={info.getValue()}>{info.getValue()}</a>
+                </div>
+            ),
             footer: info => info.column.id,
         }),
         columnHelper.accessor('score', {
@@ -213,6 +217,7 @@ const ReviewDapps = () => {
                 duration: 9000,
                 isClosable: true,
             })
+            onStart()
             setTimeout(onStart,2000)
         }catch(e){
             console.error(e)
@@ -253,7 +258,7 @@ const ReviewDapps = () => {
                 duration: 9000,
                 isClosable: true,
             })
-
+            onStart()
             setTimeout(onStart,2000)
 
         }catch(e){
@@ -294,203 +299,62 @@ const ReviewDapps = () => {
 
     let onSubmitEdit = async function(){
         try{
-            try{
-
-                //check name
+            console.log("onSubmitEdit: ")
+            const updateEntity = async (entryKey, newValue, action = null, type = null) => {
                 // @ts-ignore
-                // if(entry?.name !== name){
-                //     console.log("Name Has changed!")
-                //     let diff = {
-                //         name,
-                //         key:"name",
-                //         value:name
-                //     }
-                //     let payload = JSON.stringify(diff)
-                //     if(!wallet || !wallet.provider) throw Error("Onbord not setup!")
-                //     const ethersProvider = new ethers.providers.Web3Provider(wallet.provider, 'any')
-                //     const signer = ethersProvider.getSigner()
-                //     let signature = await signer.signMessage(payload)
-                //     let address = wallet?.accounts[0]?.address
-                //     let update:any = {}
-                //     update.name = name
-                //     update.signer = address
-                //     update.payload = payload
-                //     update.signature = signature
-                //     if(!address) throw Error("address required!")
-                //     //submit as admin
-                //     console.log("update: ",update)
-                //     let resultWhitelist = await api.UpdateApp("",update)
-                //     console.log("resultWhitelist: ",resultWhitelist)
-                // }
-                //check url
-                // @ts-ignore
-                // if(entry?.app !== app){
-                //     console.log("app Has changed!")
-                //     let diff = {
-                //         name,
-                //         key:"app",
-                //         value:app
-                //     }
-                //     let payload = JSON.stringify(diff)
-                //     if(!wallet || !wallet.provider) throw Error("Onbord not setup!")
-                //     const ethersProvider = new ethers.providers.Web3Provider(wallet.provider, 'any')
-                //     const signer = ethersProvider.getSigner()
-                //     let signature = await signer.signMessage(payload)
-                //     let address = wallet?.accounts[0]?.address
-                //     let update:any = {}
-                //     update.signer = address
-                //     update.payload = payload
-                //     update.signature = signature
-                //     if(!address) throw Error("address required!")
-                //     //submit as admin
-                //     console.log("update: ",update)
-                //     let resultWhitelist = await api.UpdateApp("",update)
-                //     console.log("resultWhitelist: ",resultWhitelist)
-                // }
+                if (entry[entryKey] !== newValue) {
+                    console.log(`${entryKey} has changed!`)
+                    let diff = {
+                        name,
+                        key: entryKey,
+                        value: newValue,
+                    }
+                    if (type) { // @ts-ignore
+                        diff.type = type;
+                    }
+                    if (action) { // @ts-ignore
+                        diff.action = action;
+                    }
 
-                //check image
-                // @ts-ignore
-                // if(entry?.image !== image){
-                //     console.log("app Has changed!")
-                //     let diff = {
-                //         name,
-                //         key:"image",
-                //         value:image
-                //     }
-                //     let payload = JSON.stringify(diff)
-                //     if(!wallet || !wallet.provider) throw Error("Onbord not setup!")
-                //     const ethersProvider = new ethers.providers.Web3Provider(wallet.provider, 'any')
-                //     const signer = ethersProvider.getSigner()
-                //     let signature = await signer.signMessage(payload)
-                //     let address = wallet?.accounts[0]?.address
-                //     let update:any = {}
-                //     update.name = name
-                //     update.signer = address
-                //     update.payload = payload
-                //     update.signature = signature
-                //     if(!address) throw Error("address required!")
-                //     //submit as admin
-                //     console.log("update: ",update)
-                //     let resultWhitelist = await api.UpdateApp("",update)
-                //     console.log("resultWhitelist: ",resultWhitelist)
-                // }
+                    let payload = JSON.stringify(diff)
+                    if (!wallet || !wallet.provider) throw Error("Onbord not setup!")
 
-                //check description
-                // @ts-ignore
-                // if(entry?.description !== description){
-                //     console.log("description Has changed!")
-                //     let diff = {
-                //         name,
-                //         key:"description",
-                //         value:description
-                //     }
-                //     let payload = JSON.stringify(diff)
-                //     if(!wallet || !wallet.provider) throw Error("Onbord not setup!")
-                //     const ethersProvider = new ethers.providers.Web3Provider(wallet.provider, 'any')
-                //     const signer = ethersProvider.getSigner()
-                //     let signature = await signer.signMessage(payload)
-                //     let address = wallet?.accounts[0]?.address
-                //     let update:any = {}
-                //     update.name = name
-                //     update.signer = address
-                //     update.payload = payload
-                //     update.signature = signature
-                //     if(!address) throw Error("address required!")
-                //     //submit as admin
-                //     console.log("update: ",update)
-                //     let resultWhitelist = await api.UpdateApp("",update)
-                //     console.log("resultWhitelist: ",resultWhitelist)
-                // }
+                    let messageToSign = entryKey === 'image' ? "updated image" : payload;
+                    let signature = await wallet.ethSignMessage({
+                        addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+                        message: messageToSign,
+                    })
+                    let address = wallet?.accounts[0]?.address
+                    let update: any = {};
+                    update.name = name;
+                    update.signer = address;
+                    update.payload = payload;
+                    update.signature = signature.signature;
+                    if (entryKey === 'image') {
+                        update.imageData = newValue;
+                    }
 
-                //check blockchains
-                // @ts-ignore
-                // if(entry?.blockchains !== blockchainsSupported){
-                //     console.log("description Has changed!")
-                //     let diff = {
-                //         name,
-                //         type:"array",
-                //         action:"replace", //push, replace, remove
-                //         key:"blockchains",
-                //         "value":blockchainsSupported
-                //     }
-                //     let payload = JSON.stringify(diff)
-                //     if(!wallet || !wallet.provider) throw Error("Onbord not setup!")
-                //     const ethersProvider = new ethers.providers.Web3Provider(wallet.provider, 'any')
-                //     const signer = ethersProvider.getSigner()
-                //     let signature = await signer.signMessage(payload)
-                //     let address = wallet?.accounts[0]?.address
-                //     let update:any = {}
-                //     update.name = name
-                //     update.signer = address
-                //     update.payload = payload
-                //     update.signature = signature
-                //     if(!address) throw Error("address required!")
-                //     //submit as admin
-                //     console.log("update: ",update)
-                //     let resultWhitelist = await api.UpdateApp("",update)
-                //     console.log("resultWhitelist: ",resultWhitelist)
-                // }
+                    if (!address) throw Error("address required!");
 
-                //check protocols
-                // @ts-ignore
-                // if(entry?.protocols !== protocolsSupported){
-                //     console.log("description Has changed!")
-                //     let diff = {
-                //         name,
-                //         type:"array",
-                //         action:"replace", //push, replace, remove
-                //         key:"protocols",
-                //         "value":protocolsSupported
-                //     }
-                //     let payload = JSON.stringify(diff)
-                //     if(!wallet || !wallet.provider) throw Error("Onbord not setup!")
-                //     const ethersProvider = new ethers.providers.Web3Provider(wallet.provider, 'any')
-                //     const signer = ethersProvider.getSigner()
-                //     let signature = await signer.signMessage(payload)
-                //     let address = wallet?.accounts[0]?.address
-                //     let update:any = {}
-                //     update.name = name
-                //     update.signer = address
-                //     update.payload = payload
-                //     update.signature = signature
-                //     if(!address) throw Error("address required!")
-                //     //submit as admin
-                //     console.log("update: ",update)
-                //     let resultWhitelist = await api.UpdateApp("",update)
-                //     console.log("resultWhitelist: ",resultWhitelist)
-                // }
+                    console.log("update: ", update);
+                    let resultUpdate = await api.UpdateApp(update);
+                    console.log("resultUpdate: ", resultUpdate);
+                }
+            }
 
-                //check features
+            try {
+                await updateEntity("name", name);
+                await updateEntity("app", app);
+                await updateEntity("image", image);
+                await updateEntity("description", description);
                 // @ts-ignore
-                // if(entry?.features !== featuresSupported){
-                //     console.log("description Has changed!")
-                //     let diff = {
-                //         name,
-                //         type:"array",
-                //         action:"replace", //push, replace, remove
-                //         key:"features",
-                //         "value":featuresSupported
-                //     }
-                //     let payload = JSON.stringify(diff)
-                //     if(!wallet || !wallet.provider) throw Error("Onbord not setup!")
-                //     const ethersProvider = new ethers.providers.Web3Provider(wallet.provider, 'any')
-                //     const signer = ethersProvider.getSigner()
-                //     let signature = await signer.signMessage(payload)
-                //     let address = wallet?.accounts[0]?.address
-                //     let update:any = {}
-                //     update.name = name
-                //     update.signer = address
-                //     update.payload = payload
-                //     update.signature = signature
-                //     if(!address) throw Error("address required!")
-                //     //submit as admin
-                //     console.log("update: ",update)
-                //     let resultWhitelist = await api.UpdateApp("",update)
-                //     console.log("resultWhitelist: ",resultWhitelist)
-                // }
+                await updateEntity("blockchains", blockchainsSupported, "replace", "array");
+                // @ts-ignore
+                await updateEntity("protocols", protocolsSupported, "replace", "array");
+                // @ts-ignore
+                await updateEntity("features", featuresSupported, "replace", "array");
 
-            }catch(e){
-                //alert invalid JSON!
+            } catch(e) {
                 console.error("e: ",e)
             }
         }catch(e){

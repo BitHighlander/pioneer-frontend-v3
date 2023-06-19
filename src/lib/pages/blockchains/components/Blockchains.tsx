@@ -73,7 +73,6 @@ const WhitelistBlockchains = () => {
         const onStart = async () => {
             await fetchData();
         };
-
         onStart();
     }, []); // Run onStart only once on component mount
 

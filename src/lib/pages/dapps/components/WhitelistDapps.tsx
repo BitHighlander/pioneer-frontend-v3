@@ -53,9 +53,13 @@ const WhitelistDapps = () => {
             cell: (info) => info.getValue(),
             footer: (info) => info.column.id,
         }),
-        columnHelper.accessor("app", {
-            cell: (info) => <a href={info.getValue()}>{info.getValue()}</a>,
-            footer: (info) => info.column.id,
+        columnHelper.accessor('app', {
+            cell: info => (
+                <div style={{ width: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <a href={info.getValue()}>{info.getValue()}</a>
+                </div>
+            ),
+            footer: info => info.column.id,
         }),
         columnHelper.accessor("name", {
             id: "edit",
@@ -71,6 +75,14 @@ const WhitelistDapps = () => {
                 <Button onClick={() => whitelistEntry(info.getValue())}>approve</Button>
             ),
             header: () => <span>approve</span>,
+            footer: (info) => info.column.id,
+        }),
+        columnHelper.accessor("name", {
+            id: "reject",
+            cell: (info) => (
+                <Button color='red' onClick={() => rejectEntry(info.getValue())}>reject</Button>
+            ),
+            header: () => <span>reject</span>,
             footer: (info) => info.column.id,
         }),
     ];
@@ -147,10 +159,13 @@ const WhitelistDapps = () => {
             console.log("resultWhitelist: ", resultWhitelist.data);
 
             //if not pioneer show Call to action
-            if(resultWhitelist.success){
+            if(resultWhitelist.data.success){
                 //show success message
                 console.log("SUCCESS: ",resultWhitelist.data)
+                alert("SUCCESS! app added to store")
+                onStart()
             } else {
+                console.error("error: ",resultWhitelist)
                 alert("User is not a pioneer!")
             }
         } catch (e) {

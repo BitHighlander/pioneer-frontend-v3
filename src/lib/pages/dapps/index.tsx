@@ -11,8 +11,8 @@ const Header = () => (
 
 const Dapps = () => {
   return (
-    <div>
-      <Card>
+    <div >
+      <Card width="140%" >
         <Header />
         <Body />
       </Card>
