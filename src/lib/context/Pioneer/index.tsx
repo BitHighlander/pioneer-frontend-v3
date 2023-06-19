@@ -338,8 +338,6 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
         console.log('successKeepKey: ', successKeepKey);
         // @ts-ignore
         dispatch({ type: WalletActions.ADD_WALLET, payload: walletKeepKey });
-        // @ts-ignore
-        dispatch({ type: WalletActions.SET_CONTEXT, payload: 'keepkey' });
       }
 
       // eslint-disable-next-line no-console
