@@ -44,8 +44,8 @@ const ReviewDapps = () => {
     const [tabIndex, setTabIndex] = useState(0);
     const [votedUpNames, setVotedUpNames] = React.useState(() => [])
     const [votedDownNames, setVotedDownNames] = React.useState(() => [])
-    const [allUpVotesContext, setAllUpVotesContext] = useState([]);
-    const [allDownVotesContext, setAllDownVotesContext] = useState([]);
+    const [allUpVotesContext, setAllUpVotesContext] = useState<any[]>([]);
+    const [allDownVotesContext, setAllDownVotesContext] = useState<any[]>([]);
     const [data, setData] = React.useState(() => [])
     const [name, setName] = useState('');
     const [app, setApp] = useState('');
@@ -57,9 +57,9 @@ const ReviewDapps = () => {
     const [homepage, setHomepage] = useState('');
     const [urlError, setUrlError] = useState('');
     const [homepageError, setHomepageError] = useState('');
-    const [blockchainsSupported, setBlockchainsSupported] = useState([]);
+    const [blockchainsSupported, setBlockchainsSupported] = useState<any[]>([]);
     const [protocolsSupported, setProtocolsSupported] = useState<any[]>(['wallet-connect']);
-    const [featuresSupported, setFeaturesSupported] = useState([]);
+    const [featuresSupported, setFeaturesSupported] = useState<any[]>([]);
     const [activeStep, setActiveStep] = useState(0);
     const [minVersion, setMinVersion] = React.useState([])
     const [blockchains, setBlockchains] = React.useState([])
