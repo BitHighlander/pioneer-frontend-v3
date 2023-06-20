@@ -227,9 +227,15 @@ const SubmitDapps = () => {
                 message: payload,
             })
             console.log("signature: ",signature)
-            let address 
-            dapp.developer = wallet.ethAddress.toLowerCase()
-            dapp.signer = wallet.ethAddress.toLowerCase()
+            let addressInfo = {
+                addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+                coin: 'Ethereum',
+                scriptType: 'ethereum',
+                showDisplay: false
+            }
+            let address = await wallet.ethGetAddress(addressInfo);
+            dapp.developer = address
+            dapp.signer = address
             dapp.payload = payload
             dapp.signature = signature.signature
             console.log("dapp: ",dapp)
