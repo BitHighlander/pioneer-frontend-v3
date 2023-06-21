@@ -16,12 +16,14 @@ import {
     TabList,
     TabPanels,
     Tab,
-    TabPanel
+    TabPanel,
+    Flex,
+    Select
 } from "@chakra-ui/react";
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 // import { useAlert } from 'react-alert'
-import { ArrowUpIcon, ArrowDownIcon } from '@chakra-ui/icons'
+import { ArrowUpIcon, ArrowDownIcon, StarIcon } from '@chakra-ui/icons'
 import { useToast } from '@chakra-ui/react'
 import {
     createColumnHelper,
@@ -34,6 +36,27 @@ import { useEffect, useState } from "react";
 import {Select as SelectImported} from "chakra-react-select";
 const columnHelper = createColumnHelper<any>()
 import { usePioneer } from 'lib/context/Pioneer';
+import ReactPaginate from 'react-paginate';
+import Review from "./Review";
+import StarRating from "./StarRating";
+
+const Pagination = ({ totalPages, currentPage, onPageChange }) => {
+    const pages = [...Array(totalPages).keys()].map(num => num + 1);
+
+    return (
+        <Box>
+            {pages.map(page => (
+                <Button
+                    key={page}
+                    onClick={() => onPageChange(page)}
+                    colorScheme={currentPage === page ? "blue" : "gray"}
+                >
+                    {page}
+                </Button>
+            ))}
+        </Box>
+    );
+};
 
 const ReviewDapps = () => {
     const { state } = usePioneer();
@@ -63,12 +86,18 @@ const ReviewDapps = () => {
     const [activeStep, setActiveStep] = useState(0);
     const [minVersion, setMinVersion] = React.useState([])
     const [blockchains, setBlockchains] = React.useState([])
-    const [isRest, setIsRest] = React.useState(false)
+    const [currentPage, setCurrentPage] = useState(1);
+    const [reviews, setReviews] = useState([])
+    const [reviewList, setReviewList] = React.useState<any[]>([]);
+    const [isSubmitingReview, setIsSubmitingReview] = React.useState(false);
+    const [starRating, setStarRating] = useState('');
+    const [reviewText, setReviewText] = useState('');
     const [socialMedia, setSocialMedia] = useState({
         twitter: '',
         telegram: '',
         github: 'https://github.com/shapeshift/'
     });
+    const reviewsPerPage = 5;
     const handleInputChangeName = (e) => {
         setUrl(e.target.value);
         setIsValid(validateURL(e.target.value));
@@ -138,6 +167,7 @@ const ReviewDapps = () => {
         }
     }
 
+    // @ts-ignore
     const columns = [
         columnHelper.accessor("image", {
             cell: (info) => (
@@ -166,15 +196,16 @@ const ReviewDapps = () => {
         }),
         columnHelper.accessor('app', {
             cell: info => (
-                <div style={{ width: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    <a href={info.getValue()}>{info.getValue()}</a>
+                <div onClick={() => openEntry(info.getValue())}>
+                    {info.getValue()}
                 </div>
             ),
             footer: info => info.column.id,
         }),
         columnHelper.accessor('score', {
-            cell: info => info.getValue(),
-            footer: info => info.column.id,
+            cell: info => Math.round(info.getValue()),
+            //@ts-ignore
+            footer: info => Math.round(info.column.id),
         }),
         columnHelper.accessor('name', {
             id: 'upvote',
@@ -200,10 +231,10 @@ const ReviewDapps = () => {
             id: 'edit',
             cell: info => (
                 <Button onClick={() => editEntry(info.row.original.name)}>
-                    edit
+                    Review
                 </Button>
             ),
-            header: () => <span>edit</span>,
+            header: () => <span>review</span>,
             footer: info => info.column.id,
         }),
         columnHelper.accessor('revoke', {
@@ -258,6 +289,8 @@ const ReviewDapps = () => {
             console.log("blockchainsFormated: ",blockchainsFormated.length)
             setBlockchains(blockchainsFormated)
 
+            //get reviews
+
         }catch(e){
             console.error(e)
         }
@@ -266,7 +299,22 @@ const ReviewDapps = () => {
     //onstart get data
     useEffect(() => {
         onStart()
-    }, [])
+    }, [api])
+
+    let getReviews = async function(){
+        try{
+
+
+            //get all unapproved dapps
+            let apps = await api.SearchDappsPageniate({limit:1000,skip:0})
+
+
+            //get reviews
+
+        }catch(e){
+            console.error(e)
+        }
+    }
 
     let upVote = async function(name:string){
         try{
@@ -526,6 +574,55 @@ const ReviewDapps = () => {
     //   setValue(inputValue)
     // }
 
+    let onSubmitReview = async function(inputs: any){
+        try{
+            console.log("input: onSelectedBlockchains: ",inputs)
+            setIsSubmitingReview(true)
+        }catch(e){
+            console.error(e)
+        }
+    };
+    
+    //handleSubmitReview
+    let handleSubmitReview = async function(app: any){
+        try{
+            console.log("input: handleSubmitReview: ",app)
+            //submit review
+            let review = {
+                app,
+                rating: starRating,
+                text: reviewText,
+                testedBlockchains: ["ethereum"],
+            }
+
+            let payload = `{"type": "revoke", "app": "${app}"}`
+            console.log("payload: ", entry);
+
+            //
+            let signature = await wallet.ethSignMessage({
+                addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+                message: payload,
+            })
+            const body: any = {};
+            let addressInfo = {
+                addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+                coin: 'Ethereum',
+                scriptType: 'ethereum',
+                showDisplay: false
+            }
+            body.signer = await wallet.ethGetAddress(addressInfo);
+            body.payload = payload;
+            body.signature = signature.signature;
+            body.review = review
+            if (!body.signer) throw Error("address required!");
+            console.log("handleSubmitReview submit review: ",body)
+            let result = await api.SubmitReview(body);
+            console.log("handleSubmitReview result submit review: ",result.data)
+        }catch(e){
+            console.error(e)
+        }
+    };
+    
     let onSelectedBlockchains = async function(inputs: any){
         try{
             console.log("input: onSelectedBlockchains: ",inputs)
@@ -544,17 +641,6 @@ const ReviewDapps = () => {
         try{
             console.log("input: onSelectedProtocols: ",input)
             setProtocolsSupported(input)
-            let isRestFound
-            for(let i = 0; i < input.length; i++){
-                let protocol = input[i]
-                if(protocol.value === 'REST'){
-                    setIsRest(true)
-                    isRestFound = true
-                }
-            }
-            if(!isRestFound){
-                setIsRest(false)
-            }
         }catch(e){
             console.error(e)
         }
@@ -656,14 +742,18 @@ const ReviewDapps = () => {
         </>
     );
 
+    const handlePageChange = ({ selected }) => {
+        setCurrentPage(selected);
+    };
 
-
+    // @ts-ignore
+    // @ts-ignore
     // @ts-ignore
     return (
         <div>
             <Modal isOpen={isOpen} onClose={onClose} size="xl">
                 <ModalHeader>
-                    Edit dApp
+                    Review dApp
                     <ModalCloseButton />
                 </ModalHeader>
                 <ModalOverlay />
@@ -671,6 +761,7 @@ const ReviewDapps = () => {
                     <Tabs index={tabIndex} onChange={handleTabChange}>
                         <TabList>
                             <Tab>Info</Tab>
+                            <Tab>Reviews</Tab>
                             <Tab>Form</Tab>
                             <Tab>Vote History</Tab>
                         </TabList>
@@ -743,6 +834,86 @@ const ReviewDapps = () => {
                                     </Box>
                                 </Card>
 
+                            </TabPanel>
+                            <TabPanel>
+                                <Box>
+                                    <Heading
+                                        color="teal.400"
+                                        fontSize={{ base: ".8rem", md: "1rem" }}
+                                        my="1rem"
+                                    >
+                                        dApp Reviews
+                                    </Heading>
+
+                                    {isSubmitingReview ? (
+                                        <div>
+                                            <form>
+                                                <FormControl id="star-rating" my="1rem">
+                                                    <FormLabel>Star Rating</FormLabel>
+                                                    <Select
+                                                        placeholder="Select rating"
+                                                        value={starRating}
+                                                        onChange={(e) => setStarRating(e.target.value)}
+                                                    >
+                                                        <option value="1">1 star</option>
+                                                        <option value="2">2 stars</option>
+                                                        <option value="3">3 stars</option>
+                                                        <option value="4">4 stars</option>
+                                                        <option value="5">5 stars</option>
+                                                    </Select>
+                                                </FormControl>
+                                                <FormControl id="review-text" my="1rem">
+                                                    <FormLabel>Review Text</FormLabel>
+                                                    <Textarea
+                                                        value={reviewText}
+                                                        onChange={(e) => setReviewText(e.target.value)}
+                                                        placeholder="Write your review..."
+                                                    />
+                                                </FormControl>
+                                                {/*<FormControl id="blockchains-supported" my="1rem">*/}
+                                                {/*    <FormLabel>Blockchains Supported</FormLabel>*/}
+                                                {/*    <Input*/}
+                                                {/*        value={blockchainsSupported}*/}
+                                                {/*        onChange={(e) => setBlockchainsSupported(e.target.value)}*/}
+                                                {/*        placeholder="Enter the supported blockchains"*/}
+                                                {/*    />*/}
+                                                {/*</FormControl>*/}
+                                            </form>
+                                            <Button
+                                                type="submit"
+                                                colorScheme="blue"
+                                                mr={3}
+                                                onClick={async (event) => {
+                                                    event.preventDefault(); // prevent form from refreshing the page
+                                                    await handleSubmitReview(name);
+                                                }}
+                                            >
+                                                Submit
+                                            </Button>
+                                        </div>
+                                    ): (
+                                        <div>
+                                            <Button
+                                                colorScheme="blue"
+                                                mr={3}
+                                                onClick={() => setIsSubmitingReview(true)}
+                                            >
+                                                Submit Review
+                                            </Button>
+
+                                        </div>
+                                    )}
+                                    {reviewList.map((review, index) => (
+                                        <Review
+                                            key={index}
+                                            name={review.name}
+                                            rating={review.rating}
+                                            avatar={review.avatar}
+                                            text={review.text}
+                                            setRating={StarRating} // Pass setRating prop here
+                                        />
+                                    ))}
+                                </Box>
                             </TabPanel>
                             <TabPanel>
                                 <ModalHeader>Edit Entry</ModalHeader>
