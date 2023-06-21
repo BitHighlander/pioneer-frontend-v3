@@ -301,13 +301,13 @@ const ReviewDapps = () => {
         onStart()
     }, [api])
 
-    let getReviews = async function(){
+    let getReviews = async function(app:string){
         try{
 
 
             //get all unapproved dapps
             let apps = await api.SearchDappsPageniate({limit:1000,skip:0})
-
+            setReviewList(apps.data)
 
             //get reviews
 
@@ -447,7 +447,7 @@ const ReviewDapps = () => {
             getVotes(name)
             setTabIndex(1);
             onOpen();
-
+            getReviews(name)
             // Find the selected entry by name
             // @ts-ignore
             const selectedEntry = data.find(entry => entry.name === name);

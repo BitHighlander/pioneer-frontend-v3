@@ -4,20 +4,24 @@ import StarRating from "./StarRating";
 
 interface StarRatingProps {
     rating: number;
-    setRating: (rating: number) => void;
+    setRating: any;
     count?: number;
     size?: number;
 }
 
-interface ReviewProps {
+interface ReviewProps extends StarRatingProps {
     name: string;
-    rating: number;
     avatar: string;
     text: string;
 }
 
-
-export default function Review({ name, rating, avatar, text }: ReviewProps) {
+export default function Review({
+                                   name,
+                                   rating,
+                                   avatar,
+                                   text,
+                                   setRating
+                               }: ReviewProps) {
     return (
         <Box mb={4}>
             <Flex alignItems="center" justifyContent="space-between">
@@ -25,9 +29,7 @@ export default function Review({ name, rating, avatar, text }: ReviewProps) {
                     <Heading as="h4" size="md">
                         {name}
                     </Heading>
-                    <StarRating rating={rating} size={24} setRating={function (rating: number): void {
-                        throw new Error("Function not implemented.");
-                    }} />
+                    <StarRating rating={rating} size={24} setRating={setRating} />
                 </Box>
                 <Box>
                     <Avatar src={avatar} />
