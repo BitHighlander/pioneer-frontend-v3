@@ -1,5 +1,5 @@
 import { CloseIcon, ArrowUpDownIcon } from '@chakra-ui/icons';
-import { Avatar, AvatarBadge, Box, Button, Flex, HStack, IconButton, Link, Menu, Image, MenuButton, MenuDivider, Icon, MenuItem, MenuList, Spacer, Text, useDisclosure, Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, SimpleGrid, Card, CardHeader, Heading, CardBody, CardFooter, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter } from '@chakra-ui/react';
+import { Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, Tabs, TabList, TabPanels, Tab, TabPanel, Avatar, AvatarBadge, Box, Button, Flex, HStack, IconButton, Link, Menu, Image, MenuButton, MenuDivider, Icon, MenuItem, MenuList, Spacer, Text, useDisclosure, Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, SimpleGrid, Card, CardHeader, Heading, CardBody, CardFooter, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter } from '@chakra-ui/react';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -48,11 +48,32 @@ const getWalletBadgeContent = (walletType: string) => {
   );
 }
 
+const getWalletSettingsContent = (walletType: string) => {
+  const icons:any = {
+    metamask: METAMASK_ICON,
+    keepkey: KEEPKEY_ICON,
+    native: PIONEER_ICON,
+  };
+
+  const icon = icons[walletType];
+
+  if (!icon) {
+    return <div />;
+  }
+
+  return (
+      icon
+  );
+}
+
 const Header = () => {
   const { state, dispatch } = usePioneer();
   const { api, user, context, wallets } = state;
+  const [placement, setPlacement] = useState('left')
   // let api = {}
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // const { isOpen, onOpen, onClose } = useDisclosure();
+  const navigationDisclosure = useDisclosure()
+  const walletDisclosure = useDisclosure()
   // const [pioneerConnected, setPioneerConnected] = useState(false);
 
   // const [user, setUser] = useState({
@@ -67,12 +88,12 @@ const Header = () => {
   const [metamaskPaired, setMetamaskPaired] = useState(false);
   const [keepkeyPaired, setKeepkeyPaired] = useState(false);
   const [nativePaired, setNativePaired] = useState(false);
+  const [walletSettingsContext, setWalletSettingsContext] = useState('');
   const [assetContext, setAssetContext] = useState('');
   const [assetContextImage, setAssetContextImage] = useState('');
   const [blockchainContext, setBlockchainContext] = useState('');
   const [blockchainContextImage, setBlockchainContextImage] = useState('');
   // const [pubkeys, setPubkeys] = useState([]);
-  // const [walletDescriptions, setWalletDescriptions] = useState([]);
   // const [features, setKeepKeyFeatures] = useState({});
 
   const navigate = useNavigate();
@@ -89,7 +110,9 @@ const Header = () => {
         dispatch({ type: 'SET_CONTEXT', payload: wallet });
       } else {
         console.log('No wallet matched the type of the context');
-        alert("wallet not paired yet")
+        //launch modal
+        walletDisclosure.onOpen();
+        setWalletSettingsContext(wallet);
       }
     } catch (e) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -210,7 +233,7 @@ const Header = () => {
 
   const handleNavigate = (route: string) => {
     navigate(route);
-    onClose();
+    navigationDisclosure.onClose();
   };
 
   useEffect(() => {
@@ -245,16 +268,69 @@ const Header = () => {
       </AvatarBadge>
   );
 
+  const toggleDrawer = () => {
+    if (navigationDisclosure.isOpen) {
+      navigationDisclosure.onClose()
+    } else {
+      navigationDisclosure.onOpen()
+    }
+  }
+
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return (
       <Flex as="header" width="full" alignSelf="flex-start" gridGap={2} alignItems="center">
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={walletDisclosure.isOpen} onClose={walletDisclosure.onClose}>
           <ModalOverlay />
           <ModalContent>
-            <ModalHeader>Select Option</ModalHeader>
+            <ModalHeader>Wallet Settings</ModalHeader>
             <ModalCloseButton />
+
             <ModalBody>
+              {walletSettingsContext && (
+                  <>
+                    <Avatar size="xl" src={getWalletSettingsContent(walletSettingsContext)} />
+                    <Box mt={4}>
+                      {walletSettingsContext === 'keepkey' && (
+                          <>
+                            <Text>Status: Offline</Text>
+                            <Button
+                                colorScheme="green"
+                                size="lg"
+                                mb={2}
+                                onClick={() => window.location.assign('keepkey://launch')}
+                            >
+                              Launch App
+                            </Button>
+                            <br/>
+                            <Button
+                                as={Link}
+                                href="https://keepkey.com/get-started"
+                                colorScheme="blue"
+                                size="lg"
+                                mt={2}
+                            >
+                              Go Get Started
+                            </Button>
+                          </>
+                      )}
+                    </Box>
+                  </>
+              )}
+            </ModalBody>
+
+            <ModalFooter>
+              <Button colorScheme="blue" mr={3} onClick={walletDisclosure.onClose}>
+                Close
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+        <Drawer placement={'left'} onClose={navigationDisclosure.onClose} isOpen={navigationDisclosure.isOpen}>
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerHeader borderBottomWidth='1px'>Navigation Options</DrawerHeader>
+            <DrawerBody>
               <Button w="full" mb={2} onClick={() => handleNavigate('/dapps')}>
                 Explore Dapps
               </Button>
@@ -267,18 +343,18 @@ const Header = () => {
               <Button w="full" mb={2} onClick={() => handleNavigate('/nodes')}>
                 Explore Nodes
               </Button>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/pioneers')}>
-                Pioneers
+              <Button w="full" mb={2} onClick={() => handleNavigate('/become-pioneer')}>
+                Become a Pioneer
               </Button>
-            </ModalBody>
-            <ModalFooter>
-              <Button colorScheme="blue" mr={3} onClick={onClose}>
-                Close
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-        <IconButton size="md" icon={isOpen ? <CloseIcon /> : <ArrowUpDownIcon />} aria-label="Open Menu" onClick={isOpen ? onClose : onOpen} />
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
+        <IconButton
+            size="md"
+            icon={navigationDisclosure.isOpen ? <CloseIcon /> : <ArrowUpDownIcon />}
+            aria-label={navigationDisclosure.isOpen ? "Close Menu" : "Open Menu"}
+            onClick={toggleDrawer}
+        />
         <HStack spacing={8}>
           <Link onClick={handleToHome}>
             <Box>Pioneer</Box>
@@ -344,27 +420,46 @@ const Header = () => {
                 </Card>
               </SimpleGrid>
             </MenuItem>
-            <Accordion defaultIndex={[0]} allowMultiple>
-              <AccordionItem>
-                <h2>
-                  <AccordionButton>
-                    <Box as="span" flex="1" textAlign="left">
-                      Balances {balances.length}
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4}>
-                  {balances.map((balance: any) => (
-                      <div>
-                        <Avatar size="sm" src={balance.image} />
-                        <small>symbol: {balance.symbol}</small>
-                        <small>balance: {balance.balance}</small>
-                      </div>
-                  ))}
-                </AccordionPanel>
-              </AccordionItem>
-            </Accordion>
+            <Tabs>
+              <TabList>
+                <Tab>Dashboard</Tab>
+                <Tab>Balances</Tab>
+                <Tab>Pubkeys</Tab>
+              </TabList>
+
+              <TabPanels>
+                <TabPanel>
+                  context: {context}
+                  <br/>
+                </TabPanel>
+                <TabPanel>
+                  <Accordion defaultIndex={[0]} allowMultiple>
+                    <AccordionItem>
+                      <h2>
+                        <AccordionButton>
+                          <Box as="span" flex="1" textAlign="left">
+                            Balances {balances.length}
+                          </Box>
+                          <AccordionIcon />
+                        </AccordionButton>
+                      </h2>
+                      <AccordionPanel pb={4}>
+                        {balances.map((balance: any) => (
+                            <div>
+                              <Avatar size="sm" src={balance.image} />
+                              <small>symbol: {balance.symbol}</small>
+                              <small>balance: {balance.balance}</small>
+                            </div>
+                        ))}
+                      </AccordionPanel>
+                    </AccordionItem>
+                  </Accordion>
+                </TabPanel>
+                <TabPanel>
+                  <p>three!</p>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
           </MenuList>
         </Menu>
       </Flex>
