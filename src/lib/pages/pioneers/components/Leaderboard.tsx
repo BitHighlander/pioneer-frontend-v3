@@ -10,42 +10,47 @@ const Leaderboard = () => {
 
     const [data, setData] = React.useState([]);
 
+    // @ts-ignore
     const columns = React.useMemo(
         () => [
             {
                 Header: 'Avatar',
                 accessor: 'avatar',
-                Cell: ({ value }) => <Avatar size="sm" name={value} />,
+                // @ts-ignore
+                Cell: ({ value }) => <Avatar size="2xl" name={null} src={value} />,
             },
-            {
-                Header: 'Username',
-                accessor: 'username',
-            },
+            // {
+            //     Header: 'Username',
+            //     accessor: 'username',
+            // },
             {
                 Header: 'Scores',
-                accessor: 'scores',
+                accessor: 'score',
+            },
+            {
+                Header: 'Vote Power',
+                accessor: 'power',
             },
             {
                 Header: 'Public Address',
-                accessor: 'publicAddress',
+                accessor: 'address',
             },
         ],
         []
     );
 
-    let onStart = async function () {
-        try {
-            let devs = await api.ListDevelopers({ limit: 1000, skip: 0 });
-            console.log("devs: ", devs.data);
-            setData(devs.data);
-        } catch (e) {
-            console.error(e);
-        }
-    };
-
     useEffect(() => {
-        onStart();
-    }, []);
+        const fetchData = async () => {
+            try {
+                const devs = await api.ListDevelopers({ limit: 1000, skip: 0 });
+                setData(devs.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchData();
+    }, [api]);
 
     const {
         getTableProps,
