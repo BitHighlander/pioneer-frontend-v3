@@ -14,21 +14,21 @@ const Header = () => (
 const Nodes = () => {
   return (
     <Box>
-        <Header></Header>
-        <Tabs variant="enclosed" defaultIndex={0}>
-            <TabList>
-                <Tab>Nodes Charted</Tab>
-                <Tab>Chart a new Nodes</Tab>
-            </TabList>
-            <TabPanels>
-                <TabPanel>
-                    <WhitelistNodes/>
-                </TabPanel>
-                <TabPanel>
-                    <p>Chart a Nodes!</p>
-                </TabPanel>
-            </TabPanels>
-        </Tabs>
+      <Header></Header>
+      <Tabs variant="enclosed" defaultIndex={0}>
+        <TabList>
+          <Tab>Nodes Charted</Tab>
+          <Tab>Chart a new Nodes</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <WhitelistNodes />
+          </TabPanel>
+          <TabPanel>
+            <p>Chart a Nodes!</p>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </Box>
   );
 };

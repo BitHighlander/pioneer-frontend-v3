@@ -12,21 +12,21 @@ const Header = () => (
 const Blockchains = () => {
   return (
     <Box>
-        <Header></Header>
-        <Tabs variant="enclosed" defaultIndex={0}>
-            <TabList>
-                <Tab>Blockchain Charted</Tab>
-                <Tab>Chart a new Blockchain</Tab>
-            </TabList>
-            <TabPanels>
-                <TabPanel>
-                    <WhitelistBlockchains/>
-                </TabPanel>
-                <TabPanel>
-                    <p>Chart a Blockchain!</p>
-                </TabPanel>
-            </TabPanels>
-        </Tabs>
+      <Header></Header>
+      <Tabs variant="enclosed" defaultIndex={0}>
+        <TabList>
+          <Tab>Blockchain Charted</Tab>
+          <Tab>Chart a new Blockchain</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <WhitelistBlockchains />
+          </TabPanel>
+          <TabPanel>
+            <p>Chart a Blockchain!</p>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </Box>
   );
 };

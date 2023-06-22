@@ -20,16 +20,16 @@ import PIONEER_ICON from 'lib/assets/png/pioneer.png';
 // import Context from "lib/context";
 import { usePioneer } from 'lib/context/Pioneer';
 
-const getWalletType = (user: { walletDescriptions: any[]; }, context: any) => {
+const getWalletType = (user: { walletDescriptions: any[] }, context: any) => {
   if (user && user.walletDescriptions) {
-    const wallet = user.walletDescriptions.find(w => w.id === context);
+    const wallet = user.walletDescriptions.find((w) => w.id === context);
     return wallet ? wallet.type : null;
   }
   return null;
-}
+};
 
 const getWalletBadgeContent = (walletType: string) => {
-  const icons:any = {
+  const icons: any = {
     metamask: METAMASK_ICON,
     keepkey: KEEPKEY_ICON,
     native: PIONEER_ICON,
@@ -42,14 +42,14 @@ const getWalletBadgeContent = (walletType: string) => {
   }
 
   return (
-      <AvatarBadge boxSize="1.25em" bg="green.500">
-        <Image rounded="full" src={icon} />
-      </AvatarBadge>
+    <AvatarBadge boxSize="1.25em" bg="green.500">
+      <Image rounded="full" src={icon} />
+    </AvatarBadge>
   );
-}
+};
 
 const getWalletSettingsContent = (walletType: string) => {
-  const icons:any = {
+  const icons: any = {
     metamask: METAMASK_ICON,
     keepkey: KEEPKEY_ICON,
     native: PIONEER_ICON,
@@ -61,19 +61,17 @@ const getWalletSettingsContent = (walletType: string) => {
     return <div />;
   }
 
-  return (
-      icon
-  );
-}
+  return icon;
+};
 
 const Header = () => {
   const { state, dispatch } = usePioneer();
   const { api, user, context, wallets } = state;
-  const [placement, setPlacement] = useState('left')
+  const [placement, setPlacement] = useState('left');
   // let api = {}
   // const { isOpen, onOpen, onClose } = useDisclosure();
-  const navigationDisclosure = useDisclosure()
-  const walletDisclosure = useDisclosure()
+  const navigationDisclosure = useDisclosure();
+  const walletDisclosure = useDisclosure();
   // const [pioneerConnected, setPioneerConnected] = useState(false);
 
   // const [user, setUser] = useState({
@@ -81,7 +79,7 @@ const Header = () => {
   //   context: undefined,
   //   totalValueUsd: undefined,
   // });
-  const [walletType, setWalletType] = useState("");
+  const [walletType, setWalletType] = useState('');
   const [walletDescriptions, setWalletDescriptions] = useState([]);
   const [walletsAvailable, setWalletsAvailable] = useState([]);
   const [balances, setBalances] = useState([]);
@@ -102,8 +100,8 @@ const Header = () => {
   const setContextWallet = async function (wallet: string) {
     try {
       // eslint-disable-next-line no-console
-      console.log("wallets: ",wallets)
-      const matchedWallet = wallets.find((w: { type: string; }) => w.type === wallet);
+      console.log('wallets: ', wallets);
+      const matchedWallet = wallets.find((w: { type: string }) => w.type === wallet);
 
       if (matchedWallet) {
         dispatch({ type: 'SET_WALLET', payload: matchedWallet });
@@ -180,7 +178,7 @@ const Header = () => {
 
   const setUser = async function () {
     try {
-      if(user && user.wallets){
+      if (user && user.wallets) {
         const { wallets, walletDescriptions, balances, pubkeys } = user;
         // eslint-disable-next-line no-console
         console.log('wallets: ', wallets);
@@ -216,7 +214,6 @@ const Header = () => {
         // eslint-disable-next-line no-console
         console.log('pubkeys: ', pubkeys);
       }
-
     } catch (e) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -256,213 +253,199 @@ const Header = () => {
 
   useEffect(() => {
     if (wallets) {
-      setMetamaskPaired(!!wallets.find((w: { type: string; }) => w.type === "metamask"));
-      setKeepkeyPaired(!!wallets.find((w: { type: string; }) => w.type === "keepkey"));
-      setNativePaired(!!wallets.find((w: { type: string; }) => w.type === "native"));
+      setMetamaskPaired(!!wallets.find((w: { type: string }) => w.type === 'metamask'));
+      setKeepkeyPaired(!!wallets.find((w: { type: string }) => w.type === 'keepkey'));
+      setNativePaired(!!wallets.find((w: { type: string }) => w.type === 'native'));
     }
   }, [wallets]);
 
-  const avatarContent = api ? getWalletBadgeContent(walletType) : (
-      <AvatarBadge boxSize="1.25em" bg="red.500">
-        <Image rounded="full" src={PIONEER_ICON} />  {/* Use the default icon here */}
-      </AvatarBadge>
+  const avatarContent = api ? (
+    getWalletBadgeContent(walletType)
+  ) : (
+    <AvatarBadge boxSize="1.25em" bg="red.500">
+      <Image rounded="full" src={PIONEER_ICON} /> {/* Use the default icon here */}
+    </AvatarBadge>
   );
 
   const toggleDrawer = () => {
     if (navigationDisclosure.isOpen) {
-      navigationDisclosure.onClose()
+      navigationDisclosure.onClose();
     } else {
-      navigationDisclosure.onOpen()
+      navigationDisclosure.onOpen();
     }
-  }
+  };
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return (
-      <Flex as="header" width="full" alignSelf="flex-start" gridGap={2} alignItems="center">
-        <Modal isOpen={walletDisclosure.isOpen} onClose={walletDisclosure.onClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Wallet Settings</ModalHeader>
-            <ModalCloseButton />
+    <Flex as="header" width="full" alignSelf="flex-start" gridGap={2} alignItems="center">
+      <Modal isOpen={walletDisclosure.isOpen} onClose={walletDisclosure.onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Wallet Settings</ModalHeader>
+          <ModalCloseButton />
 
-            <ModalBody>
-              {walletSettingsContext && (
-                  <>
-                    <Avatar size="xl" src={getWalletSettingsContent(walletSettingsContext)} />
-                    <Box mt={4}>
-                      {walletSettingsContext === 'keepkey' && (
-                          <>
-                            <Text>Status: Offline</Text>
-                            <Button
-                                colorScheme="green"
-                                size="lg"
-                                mb={2}
-                                onClick={() => window.location.assign('keepkey://launch')}
-                            >
-                              Launch App
-                            </Button>
-                            <br/>
-                            <Button
-                                as={Link}
-                                href="https://keepkey.com/get-started"
-                                colorScheme="blue"
-                                size="lg"
-                                mt={2}
-                            >
-                              Go Get Started
-                            </Button>
-                          </>
-                      )}
-                    </Box>
-                  </>
-              )}
-            </ModalBody>
+          <ModalBody>
+            {walletSettingsContext && (
+              <>
+                <Avatar size="xl" src={getWalletSettingsContent(walletSettingsContext)} />
+                <Box mt={4}>
+                  {walletSettingsContext === 'keepkey' && (
+                    <>
+                      <Text>Status: Offline</Text>
+                      <Button colorScheme="green" size="lg" mb={2} onClick={() => window.location.assign('keepkey://launch')}>
+                        Launch App
+                      </Button>
+                      <br />
+                      <Button as={Link} href="https://keepkey.com/get-started" colorScheme="blue" size="lg" mt={2}>
+                        Go Get Started
+                      </Button>
+                    </>
+                  )}
+                </Box>
+              </>
+            )}
+          </ModalBody>
 
-            <ModalFooter>
-              <Button colorScheme="blue" mr={3} onClick={walletDisclosure.onClose}>
-                Close
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-        <Drawer placement={'left'} onClose={navigationDisclosure.onClose} isOpen={navigationDisclosure.isOpen}>
-          <DrawerOverlay />
-          <DrawerContent>
-            <DrawerHeader borderBottomWidth='1px'>Navigation Options</DrawerHeader>
-            <DrawerBody>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/dapps')}>
-                Explore Dapps
-              </Button>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/blockchains')}>
-                Explore Blockchains
-              </Button>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/assets')}>
-                Explore Assets
-              </Button>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/nodes')}>
-                Explore Nodes
-              </Button>
-              <Button w="full" mb={2} onClick={() => handleNavigate('/become-pioneer')}>
-                Become a Pioneer
-              </Button>
-            </DrawerBody>
-          </DrawerContent>
-        </Drawer>
-        <IconButton
-            size="md"
-            icon={navigationDisclosure.isOpen ? <CloseIcon /> : <ArrowUpDownIcon />}
-            aria-label={navigationDisclosure.isOpen ? "Close Menu" : "Open Menu"}
-            onClick={toggleDrawer}
-        />
-        <HStack spacing={8}>
-          <Link onClick={handleToHome}>
-            <Box>Pioneer</Box>
-          </Link>
-        </HStack>
-        <Spacer />
-        <Menu>
-          <MenuButton as={Button} rounded="full" variant="link" cursor="pointer" minW={200}>
-            <Avatar size="lg" src={PIONEER_ICON}>
-              {avatarContent}
-            </Avatar>
-          </MenuButton>
-          <MenuList>
-            <MenuItem>
-              <SimpleGrid columns={3} row={1}>
-                <Card align="center" onClick={() => setContextWallet('native')}>
-                  <CardBody>
-                    <Avatar src={PIONEER_ICON}>
-                      {nativePaired ? (
-                          <div>
-                            <AvatarBadge boxSize="1.25em" bg="green.500" />
-                          </div>
-                      ) : (
-                          <div>
-                            <AvatarBadge boxSize="1.25em" bg="red.500" />
-                          </div>
-                      )}
-                    </Avatar>
-                  </CardBody>
-                  <small>Pioneer</small>
-                </Card>
-                <Card align="center" onClick={() => setContextWallet('metamask')}>
-                  <CardBody>
-                    <Avatar src={METAMASK_ICON}>
-                      {metamaskPaired ? (
-                          <div>
-                            <AvatarBadge boxSize="1.25em" bg="green.500" />
-                          </div>
-                      ) : (
-                          <div>
-                            <AvatarBadge boxSize="1.25em" bg="red.500" />
-                          </div>
-                      )}
-                    </Avatar>
-                  </CardBody>
-                  <small>MetaMask</small>
-                </Card>
-                <Card align="center" onClick={() => setContextWallet('keepkey')}>
-                  <CardBody>
-                    <Avatar src={KEEPKEY_ICON}>
-                      {keepkeyPaired ? (
-                          <div>
-                            <AvatarBadge boxSize="1.25em" bg="green.500" />
-                          </div>
-                      ) : (
-                          <div>
-                            <AvatarBadge boxSize="1.25em" bg="red.500" />
-                          </div>
-                      )}
-                    </Avatar>
-                  </CardBody>
-                  <small>KeepKey</small>
-                </Card>
-              </SimpleGrid>
-            </MenuItem>
-            <Tabs>
-              <TabList>
-                <Tab>Dashboard</Tab>
-                <Tab>Balances</Tab>
-                <Tab>Pubkeys</Tab>
-              </TabList>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={walletDisclosure.onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Drawer placement={'left'} onClose={navigationDisclosure.onClose} isOpen={navigationDisclosure.isOpen}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader borderBottomWidth="1px">Navigation Options</DrawerHeader>
+          <DrawerBody>
+            <Button w="full" mb={2} onClick={() => handleNavigate('/dapps')}>
+              Explore Dapps
+            </Button>
+            <Button w="full" mb={2} onClick={() => handleNavigate('/blockchains')}>
+              Explore Blockchains
+            </Button>
+            <Button w="full" mb={2} onClick={() => handleNavigate('/assets')}>
+              Explore Assets
+            </Button>
+            <Button w="full" mb={2} onClick={() => handleNavigate('/nodes')}>
+              Explore Nodes
+            </Button>
+            <Button w="full" mb={2} onClick={() => handleNavigate('/become-pioneer')}>
+              Become a Pioneer
+            </Button>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+      <IconButton size="md" icon={navigationDisclosure.isOpen ? <CloseIcon /> : <ArrowUpDownIcon />} aria-label={navigationDisclosure.isOpen ? 'Close Menu' : 'Open Menu'} onClick={toggleDrawer} />
+      <HStack spacing={8}>
+        <Link onClick={handleToHome}>
+          <Box>Pioneer</Box>
+        </Link>
+      </HStack>
+      <Spacer />
+      <Menu>
+        <MenuButton as={Button} rounded="full" variant="link" cursor="pointer" minW={200}>
+          <Avatar size="lg" src={PIONEER_ICON}>
+            {avatarContent}
+          </Avatar>
+        </MenuButton>
+        <MenuList>
+          <MenuItem>
+            <SimpleGrid columns={3} row={1}>
+              <Card align="center" onClick={() => setContextWallet('native')}>
+                <CardBody>
+                  <Avatar src={PIONEER_ICON}>
+                    {nativePaired ? (
+                      <div>
+                        <AvatarBadge boxSize="1.25em" bg="green.500" />
+                      </div>
+                    ) : (
+                      <div>
+                        <AvatarBadge boxSize="1.25em" bg="red.500" />
+                      </div>
+                    )}
+                  </Avatar>
+                </CardBody>
+                <small>Pioneer</small>
+              </Card>
+              <Card align="center" onClick={() => setContextWallet('metamask')}>
+                <CardBody>
+                  <Avatar src={METAMASK_ICON}>
+                    {metamaskPaired ? (
+                      <div>
+                        <AvatarBadge boxSize="1.25em" bg="green.500" />
+                      </div>
+                    ) : (
+                      <div>
+                        <AvatarBadge boxSize="1.25em" bg="red.500" />
+                      </div>
+                    )}
+                  </Avatar>
+                </CardBody>
+                <small>MetaMask</small>
+              </Card>
+              <Card align="center" onClick={() => setContextWallet('keepkey')}>
+                <CardBody>
+                  <Avatar src={KEEPKEY_ICON}>
+                    {keepkeyPaired ? (
+                      <div>
+                        <AvatarBadge boxSize="1.25em" bg="green.500" />
+                      </div>
+                    ) : (
+                      <div>
+                        <AvatarBadge boxSize="1.25em" bg="red.500" />
+                      </div>
+                    )}
+                  </Avatar>
+                </CardBody>
+                <small>KeepKey</small>
+              </Card>
+            </SimpleGrid>
+          </MenuItem>
+          <Tabs>
+            <TabList>
+              <Tab>Dashboard</Tab>
+              <Tab>Balances</Tab>
+              <Tab>Pubkeys</Tab>
+            </TabList>
 
-              <TabPanels>
-                <TabPanel>
-                  context: {context}
-                  <br/>
-                </TabPanel>
-                <TabPanel>
-                  <Accordion defaultIndex={[0]} allowMultiple>
-                    <AccordionItem>
-                      <h2>
-                        <AccordionButton>
-                          <Box as="span" flex="1" textAlign="left">
-                            Balances {balances.length}
-                          </Box>
-                          <AccordionIcon />
-                        </AccordionButton>
-                      </h2>
-                      <AccordionPanel pb={4}>
-                        {balances.map((balance: any) => (
-                            <div>
-                              <Avatar size="sm" src={balance.image} />
-                              <small>symbol: {balance.symbol}</small>
-                              <small>balance: {balance.balance}</small>
-                            </div>
-                        ))}
-                      </AccordionPanel>
-                    </AccordionItem>
-                  </Accordion>
-                </TabPanel>
-                <TabPanel>
-                  <p>three!</p>
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
-          </MenuList>
-        </Menu>
-      </Flex>
+            <TabPanels>
+              <TabPanel>
+                context: {context}
+                <br />
+              </TabPanel>
+              <TabPanel>
+                <Accordion defaultIndex={[0]} allowMultiple>
+                  <AccordionItem>
+                    <h2>
+                      <AccordionButton>
+                        <Box as="span" flex="1" textAlign="left">
+                          Balances {balances.length}
+                        </Box>
+                        <AccordionIcon />
+                      </AccordionButton>
+                    </h2>
+                    <AccordionPanel pb={4}>
+                      {balances.map((balance: any) => (
+                        <div>
+                          <Avatar size="sm" src={balance.image} />
+                          <small>symbol: {balance.symbol}</small>
+                          <small>balance: {balance.balance}</small>
+                        </div>
+                      ))}
+                    </AccordionPanel>
+                  </AccordionItem>
+                </Accordion>
+              </TabPanel>
+              <TabPanel>
+                <p>three!</p>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </MenuList>
+      </Menu>
+    </Flex>
   );
 };
 

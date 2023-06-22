@@ -33,5 +33,5 @@ export const features = [
   {
     value: 'other',
     label: 'other',
-  }
+  },
 ];

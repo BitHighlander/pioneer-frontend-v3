@@ -14,7 +14,7 @@ const Pioneers = () => {
   return (
     <Box>
       <Header />
-        <Leaderboard/>
+      <Leaderboard />
     </Box>
   );
 };

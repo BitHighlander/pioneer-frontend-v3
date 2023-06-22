@@ -113,17 +113,17 @@ export interface IPioneerContext {
 }
 
 export type ActionTypes =
-    | { type: WalletActions.SET_STATUS; payload: any }
-    | { type: WalletActions.SET_USERNAME; payload: string }
-    | { type: WalletActions.SET_WALLET; payload: any }
-    | { type: WalletActions.SET_APP; payload: any }
-    | { type: WalletActions.SET_API; payload: any }
-    | { type: WalletActions.SET_USER; payload: any }
-    | { type: WalletActions.SET_CONTEXT; payload: any }
-    | { type: WalletActions.ADD_WALLET; payload: any }
-    // | { type: WalletActions.SET_WALLET_DESCRIPTIONS; payload: any }
-    // | { type: WalletActions.INIT_PIONEER; payload: boolean }
-    | { type: WalletActions.RESET_STATE };
+  | { type: WalletActions.SET_STATUS; payload: any }
+  | { type: WalletActions.SET_USERNAME; payload: string }
+  | { type: WalletActions.SET_WALLET; payload: any }
+  | { type: WalletActions.SET_APP; payload: any }
+  | { type: WalletActions.SET_API; payload: any }
+  | { type: WalletActions.SET_USER; payload: any }
+  | { type: WalletActions.SET_CONTEXT; payload: any }
+  | { type: WalletActions.ADD_WALLET; payload: any }
+  // | { type: WalletActions.SET_WALLET_DESCRIPTIONS; payload: any }
+  // | { type: WalletActions.INIT_PIONEER; payload: boolean }
+  | { type: WalletActions.RESET_STATE };
 
 const reducer = (state: InitialState, action: ActionTypes) => {
   switch (action.type) {
@@ -197,7 +197,7 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
 
       const keyring = new core.Keyring();
       const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
-      console.log("metaMaskAdapter: ",metaMaskAdapter)
+      console.log('metaMaskAdapter: ', metaMaskAdapter);
 
       if (!queryKey) {
         queryKey = `key:${uuidv4()}`;
@@ -230,7 +230,7 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 
       // Example usage
-      let walletMetaMask
+      let walletMetaMask;
       if (isMetaMaskAvailable()) {
         walletMetaMask = await metaMaskAdapter.pairDevice();
         if (walletMetaMask) {
@@ -260,10 +260,10 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
         return false;
       };
 
-      let isKeepkeyAvailable = await checkKeepkeyAvailability();
+      const isKeepkeyAvailable = await checkKeepkeyAvailability();
 
-      let walletKeepKey
-      if(isKeepkeyAvailable){
+      let walletKeepKey;
+      if (isKeepkeyAvailable) {
         //is keepkey available
         const config: any = {
           apiKey: serviceKey || 'notSet',
@@ -284,8 +284,8 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
         }
 
         walletKeepKey = await KkRestAdapter.useKeyring(
-            keyring
-            // @ts-ignore
+          keyring
+          // @ts-ignore
         ).pairDevice(sdkKeepKey);
         // eslint-disable-next-line no-console
         console.log('walletKeepKey: ', walletKeepKey);
@@ -298,34 +298,34 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
         dispatch({ type: WalletActions.ADD_WALLET, payload: walletKeepKey });
       }
 
-      let walletSoftware
-      let mnemonic
-      let hashStored
-      let hash
+      let walletSoftware;
+      let mnemonic;
+      let hashStored;
+      let hash;
       const nativeAdapter = NativeAdapter.useKeyring(keyring);
       //is metamask available AND no KeepKey
-      if(walletMetaMask && !isKeepkeyAvailable){
+      if (walletMetaMask && !isKeepkeyAvailable) {
         //generate software from metamask
         hashStored = localStorage.getItem('hash');
         if (!hashStored) {
           //generate from MM
-          const message = "Pioneers:0xD9B4BEF9:gen1";
+          const message = 'Pioneers:0xD9B4BEF9:gen1';
           const { hardenedPath, relPath } = walletMetaMask.ethGetAccountPaths({
-            coin: "Ethereum",
+            coin: 'Ethereum',
             accountIdx: 0,
           })[0];
-          let sig = await walletMetaMask.ethSignMessage({
+          const sig = await walletMetaMask.ethSignMessage({
             addressNList: hardenedPath.concat(relPath),
             message,
           });
           // @ts-ignore
-          console.log("sig: ",sig.signature)
+          console.log('sig: ', sig.signature);
           // @ts-ignore
-          localStorage.setItem("hash", sig.signature);
+          localStorage.setItem('hash', sig.signature);
           // @ts-ignore
           hashStored = sig.signature;
         }
-        console.log("hashStored: ",hashStored)
+        console.log('hashStored: ', hashStored);
         const hashSplice = (str: string | any[] | null) => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
@@ -353,13 +353,13 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
       }
 
       //if NO metamask AND NO KeepKey then generate new seed
-      if(!walletMetaMask && !isKeepkeyAvailable && !walletSoftware){
+      if (!walletMetaMask && !isKeepkeyAvailable && !walletSoftware) {
         //generate new seed
         //@TODO
-        alert('No wallets found! unable to continue')
+        alert('No wallets found! unable to continue');
       } else {
         //prefure KeepKey
-        let walletPreferred = walletKeepKey || walletMetaMask || walletSoftware
+        const walletPreferred = walletKeepKey || walletMetaMask || walletSoftware;
         // @ts-ignore
         console.log('walletPreferred: ', walletPreferred.type);
         // @ts-ignore
@@ -395,7 +395,6 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
         // eslint-disable-next-line no-console
         // console.log("user: ", user);
       }
-
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
