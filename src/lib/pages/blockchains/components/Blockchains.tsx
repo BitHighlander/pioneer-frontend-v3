@@ -136,6 +136,12 @@ const WhitelistBlockchains = () => {
         header: () => <span>edit</span>,
         footer: (info) => info.column.id,
       }),
+      columnHelper.accessor('name', {
+        id: 'revoke',
+        cell: (info) => <Button color='red' onClick={() => editEntry(info.getValue())}>revoke</Button>,
+        header: () => <span>revoke</span>,
+        footer: (info) => info.column.id,
+      }),
     ],
     getCoreRowModel: getCoreRowModel(),
   });

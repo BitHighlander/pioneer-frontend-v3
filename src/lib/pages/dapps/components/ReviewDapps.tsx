@@ -735,11 +735,11 @@ const ReviewDapps = () => {
 
                       <Box border="1px solid gray" borderRadius="md" p={2} mt={4}>
                         <Text fontWeight="bold">Blockchains Supported:</Text>
-                        {blockchainsSupported.map((blockchain) => (
-                          <Text key={blockchain?.value} pl={4}>
-                            - {blockchain?.label}
-                          </Text>
-                        ))}
+                        {blockchainsSupported ? blockchainsSupported.map((blockchain) => (
+                            <Text key={blockchain?.value} pl={4}>
+                              - {blockchain?.label}
+                            </Text>
+                        )) : null}
                         <Button size={'xs'} onClick={() => handleTabChange(2)}>
                           edit
                         </Button>
@@ -747,11 +747,11 @@ const ReviewDapps = () => {
 
                       <Box border="1px solid gray" borderRadius="md" p={2} mt={4}>
                         <Text fontWeight="bold">Protocols Supported:</Text>
-                        {protocolsSupported.map((protocol) => (
+                        {protocolsSupported ? protocolsSupported.map((protocol) => (
                           <Text key={protocol.value} pl={4}>
                             - {protocol?.label}
                           </Text>
-                        ))}
+                        )) : null}
                         <Button size={'xs'} onClick={() => handleTabChange(2)}>
                           edit
                         </Button>
@@ -759,11 +759,11 @@ const ReviewDapps = () => {
 
                       <Box border="1px solid gray" borderRadius="md" p={2} mt={4}>
                         <Text fontWeight="bold">Features Supported:</Text>
-                        {featuresSupported.map((feature) => (
+                        {featuresSupported ? featuresSupported.map((feature) => (
                           <Text key={feature.value} pl={4}>
                             - {feature.label}
                           </Text>
-                        ))}
+                        )): null}
                         <Button size={'xs'} onClick={() => handleTabChange(2)}>
                           edit
                         </Button>
