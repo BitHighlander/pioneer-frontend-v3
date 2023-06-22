@@ -231,17 +231,14 @@ const WhitelistBlockchains = () => {
     return <Spinner size="xl" />;
   }
   return (
-      <Card maxWidth="1200px" mx="auto">
-        <CardHeader>
-          <Heading size="md">Blockchains</Heading>
-        </CardHeader>
+      <Card w="1300px" justifyContent="center">
         <CardBody>
           <Box>
             <Text>Search:</Text>
             <input onFocus={onClear} value={query} onChange={handleKeyPress} type="search" style={{ border: '2px solid black', padding: '15px' }} />
           </Box>
-          <Box mt={4} overflowX="auto">
-            <Table size="sm" width="100%">
+          <Box w="1200px" mt={9} overflowX="auto" justifyContent="center">
+            <Table>
               <thead>
               {headerGroups.map((headerGroup) => (
                   <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()} style={{ borderBottom: '2px solid black' }}>
