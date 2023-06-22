@@ -368,7 +368,7 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
         dispatch({ type: WalletActions.SET_CONTEXT, payload: walletPreferred.type });
         // setSetWallets(wallets.push(walletMetaMask))
         // @ts-ignore
-        dispatch({ type: WalletActions.SET_WALLET, payload: walletMetaMask });
+        dispatch({ type: WalletActions.SET_WALLET, payload: walletPreferred });
         // @ts-ignore
         dispatch({ type: WalletActions.SET_APP, payload: appInit });
         // @ts-ignore
