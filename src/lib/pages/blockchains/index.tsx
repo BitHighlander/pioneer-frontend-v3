@@ -4,7 +4,7 @@ import WhitelistBlockchains from './components/Blockchains';
 import SubmitBlockchains from './components/Blockchains';
 
 const Header = () => (
-  <Box p={5}>
+  <Box>
     <Heading>Blockchains</Heading>
     <br />
   </Box>
@@ -14,7 +14,7 @@ const Blockchains = () => {
   return (
     <Box>
       <Header></Header>
-      <Tabs variant="enclosed" defaultIndex={0}>
+      <Tabs>
         <TabList>
           <Tab>Blockchain Charted</Tab>
           <Tab>Chart a new Blockchain</Tab>

@@ -1,11 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { useTable, useSortBy } from 'react-table';
-import { Spinner, Grid, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Textarea, ModalFooter, useDisclosure, Box, Text } from '@chakra-ui/react';
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Box,
+  Text,
+  Spinner,
+  Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Textarea,
+  Image,
+  Stack,
+  StackDivider,
+  Heading,
+  Card,
+  CardHeader,
+  CardBody,
+  useDisclosure
+} from '@chakra-ui/react';
 import { usePioneer } from 'lib/context/Pioneer';
+import { useTable, useSortBy } from 'react-table';
 
 const WhitelistBlockchains = () => {
   const { state } = usePioneer();
-  const { api, user, wallet } = state;
+  const { api } = state;
   const [value, setValue] = useState('');
   const [query, setQuery] = useState('');
   const [data, setData] = useState([]);
@@ -13,47 +40,46 @@ const WhitelistBlockchains = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalBlockchains, setTotalBlockchains] = useState(0);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [timeOut, setTimeOut] = useState(null); // Add this line
+  const [timeOut, setTimeOut] = useState(null);
   const columns = React.useMemo(
       () => [
         {
+          Header: 'Image',
           accessor: 'image',
-          Cell: ({ value }) => <Image src={value} alt="keepkey api" objectFit="cover" height="60px" width="60px" objectPosition="center" />,
-          Footer: () => 'image',
+          Cell: ({ value }) => <Image src={value} alt="keepkey api" boxSize="40px" borderRadius="full" />,
         },
         {
+          Header: 'Blockchain',
           accessor: 'blockchain',
-          Cell: ({ value }) => value,
-          Footer: () => 'blockchain',
         },
         {
+          Header: 'Description',
           accessor: 'description',
           Cell: ({ value }) => <a href={value}>{value}</a>,
-          Footer: () => 'description',
         },
         {
+          Header: 'Chain ID',
           accessor: 'chainId',
-          Cell: ({ value }) => value,
-          Footer: () => 'chainId',
         },
         {
           accessor: 'caip',
-          Cell: ({ value }) => value,
+          Cell: ({ value }) => (
+              <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word',width: 200, maxHeight: '100px', overflowY: 'auto' }}>
+                {value}
+              </div>
+          ),
           Footer: () => 'caip',
+          // Adjust the width value as needed
         },
         {
-          id: 'edit',
-          accessor: 'name',
+          Header: 'Edit',
+          accessor: 'exit',
           Cell: ({ value }) => <Button onClick={() => editEntry(value)}>Edit</Button>,
-          Header: 'edit',
-          Footer: () => 'edit',
         },
         {
-          id: 'delete',
-          accessor: 'name',
+          Header: 'Delete',
+          accessor: 'delete',
           Cell: ({ value }) => <Button colorScheme="red" onClick={() => deleteEntry(value)}>Delete</Button>,
-          Header: 'delete',
-          Footer: () => 'delete',
         },
       ],
       []
@@ -74,9 +100,10 @@ const WhitelistBlockchains = () => {
     prepareRow,
     state: { sortBy },
   } = tableInstance;
+
   const fetchData = async () => {
     try {
-      if(api){
+      if (api) {
         const sortBy = tableInstance.state.sortBy[0] || {};
         const sortField = sortBy.id || 'name'; // Default to sorting by 'name'
         const searchBy = query || 'name'; // Default to searching by 'name'
@@ -100,10 +127,7 @@ const WhitelistBlockchains = () => {
   };
 
   useEffect(() => {
-    const onStart = async () => {
-      await fetchData();
-    };
-    onStart();
+    fetchData();
   }, [api]);
 
   const editEntry = async (name) => {
@@ -145,7 +169,7 @@ const WhitelistBlockchains = () => {
     setValue(inputValue);
   };
 
-  const onClear = async () => {
+  const onClear = () => {
     setQuery('');
   };
 
@@ -158,7 +182,7 @@ const WhitelistBlockchains = () => {
 
   const handlePaginationChange = (newPage) => {
     setCurrentPage(newPage);
-    fetchData()
+    fetchData();
   };
 
   const renderPagination = () => {
@@ -187,10 +211,12 @@ const WhitelistBlockchains = () => {
     }
 
     return (
-        <div>
+        <Box mt={4} textAlign="center">
           <Text>{`Total blockchains: ${totalBlockchains}`}</Text>
-          <div>{pageNumbers}</div>
-        </div>
+          <Stack direction="row" spacing={2} mt={2}>
+            {pageNumbers}
+          </Stack>
+        </Box>
     );
   };
 
@@ -201,72 +227,51 @@ const WhitelistBlockchains = () => {
       console.error(e);
     }
   };
-  
-
+  if (!api) {
+    return <Spinner size="xl" />;
+  }
   return (
-      <div>
-        {api ? (
-            <>
-              <Modal isOpen={isOpen} onClose={onClose} size="100px">
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalHeader>Edit Entry</ModalHeader>
-                  <ModalCloseButton />
-                  <ModalBody>
-                    <Textarea height="600px" value={value} onChange={handleInputChange} placeholder="Here is a sample placeholder" size="sm" />
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button colorScheme="blue" mr={3} onClick={onClose}>
-                      Close
-                    </Button>
-                    <Button onClick={onSubmitEdit} variant="green">
-                      Submit changes
-                    </Button>
-                  </ModalFooter>
-                </ModalContent>
-              </Modal>
-              <Box>
-                <Text>Search:</Text>
-                <input onFocus={onClear} value={query} onChange={handleKeyPress} type="search" style={{ border: '2px solid black', padding: '15px' }} />
-              </Box>
-              <div className="p-2">
-                <table {...getTableProps()}>
-                  <thead>
-                  {headerGroups.map((headerGroup) => (
-                      <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
-                        {headerGroup.headers.map((column) => (
-                            <th key={column.id} {...column.getHeaderProps(column.getSortByToggleProps())}>
-                              {column.render('Header')}
-                            </th>
-                        ))}
-                      </tr>
-                  ))}
-                  </thead>
-                  <tbody {...getTableBodyProps()}>
-                  {rows.map((row) => {
-                    prepareRow(row);
-                    return (
-                        <tr key={row.id} {...row.getRowProps()}>
-                          {row.cells.map((cell) => (
-                              <td key={cell.id} {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                          ))}
-                        </tr>
-                    );
-                  })}
-                  </tbody>
-                </table>
-                <div className="h-4">
-                  <Box>
-                    <Button onClick={fetchData}>Refresh</Button>
-                  </Box>
-                </div>
-              </div>
-              {renderPagination()}
-            </>
-        ) : (
-            <Spinner size="xl" />
-        )}
-      </div>
+      <Card maxWidth="1200px" mx="auto">
+        <CardHeader>
+          <Heading size="md">Blockchains</Heading>
+        </CardHeader>
+        <CardBody>
+          <Box>
+            <Text>Search:</Text>
+            <input onFocus={onClear} value={query} onChange={handleKeyPress} type="search" style={{ border: '2px solid black', padding: '15px' }} />
+          </Box>
+          <Box mt={4} overflowX="auto">
+            <Table size="sm" width="100%">
+              <thead>
+              {headerGroups.map((headerGroup) => (
+                  <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()} style={{ borderBottom: '2px solid black' }}>
+                    {headerGroup.headers.map((column) => (
+                        <th key={column.id} {...column.getHeaderProps()} style={{ padding: '10px', fontWeight: 'bold', fontSize: '20px' }}>
+                          {column.render('Header')}
+                        </th>
+                    ))}
+                  </tr>
+              ))}
+              </thead>
+              <tbody {...getTableBodyProps()}>
+              {rows.map((row) => {
+                prepareRow(row);
+                return (
+                    <tr key={row.id} {...row.getRowProps()} style={{ borderBottom: '1px solid black' }}>
+                      {row.cells.map((cell) => (
+                          <td key={cell.id} {...cell.getCellProps()} style={{ padding: '10px' }}>
+                            {cell.render('Cell')}
+                          </td>
+                      ))}
+                    </tr>
+                );
+              })}
+              </tbody>
+            </Table>
+          </Box>
+          {renderPagination()}
+        </CardBody>
+      </Card>
   );
 };
 
