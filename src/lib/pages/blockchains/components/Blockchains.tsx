@@ -1,49 +1,99 @@
-import { Grid, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Textarea, ModalFooter, useDisclosure, Box, Text } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
-
-import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { useTable, useSortBy } from 'react-table';
+import { Spinner, Grid, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Textarea, ModalFooter, useDisclosure, Box, Text } from '@chakra-ui/react';
 import { usePioneer } from 'lib/context/Pioneer';
-
-const columnHelper = createColumnHelper<any>();
 
 const WhitelistBlockchains = () => {
   const { state } = usePioneer();
   const { api, user, wallet } = state;
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [value, setValue] = useState('');
-  const [query, setQuery] = useState('bitcoin...');
-  const [timeOut, setTimeOut] = useState(null);
-  const [data, setData] = useState<any[]>([]);
+  const [query, setQuery] = useState('');
+  const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(20); // Update itemsPerPage to 20
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalBlockchains, setTotalBlockchains] = useState(0);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [timeOut, setTimeOut] = useState(null); // Add this line
+  const columns = React.useMemo(
+      () => [
+        {
+          accessor: 'image',
+          Cell: ({ value }) => <Image src={value} alt="keepkey api" objectFit="cover" height="60px" width="60px" objectPosition="center" />,
+          Footer: () => 'image',
+        },
+        {
+          accessor: 'blockchain',
+          Cell: ({ value }) => value,
+          Footer: () => 'blockchain',
+        },
+        {
+          accessor: 'description',
+          Cell: ({ value }) => <a href={value}>{value}</a>,
+          Footer: () => 'description',
+        },
+        {
+          accessor: 'chainId',
+          Cell: ({ value }) => value,
+          Footer: () => 'chainId',
+        },
+        {
+          accessor: 'caip',
+          Cell: ({ value }) => value,
+          Footer: () => 'caip',
+        },
+        {
+          id: 'edit',
+          accessor: 'name',
+          Cell: ({ value }) => <Button onClick={() => editEntry(value)}>Edit</Button>,
+          Header: 'edit',
+          Footer: () => 'edit',
+        },
+        {
+          id: 'delete',
+          accessor: 'name',
+          Cell: ({ value }) => <Button colorScheme="red" onClick={() => deleteEntry(value)}>Delete</Button>,
+          Header: 'delete',
+          Footer: () => 'delete',
+        },
+      ],
+      []
+  );
+  const tableInstance = useTable(
+      {
+        columns,
+        data,
+      },
+      useSortBy
+  );
 
-  const editEntry = async function (name: string) {
-    try {
-      // open modal
-      console.log('edit name: ', name);
-      onOpen();
-      const entry = data.filter(function (e) {
-        return e.name === name;
-      })[0];
-      console.log('entry: ', entry);
-      const prettyJson = JSON.stringify(entry, null, 2);
-      setValue(prettyJson);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    state: { sortBy },
+  } = tableInstance;
   const fetchData = async () => {
     try {
-      const blockchains = await api.SearchBlockchainsPageniate({
-        limit: itemsPerPage,
-        skip: (currentPage - 1) * itemsPerPage,
-      });
-      console.log('blockchains: ', blockchains.data.length);
-      console.log('blockchains: ', blockchains.data[0]);
+      if(api){
+        const sortBy = tableInstance.state.sortBy[0] || {};
+        const sortField = sortBy.id || 'name'; // Default to sorting by 'name'
+        const searchBy = query || 'name'; // Default to searching by 'name'
+        const blockchains = await api.SearchBlockchainsPageniate({
+          limit: itemsPerPage,
+          skip: (currentPage - 1) * itemsPerPage,
+          sortField,
+          sortOrder: sortBy.desc ? -1 : 1,
+          searchBy,
+        });
 
-      setData(blockchains.data);
+        // Set the data to the table
+        setData(blockchains.data.blockchains);
+
+        // Update the total blockchains count
+        setTotalBlockchains(blockchains.data.total);
+      }
     } catch (e) {
       console.error(e);
     }
@@ -54,23 +104,43 @@ const WhitelistBlockchains = () => {
       await fetchData();
     };
     onStart();
-  }, []); // Run onStart only once on component mount
+  }, [api]);
 
-  const handleKeyPress = (event: any) => {
+  const editEntry = async (name) => {
+    try {
+      onOpen();
+      // @ts-ignore
+      const entry = data.filter((e) => e.name === name)[0];
+      const prettyJson = JSON.stringify(entry, null, 2);
+      setValue(prettyJson);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const deleteEntry = async (name) => {
+    try {
+      // Add your delete logic here
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleKeyPress = (event) => {
     if (timeOut) {
       clearTimeout(timeOut);
     }
     const inputValue = event.target.value;
     setQuery(inputValue);
     setTimeOut(
-      // @ts-ignore
-      setTimeout(() => {
-        search(inputValue);
-      }, 1000)
+        // @ts-ignore
+        setTimeout(() => {
+          search(inputValue);
+        }, 1000)
     );
   };
 
-  const handleInputChange = (e: { target: { value: any } }) => {
+  const handleInputChange = (e) => {
     const inputValue = e.target.value;
     setValue(inputValue);
   };
@@ -79,123 +149,124 @@ const WhitelistBlockchains = () => {
     setQuery('');
   };
 
-  const search = async (query: string) => {
+  const search = async (query) => {
     console.log('query: ', query);
     const KeepKeyPage1 = await api.SearchByBlockchainName(query);
     console.log('KeepKeyPage1: ', KeepKeyPage1.data);
     setData(KeepKeyPage1.data);
   };
 
-  const handlePaginationChange = (newPage: number) => {
+  const handlePaginationChange = (newPage) => {
     setCurrentPage(newPage);
+    fetchData()
   };
 
   const renderPagination = () => {
-    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const totalPages = Math.ceil(totalBlockchains / itemsPerPage);
     const pageNumbers = [];
-
     for (let i = 1; i <= totalPages; i++) {
-      const pageNumber = (
-        <Button key={i} onClick={() => handlePaginationChange(i)} disabled={i === currentPage} colorScheme={i === currentPage ? 'blue' : undefined} variant={i === currentPage ? 'solid' : 'outline'} mx={1}>
-          {i}
-        </Button>
-      );
-      // @ts-ignore
-      pageNumbers.push(pageNumber);
+      if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+        const pageNumber = (
+            <Button
+                key={i}
+                onClick={() => handlePaginationChange(i)}
+                disabled={i === currentPage}
+                colorScheme={i === currentPage ? 'blue' : undefined}
+                variant={i === currentPage ? 'solid' : 'outline'}
+                mx={1}
+            >
+              {i}
+            </Button>
+        );
+        // @ts-ignore
+        pageNumbers.push(pageNumber);
+      } else if (i === currentPage - 3 || i === currentPage + 3) {
+        // @ts-ignore
+        pageNumbers.push(<Text mx={1} key={i}>...</Text>);
+      }
     }
 
-    return <div>{pageNumbers}</div>;
+    return (
+        <div>
+          <Text>{`Total blockchains: ${totalBlockchains}`}</Text>
+          <div>{pageNumbers}</div>
+        </div>
+    );
   };
 
-  const onSubmitEdit = async function () {
+  const onSubmitEdit = async () => {
     try {
       // Implementation for submitting edits
     } catch (e) {
       console.error(e);
     }
   };
-
-  const table = useReactTable({
-    data,
-    columns: [
-      columnHelper.accessor('image', {
-        cell: (info) => <Image src={info.getValue()} alt="keepkey api" objectFit="cover" height="60px" width="60px" objectPosition="center" />,
-        footer: (info) => info.column.id,
-      }),
-      columnHelper.accessor('blockchain', {
-        cell: (info) => info.getValue(),
-        footer: (info) => info.column.id,
-      }),
-      columnHelper.accessor('description', {
-        cell: (info) => <a href={info.getValue()}>{info.getValue()}</a>,
-        footer: (info) => info.column.id,
-      }),
-      columnHelper.accessor('name', {
-        id: 'edit',
-        cell: (info) => <Button onClick={() => editEntry(info.getValue())}>Edit</Button>,
-        header: () => <span>edit</span>,
-        footer: (info) => info.column.id,
-      }),
-      columnHelper.accessor('name', {
-        id: 'revoke',
-        cell: (info) => <Button color='red' onClick={() => editEntry(info.getValue())}>revoke</Button>,
-        header: () => <span>revoke</span>,
-        footer: (info) => info.column.id,
-      }),
-    ],
-    getCoreRowModel: getCoreRowModel(),
-  });
+  
 
   return (
-    <div>
-      <Modal isOpen={isOpen} onClose={onClose} size="100px">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Edit Entry</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Textarea height="600px" value={value} onChange={handleInputChange} placeholder="Here is a sample placeholder" size="sm" />
-          </ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
-              Close
-            </Button>
-            <Button onClick={onSubmitEdit} variant="green">
-              Submit changes
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-      <Box>
-        <Text>Search:</Text>
-        <input onFocus={onClear} value={query} onChange={handleKeyPress} type="search" style={{ border: '2px solid black', padding: '15px' }} />
-      </Box>
-      <div className="p-2">
-        <table>
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="h-4" />
+      <div>
+        {api ? (
+            <>
+              <Modal isOpen={isOpen} onClose={onClose} size="100px">
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader>Edit Entry</ModalHeader>
+                  <ModalCloseButton />
+                  <ModalBody>
+                    <Textarea height="600px" value={value} onChange={handleInputChange} placeholder="Here is a sample placeholder" size="sm" />
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button colorScheme="blue" mr={3} onClick={onClose}>
+                      Close
+                    </Button>
+                    <Button onClick={onSubmitEdit} variant="green">
+                      Submit changes
+                    </Button>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
+              <Box>
+                <Text>Search:</Text>
+                <input onFocus={onClear} value={query} onChange={handleKeyPress} type="search" style={{ border: '2px solid black', padding: '15px' }} />
+              </Box>
+              <div className="p-2">
+                <table {...getTableProps()}>
+                  <thead>
+                  {headerGroups.map((headerGroup) => (
+                      <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
+                        {headerGroup.headers.map((column) => (
+                            <th key={column.id} {...column.getHeaderProps(column.getSortByToggleProps())}>
+                              {column.render('Header')}
+                            </th>
+                        ))}
+                      </tr>
+                  ))}
+                  </thead>
+                  <tbody {...getTableBodyProps()}>
+                  {rows.map((row) => {
+                    prepareRow(row);
+                    return (
+                        <tr key={row.id} {...row.getRowProps()}>
+                          {row.cells.map((cell) => (
+                              <td key={cell.id} {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                          ))}
+                        </tr>
+                    );
+                  })}
+                  </tbody>
+                </table>
+                <div className="h-4">
+                  <Box>
+                    <Button onClick={fetchData}>Refresh</Button>
+                  </Box>
+                </div>
+              </div>
+              {renderPagination()}
+            </>
+        ) : (
+            <Spinner size="xl" />
+        )}
       </div>
-      {renderPagination()}
-    </div>
   );
 };
 

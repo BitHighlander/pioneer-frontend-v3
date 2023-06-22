@@ -1,6 +1,7 @@
 import { Box, Heading, Button, Card, CardBody, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
 import React from 'react';
 import WhitelistBlockchains from './components/Blockchains';
+import SubmitBlockchains from './components/Blockchains';
 
 const Header = () => (
   <Box p={5}>
@@ -23,7 +24,7 @@ const Blockchains = () => {
             <WhitelistBlockchains />
           </TabPanel>
           <TabPanel>
-            <p>Chart a Blockchain!</p>
+            <SubmitBlockchains/>
           </TabPanel>
         </TabPanels>
       </Tabs>
