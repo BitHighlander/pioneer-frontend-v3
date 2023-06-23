@@ -64,7 +64,7 @@ const WhitelistBlockchains = () => {
         {
           accessor: 'caip',
           Cell: ({ value }) => (
-              <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word',width: 200, maxHeight: '100px', overflowY: 'auto' }}>
+              <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', width: 200, maxHeight: '100px', overflowY: 'auto' }}>
                 {value}
               </div>
           ),
@@ -84,10 +84,14 @@ const WhitelistBlockchains = () => {
       ],
       []
   );
+
   const tableInstance = useTable(
       {
         columns,
         data,
+        initialState: {
+          sortBy: [{ id: 'blockchain', desc: false }], // Default sorting by 'blockchain' in ascending order
+        },
       },
       useSortBy
   );
@@ -101,19 +105,32 @@ const WhitelistBlockchains = () => {
     state: { sortBy },
   } = tableInstance;
 
+  const handleClickedSortBy = (columnId) => {
+    console.log("columnId: ", columnId)
+    const sortField = columnId || 'blockchain'; // Get the sort field
+    const sortOrder = sortBy[0].id === columnId && !sortBy[0].desc ? -1 : 1; // Get the sort order
+
+    tableInstance.setSortBy([{ id: sortField, desc: sortOrder === -1 }]); // Update the sort state
+    setCurrentPage(1); // Reset the current page
+    fetchData();
+  };
+
+
   const fetchData = async () => {
     try {
       if (api) {
-        const sortBy = tableInstance.state.sortBy[0] || {};
-        const sortField = sortBy.id || 'name'; // Default to sorting by 'name'
-        const searchBy = query || 'name'; // Default to searching by 'name'
-        const blockchains = await api.SearchBlockchainsPageniate({
+        const sortField = sortBy[0].id || 'blockchain'; // Get the current sort field
+        const sortOrder = sortBy[0].desc ? -1 : 1; // Get the current sort order
+        const searchBy = query || 'blockchain'; // Default to searching by 'blockchain'
+        let payload = {
           limit: itemsPerPage,
           skip: (currentPage - 1) * itemsPerPage,
           sortField,
-          sortOrder: sortBy.desc ? -1 : 1,
+          sortOrder,
           searchBy,
-        });
+        }
+        console.log("payload: ", payload)
+        const blockchains = await api.SearchBlockchainsPageniate(payload);
 
         // Set the data to the table
         setData(blockchains.data.blockchains);
@@ -227,43 +244,51 @@ const WhitelistBlockchains = () => {
       console.error(e);
     }
   };
+
   if (!api) {
     return <Spinner size="xl" />;
   }
+
   return (
-      <Card w="1300px" justifyContent="center">
+      <Card w="1300px" justifyContent="left">
         <CardBody>
           <Box>
             <Text>Search:</Text>
             <input onFocus={onClear} value={query} onChange={handleKeyPress} type="search" style={{ border: '2px solid black', padding: '15px' }} />
           </Box>
           <Box w="1200px" mt={9} overflowX="auto" justifyContent="center">
-            <Table>
-              <thead>
-              {headerGroups.map((headerGroup) => (
-                  <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()} style={{ borderBottom: '2px solid black' }}>
-                    {headerGroup.headers.map((column) => (
-                        <th key={column.id} {...column.getHeaderProps()} style={{ padding: '10px', fontWeight: 'bold', fontSize: '20px' }}>
-                          {column.render('Header')}
-                        </th>
-                    ))}
-                  </tr>
-              ))}
-              </thead>
-              <tbody {...getTableBodyProps()}>
-              {rows.map((row) => {
-                prepareRow(row);
-                return (
-                    <tr key={row.id} {...row.getRowProps()} style={{ borderBottom: '1px solid black' }}>
-                      {row.cells.map((cell) => (
-                          <td key={cell.id} {...cell.getCellProps()} style={{ padding: '10px' }}>
-                            {cell.render('Cell')}
-                          </td>
+            <Table {...getTableProps()}>
+              <Thead>
+                {headerGroups.map((headerGroup) => (
+                    <Tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()} style={{ borderBottom: '2px solid black' }}>
+                      {headerGroup.headers.map((column) => (
+                          <Th
+                              key={column.id}
+                              {...column.getHeaderProps(column.getSortByToggleProps())}
+                              onClick={() => handleClickedSortBy(column.id)} // Use column.id instead of column
+                              style={{ padding: '10px', fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}
+                          >
+                            {column.render('Header')}
+                            {column.isSorted ? (column.isSortedDesc ? ' ↓' : ' ↑') : ''}
+                          </Th>
                       ))}
-                    </tr>
-                );
-              })}
-              </tbody>
+                    </Tr>
+                ))}
+              </Thead>
+              <Tbody {...getTableBodyProps()}>
+                {rows.map((row) => {
+                  prepareRow(row);
+                  return (
+                      <Tr key={row.id} {...row.getRowProps()} style={{ borderBottom: '1px solid black' }}>
+                        {row.cells.map((cell) => (
+                            <Td key={cell.id} {...cell.getCellProps()} style={{ padding: '10px' }}>
+                              {cell.render('Cell')}
+                            </Td>
+                        ))}
+                      </Tr>
+                  );
+                })}
+              </Tbody>
             </Table>
           </Box>
           {renderPagination()}
