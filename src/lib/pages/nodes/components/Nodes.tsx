@@ -1,32 +1,199 @@
-import { Grid, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Textarea, ModalFooter, useDisclosure, Box, Text } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
-
-import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import {
+  Checkbox,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Box,
+  Text,
+  Spinner,
+  Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Textarea,
+  Image,
+  Stack,
+  StackDivider,
+  Heading,
+  Card,
+  CardHeader,
+  CardBody,
+  useDisclosure
+} from '@chakra-ui/react';
 import { usePioneer } from 'lib/context/Pioneer';
-
-const columnHelper = createColumnHelper<any>();
+import { useTable, useSortBy } from 'react-table';
 
 const WhitelistNodes = () => {
   const { state } = usePioneer();
-  const { api, user, wallet } = state;
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { api } = state;
   const [value, setValue] = useState('');
-  const [query, setQuery] = useState('bitcoin...');
-  const [timeOut, setTimeOut] = useState(null);
-  const [data, setData] = useState<any[]>([]);
+  const [query, setQuery] = useState('');
+  const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(20); // Update itemsPerPage to 20
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalBlockchains, setTotalBlockchains] = useState(0);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [timeOut, setTimeOut] = useState(null);
+  const [sortField, setSortField] = useState('chainId'); // New state variable for sorting
 
-  const editEntry = async function (name: string) {
+  const columns = React.useMemo(
+      () => [
+        {
+          Header: 'Image',
+          accessor: 'image',
+          Cell: ({ value }) => (
+              <div style={{ width: '60px' }}>
+                <Image src={value} alt="keepkey api" boxSize="40px" borderRadius="full" />
+              </div>
+          ),
+          width: 60, // Adjust the width as needed
+          style: { minWidth: '60px' },
+        },
+        {
+          Header: 'Blockchain',
+          accessor: 'blockchain',
+          Cell: ({ value }) => (
+              <div style={{ width: '120px' }}>
+                {value}
+              </div>
+          ),
+          style: { minWidth: '120px' },
+        },
+        {
+          Header: 'Service',
+          accessor: 'service',
+          Cell: ({ value }) => (
+              <div style={{ width: '220px' }}>
+                <small>{value}</small>
+              </div>
+          ),
+        },
+        {
+          Header: 'ChainID',
+          accessor: 'chainId',
+          Cell: ({ value }) => (
+              <div style={{ width: '20px' }}>
+                {value}
+              </div>
+          ),
+        },
+        {
+          Header: 'Pair',
+          accessor: 'pair',
+          Cell: ({ value }) => (
+              <div style={{ width: '80px' }}>
+                <Button color={'green'} onClick={() => pairNetwork(value)}>Pair</Button>
+              </div>
+          ),
+        },
+        {
+          Header: 'Edit',
+          accessor: 'exit',
+          Cell: ({ value }) => (
+              <div style={{ width: '80px' }}>
+                <Button onClick={() => editEntry(value)}>Edit</Button>
+              </div>
+          ),
+        },
+        {
+          Header: 'Delete',
+          accessor: 'delete',
+          Cell: ({ value }) => (
+              <div style={{ width: '80px' }}>
+                <Button colorScheme="red" onClick={() => deleteEntry(value)}>Delete</Button>
+              </div>
+          ),
+        },
+      ],
+      []
+  );
+
+
+
+  const tableInstance = useTable(
+      {
+        columns,
+        data,
+        initialState: {
+          sortBy: [{ id: 'chainId', desc: false }], // Default sorting by 'blockchain' in ascending order
+        },
+      },
+      useSortBy
+  );
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    state: { sortBy },
+  } = tableInstance;
+
+  const handleClickedSortBy = (columnId) => {
+    console.log("columnId: ", columnId)
+    const sortField = columnId || 'chainId'; // Get the sort field
+    setSortField(sortField); // Update the sort field state
+    const sortOrder = sortBy[0].id === columnId && !sortBy[0].desc ? -1 : 1; // Get the sort order
+
+    tableInstance.setSortBy([{ id: sortField, desc: sortOrder === -1 }]); // Update the sort state
+    setCurrentPage(1); // Reset the current page
+    fetchData();
+  };
+
+
+  const fetchData = async () => {
     try {
-      // open modal
-      console.log('edit name: ', name);
+      if (api) {
+        const sortOrder = sortBy[0].desc ? -1 : 1; // Get the current sort order
+        let payload = {
+          limit: itemsPerPage,
+          skip: (currentPage - 1) * itemsPerPage,
+          sortField: sortField, // Set sortField to 'chainId' if currently sorting by 'chainId'
+          sortOrder,
+          searchBy: sortField, // Set searchBy to 'blockchain' if query is present, otherwise use the current sortField
+        }
+        console.log("payload: ", payload)
+        const blockchains = await api.SearchNodes({limit:1000,skip:0});
+
+        // Set the data to the table
+        setData(blockchains.data);
+
+        // Update the total blockchains count
+        setTotalBlockchains(1000);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchData();
+  }, [api]);
+
+  const pairNetwork = async (name) => {
+    try {
       onOpen();
-      const entry = data.filter(function (e) {
-        return e.name === name;
-      })[0];
-      console.log('entry: ', entry);
+      console.log("name: ",name)
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const editEntry = async (name) => {
+    try {
+      onOpen();
+      // @ts-ignore
+      const entry = data.filter((e) => e.name === name)[0];
       const prettyJson = JSON.stringify(entry, null, 2);
       setValue(prettyJson);
     } catch (e) {
@@ -34,81 +201,85 @@ const WhitelistNodes = () => {
     }
   };
 
-  const fetchData = async () => {
+  const deleteEntry = async (name) => {
     try {
-      const blockchains = await api.SearchBlockchainsPageniate({
-        limit: itemsPerPage,
-        skip: (currentPage - 1) * itemsPerPage,
-      });
-      console.log('blockchains: ', blockchains.data.length);
-      console.log('blockchains: ', blockchains.data[0]);
-
-      setData(blockchains.data);
+      // Add your delete logic here
     } catch (e) {
       console.error(e);
     }
   };
 
-  useEffect(() => {
-    const onStart = async () => {
-      await fetchData();
-    };
-
-    onStart();
-  }, []); // Run onStart only once on component mount
-
-  const handleKeyPress = (event: any) => {
+  const handleKeyPress = (event) => {
     if (timeOut) {
       clearTimeout(timeOut);
     }
     const inputValue = event.target.value;
     setQuery(inputValue);
     setTimeOut(
-      // @ts-ignore
-      setTimeout(() => {
-        search(inputValue);
-      }, 1000)
+        // @ts-ignore
+        setTimeout(() => {
+          search(inputValue);
+        }, 1000)
     );
   };
 
-  const handleInputChange = (e: { target: { value: any } }) => {
+  const handleInputChange = (e) => {
     const inputValue = e.target.value;
     setValue(inputValue);
   };
 
-  const onClear = async () => {
+  const onClear = () => {
     setQuery('');
   };
 
-  const search = async (query: string) => {
+  const search = async (query) => {
     console.log('query: ', query);
     const KeepKeyPage1 = await api.SearchByBlockchainName(query);
     console.log('KeepKeyPage1: ', KeepKeyPage1.data);
     setData(KeepKeyPage1.data);
   };
 
-  const handlePaginationChange = (newPage: number) => {
+  const handlePaginationChange = (newPage) => {
     setCurrentPage(newPage);
+    fetchData();
   };
 
   const renderPagination = () => {
-    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const totalPages = Math.ceil(totalBlockchains / itemsPerPage);
     const pageNumbers = [];
-
     for (let i = 1; i <= totalPages; i++) {
-      const pageNumber = (
-        <Button key={i} onClick={() => handlePaginationChange(i)} disabled={i === currentPage} colorScheme={i === currentPage ? 'blue' : undefined} variant={i === currentPage ? 'solid' : 'outline'} mx={1}>
-          {i}
-        </Button>
-      );
-      // @ts-ignore
-      pageNumbers.push(pageNumber);
+      if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+        const pageNumber = (
+            <Button
+                key={i}
+                onClick={() => handlePaginationChange(i)}
+                disabled={i === currentPage}
+                colorScheme={i === currentPage ? 'blue' : undefined}
+                variant={i === currentPage ? 'solid' : 'outline'}
+                mx={1}
+            >
+              {i}
+            </Button>
+        );
+        // @ts-ignore
+        pageNumbers.push(pageNumber);
+      } else if (i === currentPage - 3 || i === currentPage + 3) {
+        // @ts-ignore
+        pageNumbers.push(<Text mx={1} key={i}>...</Text>);
+      }
     }
 
-    return <div>{pageNumbers}</div>;
+    return (
+        <Box mt={4} textAlign="center">
+          <Text>{`Total blockchains: ${totalBlockchains}`}</Text>
+          <Stack direction="row" spacing={2} mt={2}>
+            {pageNumbers}
+          </Stack>
+        </Box>
+    );
   };
 
-  const onSubmitEdit = async function () {
+  const onSubmitEdit = async () => {
     try {
       // Implementation for submitting edits
     } catch (e) {
@@ -116,81 +287,62 @@ const WhitelistNodes = () => {
     }
   };
 
-  const table = useReactTable({
-    data,
-    columns: [
-      columnHelper.accessor('image', {
-        cell: (info) => <Image src={info.getValue()} alt="keepkey api" objectFit="cover" height="60px" width="60px" objectPosition="center" />,
-        footer: (info) => info.column.id,
-      }),
-      columnHelper.accessor('blockchain', {
-        cell: (info) => info.getValue(),
-        footer: (info) => info.column.id,
-      }),
-      columnHelper.accessor('description', {
-        cell: (info) => <a href={info.getValue()}>{info.getValue()}</a>,
-        footer: (info) => info.column.id,
-      }),
-      columnHelper.accessor('name', {
-        id: 'edit',
-        cell: (info) => <Button onClick={() => editEntry(info.getValue())}>Edit</Button>,
-        header: () => <span>edit</span>,
-        footer: (info) => info.column.id,
-      }),
-    ],
-    getCoreRowModel: getCoreRowModel(),
-  });
+  if (!api) {
+    return <Spinner size="xl" />;
+  }
 
   return (
-    <div>
-      <Modal isOpen={isOpen} onClose={onClose} size="100px">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Edit Entry</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Textarea height="600px" value={value} onChange={handleInputChange} placeholder="Here is a sample placeholder" size="sm" />
-          </ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
-              Close
-            </Button>
-            <Button onClick={onSubmitEdit} variant="green">
-              Submit changes
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-      <Box>
-        <Text>Search:</Text>
-        <input onFocus={onClear} value={query} onChange={handleKeyPress} type="search" style={{ border: '2px solid black', padding: '15px' }} />
-      </Box>
-      <div className="p-2">
-        <table>
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</th>
+      <Card w="1300px" justifyContent="left">
+        <CardBody>
+          <Box>
+            <Text>Search:</Text>
+            <input onFocus={onClear} value={query} onChange={handleKeyPress} type="search" style={{ border: '2px solid black', padding: '15px' }} />
+            <Box>
+              <Checkbox defaultChecked>web3 (EIP155)</Checkbox>
+              <br/>
+              <Checkbox defaultChecked>blockbook (indexed)</Checkbox>
+              <br/>
+              <Checkbox defaultChecked>cosmosSDK (tendermint)</Checkbox>
+            </Box>
+          </Box>
+          <Box w="1200px" mt={9} overflowX="auto" justifyContent="center">
+            <Table {...getTableProps()}>
+              <Thead>
+                {headerGroups.map((headerGroup) => (
+                    <Tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()} style={{ borderBottom: '2px solid black' }}>
+                      {headerGroup.headers.map((column) => (
+                          <Th
+                              key={column.id}
+                              {...column.getHeaderProps(column.getSortByToggleProps())}
+                              onClick={() => handleClickedSortBy(column.id)} // Use column.id instead of column
+                              style={{ padding: '10px', fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}
+                          >
+                            {column.render('Header')}
+                            {column.isSorted ? (column.isSortedDesc ? ' ↓' : ' ↑') : ''}
+                          </Th>
+                      ))}
+                    </Tr>
                 ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="h-4" />
-      </div>
-      {renderPagination()}
-    </div>
+              </Thead>
+              <Tbody {...getTableBodyProps()}>
+                {rows.map((row) => {
+                  prepareRow(row);
+                  return (
+                      <Tr key={row.id} {...row.getRowProps()} style={{ borderBottom: '1px solid black' }}>
+                        {row.cells.map((cell) => (
+                            <Td key={cell.id} {...cell.getCellProps()} style={{ padding: '10px' }}>
+                              {cell.render('Cell')}
+                            </Td>
+                        ))}
+                      </Tr>
+                  );
+                })}
+              </Tbody>
+            </Table>
+          </Box>
+          {renderPagination()}
+        </CardBody>
+      </Card>
   );
 };
 

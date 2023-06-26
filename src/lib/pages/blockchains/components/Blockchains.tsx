@@ -30,7 +30,7 @@ import {
 import { usePioneer } from 'lib/context/Pioneer';
 import { useTable, useSortBy } from 'react-table';
 
-const WhitelistBlockchains = () => {
+const DiscoverdBlockchains = () => {
   const { state } = usePioneer();
   const { api } = state;
   const [value, setValue] = useState('');
@@ -41,6 +41,10 @@ const WhitelistBlockchains = () => {
   const [totalBlockchains, setTotalBlockchains] = useState(0);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [timeOut, setTimeOut] = useState(null);
+  const [sortField, setSortField] = useState('chainId'); // New state variable for sorting
+  const [sortOrder, setSortOrder] = useState('asc'); // New state variable for sort order
+
+
   const columns = React.useMemo(
       () => [
         {
@@ -106,12 +110,13 @@ const WhitelistBlockchains = () => {
   } = tableInstance;
 
   const handleClickedSortBy = (columnId) => {
-    console.log("columnId: ", columnId)
-    const sortField = columnId || 'blockchain'; // Get the sort field
-    const sortOrder = sortBy[0].id === columnId && !sortBy[0].desc ? -1 : 1; // Get the sort order
+    const newSortField = columnId || 'blockchain';
+    const newSortOrder = sortField === newSortField && sortOrder === 'asc' ? 'desc' : 'asc';
 
-    tableInstance.setSortBy([{ id: sortField, desc: sortOrder === -1 }]); // Update the sort state
-    setCurrentPage(1); // Reset the current page
+    setSortField(newSortField);
+    setSortOrder(newSortOrder);
+
+    setCurrentPage(1);
     fetchData();
   };
 
@@ -119,32 +124,34 @@ const WhitelistBlockchains = () => {
   const fetchData = async () => {
     try {
       if (api) {
-        const sortField = sortBy[0].id || 'blockchain'; // Get the current sort field
-        const sortOrder = sortBy[0].desc ? -1 : 1; // Get the current sort order
-        const searchBy = query || 'blockchain'; // Default to searching by 'blockchain'
         let payload = {
           limit: itemsPerPage,
           skip: (currentPage - 1) * itemsPerPage,
-          sortField,
-          sortOrder,
-          searchBy,
-        }
-        console.log("payload: ", payload)
+          sortField: sortField,
+          sortOrder: sortOrder === 'asc' ? 1 : -1,
+          isCharted: true
+        };
+        console.log("payload: ",payload)
         const blockchains = await api.SearchBlockchainsPageniate(payload);
-
-        // Set the data to the table
+        console.log("blockchains: ",blockchains.data)
         setData(blockchains.data.blockchains);
-
-        // Update the total blockchains count
         setTotalBlockchains(blockchains.data.total);
       }
     } catch (e) {
       console.error(e);
     }
   };
+  //
+  let onStart = async function(){
+    try{
+      fetchData();
+    }catch(e){
+      console.error(e)
+    }
+  }
 
   useEffect(() => {
-    fetchData();
+    onStart();
   }, [api]);
 
   const editEntry = async (name) => {
@@ -293,8 +300,9 @@ const WhitelistBlockchains = () => {
           </Box>
           {renderPagination()}
         </CardBody>
+        <Button onClick={onStart}>Refresh</Button>
       </Card>
   );
 };
 
-export default WhitelistBlockchains;
+export default DiscoverdBlockchains;

@@ -268,8 +268,8 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
         const config: any = {
           apiKey: serviceKey || 'notSet',
           pairingInfo: {
-            name: 'ShapeShift',
-            imageUrl: 'https://assets.coincap.io/assets/icons/fox@2x.png',
+            name: 'Pioneer',
+            imageUrl: 'https://i.imgur.com/BdyyJZS.png',
             basePath: 'http://localhost:1646/spec/swagger.json',
             url: 'https://pioneer-template.vercel.com',
           },

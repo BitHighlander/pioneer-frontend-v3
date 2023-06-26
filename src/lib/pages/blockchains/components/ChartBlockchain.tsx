@@ -11,8 +11,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { ethers } from 'ethers'
 // import { useAlert } from 'react-alert'
 import { usePioneer } from 'lib/context/Pioneer';
-// @ts-ignore
-import Client from '@pioneer-platform/pioneer-client'
 
 
 const SubmitBlockchains = () => {
@@ -25,7 +23,6 @@ const SubmitBlockchains = () => {
     const handleInputChangeName = (e:any) => setName(e.target.value)
     const handleInputChangeApp = (e:any) => setApp(e.target.value)
     const handleInputChangeImage = (e:any) => setImage(e.target.value)
-
 
     // const isError = input === ''
     const isError = false
@@ -59,15 +56,16 @@ const SubmitBlockchains = () => {
             const update: any = {};
 
             if(!address) throw Error("Onbord not setup! no address ")
-            const ethersProvider = new ethers.providers.Web3Provider(wallet.provider, 'any')
-            const signer = ethersProvider.getSigner()
-            let signature = await signer.signMessage(payload)
+            const signature = await wallet.ethSignMessage({
+                addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+                message: payload,
+            });
             dapp.protocol  = ['wallet-connect-v1']
             dapp.version = "wc-1"
             dapp.developer = address.toLowerCase()
             dapp.signer = address.toLowerCase()
             dapp.payload = payload
-            dapp.signature = signature
+            dapp.signature = signature.signature
 
             // let txInfo = await pioneer.ChartDapp({},dapp)
             // console.log("SUCCESS: ",txInfo.data)

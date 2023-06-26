@@ -11,9 +11,9 @@ const Body = () => {
       <CardBody overflowX="auto">
         <Tabs variant="enclosed" defaultIndex={0} isLazy align="center">
           <TabList>
-            <Tab>Charted dApps</Tab>
-            <Tab>dApps discovered</Tab>
-            <Tab>Chart a new dApps</Tab>
+            <Tab>Charted</Tab>
+            <Tab>Discovered</Tab>
+            <Tab>Submit a new dApp</Tab>
           </TabList>
           <Box h="500px" overflowY="auto">
             <TabPanels>

@@ -331,7 +331,7 @@ const Header = () => {
             <Button w="full" mb={2} onClick={() => handleNavigate('/nodes')}>
               Explore Nodes
             </Button>
-            <Button w="full" mb={2} onClick={() => handleNavigate('/become-pioneer')}>
+            <Button w="full" mb={2} onClick={() => handleNavigate('/pioneers')}>
               Become a Pioneer
             </Button>
           </DrawerBody>
