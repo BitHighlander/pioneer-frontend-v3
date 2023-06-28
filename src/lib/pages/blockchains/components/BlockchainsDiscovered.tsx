@@ -27,6 +27,7 @@ import {
     CardBody,
     useDisclosure
 } from '@chakra-ui/react';
+import { ArrowUpIcon, ArrowDownIcon, StarIcon } from '@chakra-ui/icons';
 import { usePioneer } from 'lib/context/Pioneer';
 import { useTable, useSortBy } from 'react-table';
 
@@ -61,10 +62,6 @@ const DiscoverdBlockchains = () => {
                 accessor: 'feeAssetSymbol',
             },
             {
-                Header: 'Rank',
-                accessor: 'feeAssetRank',
-            },
-            {
                 Header: 'Chain ID',
                 accessor: 'chainId',
             },
@@ -75,6 +72,7 @@ const DiscoverdBlockchains = () => {
             },
             {
                 accessor: 'caip',
+                Header: 'caip',
                 Cell: ({ value }) => (
                     <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', width: 200, maxHeight: '100px', overflowY: 'auto' }}>
                         {value}
@@ -82,6 +80,19 @@ const DiscoverdBlockchains = () => {
                 ),
                 Footer: () => 'caip',
                 // Adjust the width value as needed
+            },
+            {
+                id: 'upvote',
+                Cell: ({ value }) =>
+                    <div style={{ width: 80 }}>
+                        <Button onClick={() => upVote(value)}><ArrowUpIcon w={8} h={8} color="green.500" /></Button>
+                    </div>,
+                Header: 'up',
+            },
+            {
+                id: 'downvote',
+                Cell: ({ value }) => <div style={{ width: 80 }}><Button onClick={() => downVote(value)}><ArrowDownIcon w={8} h={8} color="red.500" /></Button></div>,
+                Header: 'down',
             },
             {
                 Header: 'Edit',
@@ -127,6 +138,99 @@ const DiscoverdBlockchains = () => {
         setCurrentPage(1);
         fetchData();
     };
+
+    const upVote = async function (name: string) {
+        try {
+            //update entry
+            // const entry = {
+            //     name: name,
+            //     vote: 'up',
+            // };
+            // //toString
+            // const payload = JSON.stringify(entry);
+            // const signature = await await wallet.ethSignMessage({
+            //     addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+            //     message: payload,
+            // });
+            // const addressInfo = {
+            //     addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+            //     coin: 'Ethereum',
+            //     scriptType: 'ethereum',
+            //     showDisplay: false,
+            // };
+            // const address = await wallet.ethGetAddress(addressInfo);
+            // const update: any = {};
+            //
+            // if (!address) throw Error('address required!');
+            // update.signer = address;
+            // update.payload = payload;
+            // update.signature = signature.signature;
+            // if (!address) throw Error('address required!');
+            // //submit as admin
+            // console.log('update: ', update);
+            // const resultWhitelist = await api.VoteOnApp(update);
+            // console.log('resultWhitelist: ', resultWhitelist);
+            //
+            // toast({
+            //     title: 'User Voted!.',
+            //     description: 'You UP voted for ' + name + ' result: ' + resultWhitelist.data?.message,
+            //     status: 'success',
+            //     duration: 9000,
+            //     isClosable: true,
+            // });
+            // onStart();
+            // setTimeout(onStart, 2000);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    const downVote = async function (name: string) {
+        try {
+            //update entry
+            // const entry = {
+            //     name: name,
+            //     vote: 'down',
+            // };
+            // //toString
+            // const payload = JSON.stringify(entry);
+            // const signature = await wallet.ethSignMessage({
+            //     addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+            //     message: payload,
+            // });
+            // console.log('signature: ', signature);
+            //
+            // const update: any = {};
+            // const addressInfo = {
+            //     addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+            //     coin: 'Ethereum',
+            //     scriptType: 'ethereum',
+            //     showDisplay: false,
+            // };
+            // const address = await wallet.ethGetAddress(addressInfo);
+            // update.signer = address;
+            // update.payload = payload;
+            // update.signature = signature.signature;
+            // if (!address) throw Error('address required!');
+            // //submit as admin
+            // console.log('update: ', update);
+            // const resultWhitelist = await api.VoteOnApp(update);
+            // console.log('resultWhitelist: ', resultWhitelist);
+            //
+            // toast({
+            //     title: 'User Voted!.',
+            //     description: 'You DOWN voted for ' + name + ' result: ' + resultWhitelist.data?.message,
+            //     status: 'success',
+            //     duration: 9000,
+            //     isClosable: true,
+            // });
+            // onStart();
+            // setTimeout(onStart, 2000);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
 
 
     const fetchData = async () => {
