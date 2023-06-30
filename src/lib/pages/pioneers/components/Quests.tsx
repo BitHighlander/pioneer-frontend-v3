@@ -5,18 +5,17 @@ import { Box, Table, Thead, Tbody, Tr, Th, Td, Avatar, Heading, Button } from '@
 import { usePioneer } from 'lib/context/Pioneer';
 
 const Quests = () => {
-    const { state } = usePioneer();
-    const { api, user, wallet } = state;
+  const { state } = usePioneer();
+  const { api, user, wallet } = state;
 
-
-    return (
-        <Box display="flex" justifyContent="center" height="100vh">
-        <Box>
-            <Heading>Quests</Heading>
-            <div></div>
-        </Box>
-        </Box>
-    );
+  return (
+    <Box display="flex" justifyContent="center" height="100vh">
+      <Box>
+        <Heading>Quests</Heading>
+        <div></div>
+      </Box>
+    </Box>
+  );
 };
 
 export default Quests;

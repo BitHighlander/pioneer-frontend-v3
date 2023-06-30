@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import { Grid, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Textarea, useDisclosure } from '@chakra-ui/react';
+import { Spinner, CardBody, Card, Grid, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Textarea, useDisclosure } from '@chakra-ui/react';
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
@@ -249,53 +249,63 @@ const WhitelistDapps = () => {
     const inputValue = e.target.value;
     setValue(inputValue);
   };
-  return (
-    <div>
-      <Modal isOpen={isOpen} onClose={onClose} size="100px">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Edit Entry</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Textarea height="600px" value={value} onChange={handleInputChange} placeholder="Here is a sample placeholder" size="sm" />
-          </ModalBody>
 
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
-              Close
-            </Button>
-            <Button onClick={onSubmitEdit} variant="green">
-              Submit changes
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-      <div className="p-2">
-        <table>
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</th>
+  if (!api) {
+    return <Spinner size="xl" />;
+  }
+
+  return (
+    <Card w="1300px" justifyContent="left">
+      <CardBody>
+        <div>
+          <Modal isOpen={isOpen} onClose={onClose} size="100px">
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Edit Entry</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <Textarea height="600px" value={value} onChange={handleInputChange} placeholder="Here is a sample placeholder" size="sm" />
+              </ModalBody>
+
+              <ModalFooter>
+                <Button colorScheme="blue" mr={3} onClick={onClose}>
+                  Close
+                </Button>
+                <Button onClick={onSubmitEdit} variant="green">
+                  Submit changes
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+          <div className="p-2">
+            <table>
+              <thead>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</th>
+                    ))}
+                  </tr>
                 ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.map((row) => (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                    ))}
+                  </tr>
                 ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="h-4" />
-      </div>
-      <br />
+              </tbody>
+            </table>
+            <div className="h-4" />
+          </div>
+          <br />
+          <Button onClick={onStart}>Refresh</Button>
+        </div>
+      </CardBody>
       <Button onClick={onStart}>Refresh</Button>
-    </div>
+    </Card>
   );
 };
 

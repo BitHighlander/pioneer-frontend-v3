@@ -35,40 +35,33 @@
 
 
 */
-import { KkRestAdapter } from "@keepkey/hdwallet-keepkey-rest";
-import { KeepKeySdk } from "@keepkey/keepkey-sdk";
-import { SDK } from "@pioneer-sdk/sdk";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest';
+import { KeepKeySdk } from '@keepkey/keepkey-sdk';
+import { SDK } from '@pioneer-sdk/sdk';
+import * as core from '@shapeshiftoss/hdwallet-core';
 // import * as keplr from "@shapeshiftoss/hdwallet-keplr";
-import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
-import type { NativeHDWallet } from "@shapeshiftoss/hdwallet-native";
-import { NativeAdapter } from "@shapeshiftoss/hdwallet-native";
-import { entropyToMnemonic } from "bip39";
-import {
-  createContext,
-  useReducer,
-  useContext,
-  useMemo,
-  useEffect,
-  useState,
-} from "react";
-import { v4 as uuidv4 } from "uuid";
+import * as metaMask from '@shapeshiftoss/hdwallet-metamask';
+import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native';
+import { NativeAdapter } from '@shapeshiftoss/hdwallet-native';
+import { entropyToMnemonic } from 'bip39';
+import { createContext, useReducer, useContext, useMemo, useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 export enum WalletActions {
-  SET_STATUS = "SET_STATUS",
-  SET_USERNAME = "SET_USERNAME",
-  SET_USER = "SET_WALLETS",
-  SET_CONTEXT = "SET_CONTEXT",
-  SET_BLOCKCHAIN = "SET_BLOCKCHAIN",
-  SET_ASSET = "SET_ASSET",
+  SET_STATUS = 'SET_STATUS',
+  SET_USERNAME = 'SET_USERNAME',
+  SET_USER = 'SET_WALLETS',
+  SET_CONTEXT = 'SET_CONTEXT',
+  SET_BLOCKCHAIN = 'SET_BLOCKCHAIN',
+  SET_ASSET = 'SET_ASSET',
   // SET_WALLETS = "SET_WALLETS",
   // SET_WALLET_DESCRIPTIONS = "SET_WALLET_DESCRIPTIONS",
   // INIT_PIONEER = "INIT_PIONEER",
-  SET_API = "SET_API",
-  SET_APP = "SET_APP",
-  SET_WALLET = "SET_WALLET",
-  ADD_WALLET = "ADD_WALLET",
-  RESET_STATE = "RESET_STATE",
+  SET_API = 'SET_API',
+  SET_APP = 'SET_APP',
+  SET_WALLET = 'SET_WALLET',
+  ADD_WALLET = 'ADD_WALLET',
+  RESET_STATE = 'RESET_STATE',
 }
 
 export interface InitialState {
@@ -92,11 +85,11 @@ export interface InitialState {
 
 const initialState: InitialState = {
   // keyring: new Keyring(),
-  status: "disconnected",
-  username: "",
-  serviceKey: "",
-  queryKey: "",
-  context: "",
+  status: 'disconnected',
+  username: '',
+  serviceKey: '',
+  queryKey: '',
+  context: '',
   balances: [],
   pubkeys: [],
   wallets: [],
@@ -122,17 +115,17 @@ export interface IPioneerContext {
 }
 
 export type ActionTypes =
-    | { type: WalletActions.SET_STATUS; payload: any }
-    | { type: WalletActions.SET_USERNAME; payload: string }
-    | { type: WalletActions.SET_WALLET; payload: any }
-    | { type: WalletActions.SET_APP; payload: any }
-    | { type: WalletActions.SET_API; payload: any }
-    | { type: WalletActions.SET_USER; payload: any }
-    | { type: WalletActions.SET_CONTEXT; payload: any }
-    | { type: WalletActions.ADD_WALLET; payload: any }
-    // | { type: WalletActions.SET_WALLET_DESCRIPTIONS; payload: any }
-    // | { type: WalletActions.INIT_PIONEER; payload: boolean }
-    | { type: WalletActions.RESET_STATE };
+  | { type: WalletActions.SET_STATUS; payload: any }
+  | { type: WalletActions.SET_USERNAME; payload: string }
+  | { type: WalletActions.SET_WALLET; payload: any }
+  | { type: WalletActions.SET_APP; payload: any }
+  | { type: WalletActions.SET_API; payload: any }
+  | { type: WalletActions.SET_USER; payload: any }
+  | { type: WalletActions.SET_CONTEXT; payload: any }
+  | { type: WalletActions.ADD_WALLET; payload: any }
+  // | { type: WalletActions.SET_WALLET_DESCRIPTIONS; payload: any }
+  // | { type: WalletActions.INIT_PIONEER; payload: boolean }
+  | { type: WalletActions.RESET_STATE };
 
 const reducer = (state: InitialState, action: ActionTypes) => {
   switch (action.type) {
@@ -168,11 +161,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 
 const PioneerContext = createContext(initialState);
 
-export const PioneerProvider = ({
-                                  children,
-                                }: {
-  children: React.ReactNode;
-}): JSX.Element => {
+export const PioneerProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -180,72 +169,57 @@ export const PioneerProvider = ({
   // const [context, setContext] = useState<string | null>(null);
   const [wallets, setSetWallets] = useState([]);
   const [context, setContext] = useState<string | null>(null);
-  const [blockchainContext, setBlockchainContext] = useState<string | null>(
-      null
-  );
+  const [blockchainContext, setBlockchainContext] = useState<string | null>(null);
   const [assetContext, setAssetContext] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
 
   // connect KeepKey
 
   // connect metamask
-  console.log("PioneerProvider rendered"); // Add this line
+  console.log('PioneerProvider rendered'); // Add this line
   const onStart = async function () {
     try {
       // eslint-disable-next-line no-console
-      console.log("onStart***** ");
-      const serviceKey: string | null = localStorage.getItem("serviceKey"); // KeepKey api key
-      let queryKey: string | null = localStorage.getItem("queryKey");
-      let username: string | null = localStorage.getItem("username");
+      console.log('onStart***** ');
+      const serviceKey: string | null = localStorage.getItem('serviceKey'); // KeepKey api key
+      let queryKey: string | null = localStorage.getItem('queryKey');
+      let username: string | null = localStorage.getItem('username');
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       dispatch({ type: WalletActions.SET_USERNAME, payload: username });
       // eslint-disable-next-line no-console
-      console.log("username: ", username);
+      console.log('username: ', username);
 
       interface Window {
         ethereum?: any; // Customize the type if needed
       }
 
       const isMetaMaskAvailable = (): boolean => {
-        return (
-            (window as any).ethereum !== undefined &&
-            (window as any).ethereum.isMetaMask
-        );
+        return (window as any).ethereum !== undefined && (window as any).ethereum.isMetaMask;
       };
 
       const keyring = new core.Keyring();
       const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
-      console.log("metaMaskAdapter: ", metaMaskAdapter);
+      console.log('metaMaskAdapter: ', metaMaskAdapter);
 
       if (!queryKey) {
         queryKey = `key:${uuidv4()}`;
-        localStorage.setItem("queryKey", queryKey);
+        localStorage.setItem('queryKey', queryKey);
       }
       if (!username) {
         username = `user:${uuidv4()}`;
         username = username.substring(0, 13);
-        localStorage.setItem("username", username);
+        localStorage.setItem('username', username);
       }
 
-      const blockchains = [
-        "bitcoin",
-        "ethereum",
-        "thorchain",
-        "bitcoincash",
-        "litecoin",
-        "binance",
-        "cosmos",
-        "dogecoin",
-      ];
+      const blockchains = ['bitcoin', 'ethereum', 'thorchain', 'bitcoincash', 'litecoin', 'binance', 'cosmos', 'dogecoin'];
 
       // add custom paths
       const paths: any = [];
       // @ts-ignore
-      const spec = import.meta.env.VITE_PIONEER_URL_SPEC ||
-          "https://pioneers.dev/spec/swagger.json";
+      const spec = import.meta.env.VITE_PIONEER_URL_SPEC || 'https://pioneers.dev/spec/swagger.json';
       // @ts-ignore
-      const wss = import.meta.env.VITE_PIONEER_URL_WS || "wss://pioneers.dev";
+      const wss = import.meta.env.VITE_PIONEER_URL_WS || 'wss://pioneers.dev';
       const configPioneer: any = {
         blockchains,
         username,
@@ -279,9 +253,7 @@ export const PioneerProvider = ({
 
       const checkKeepkeyAvailability = async () => {
         try {
-          const response = await fetch(
-              "http://localhost:1646/spec/swagger.json"
-          );
+          const response = await fetch('http://localhost:1646/spec/swagger.json');
           if (response.status === 200) {
             return true;
           }
@@ -297,12 +269,12 @@ export const PioneerProvider = ({
       if (isKeepkeyAvailable) {
         // is keepkey available
         const config: any = {
-          apiKey: serviceKey || "notSet",
+          apiKey: serviceKey || 'notSet',
           pairingInfo: {
-            name: "Pioneer",
-            imageUrl: "https://i.imgur.com/BdyyJZS.png",
-            basePath: "http://localhost:1646/spec/swagger.json",
-            url: "https://pioneer-template.vercel.com",
+            name: 'Pioneer',
+            imageUrl: 'https://i.imgur.com/BdyyJZS.png',
+            basePath: 'http://localhost:1646/spec/swagger.json',
+            url: 'https://pioneer-template.vercel.com',
           },
         };
         const sdkKeepKey = await KeepKeySdk.create(config);
@@ -311,20 +283,20 @@ export const PioneerProvider = ({
         if (!config.apiKey !== serviceKey) {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          localStorage.setItem("serviceKey", config.apiKey);
+          localStorage.setItem('serviceKey', config.apiKey);
         }
 
         walletKeepKey = await KkRestAdapter.useKeyring(
-            keyring
-            // @ts-ignore
+          keyring
+          // @ts-ignore
         ).pairDevice(sdkKeepKey);
         // eslint-disable-next-line no-console
-        console.log("walletKeepKey: ", walletKeepKey);
+        console.log('walletKeepKey: ', walletKeepKey);
 
         // pair keepkey
         const successKeepKey = await appInit.pairWallet(walletKeepKey);
         // eslint-disable-next-line no-console
-        console.log("successKeepKey: ", successKeepKey);
+        console.log('successKeepKey: ', successKeepKey);
         // @ts-ignore
         dispatch({ type: WalletActions.ADD_WALLET, payload: walletKeepKey });
       }
@@ -388,13 +360,13 @@ export const PioneerProvider = ({
       if (!walletMetaMask && !isKeepkeyAvailable && !walletSoftware) {
         // generate new seed
         // @TODO
-        alert("No wallets found! unable to continue");
+        alert('No wallets found! unable to continue');
       } else {
         // prefure KeepKey
         // @ts-ignore
         const walletPreferred = walletKeepKey || walletMetaMask || walletSoftware;
         // @ts-ignore
-        console.log("walletPreferred: ", walletPreferred.type);
+        console.log('walletPreferred: ', walletPreferred.type);
 
         // get pubkeys
         // const pubkeys = await appInit.getPubkeys(walletPreferred);
@@ -430,10 +402,10 @@ export const PioneerProvider = ({
 
         // @ts-ignore
         const api = await appInit.init(walletPreferred);
-        console.log("api: ", api);
+        console.log('api: ', api);
 
         // @ts-ignore
-        if(api){
+        if (api) {
           // @ts-ignore
           dispatch({ type: WalletActions.SET_APP, payload: appInit });
           // @ts-ignore
@@ -442,7 +414,7 @@ export const PioneerProvider = ({
           // @ts-ignore
           const user = await api.User();
           // eslint-disable-next-line no-console
-          console.log("user: ", user.data);
+          console.log('user: ', user.data);
 
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
@@ -450,7 +422,7 @@ export const PioneerProvider = ({
           // setUsername(localStorage.getItem("username"));
 
           // eslint-disable-next-line no-console
-          console.log("user.data.context: ", user.data.context);
+          console.log('user.data.context: ', user.data.context);
           // @TODO move context back to lable of wallet not wallet type
           // setContext(user.data.context);
           // let context = user.data.context;
@@ -459,7 +431,7 @@ export const PioneerProvider = ({
           setBlockchainContext(user.data.blockchainContext);
           setAssetContext(user.data.assetContext);
           // eslint-disable-next-line no-console
-          // console.log("user: ", user);  
+          // console.log("user: ", user);
         }
       }
     } catch (e) {
@@ -476,10 +448,7 @@ export const PioneerProvider = ({
   // end
   const value: any = useMemo(() => ({ state, dispatch }), [state]);
 
-  return (
-      <PioneerContext.Provider value={value}>{children}</PioneerContext.Provider>
-  );
+  return <PioneerContext.Provider value={value}>{children}</PioneerContext.Provider>;
 };
 
-export const usePioneer = (): any =>
-    useContext(PioneerContext as unknown as React.Context<IPioneerContext>);
+export const usePioneer = (): any => useContext(PioneerContext as unknown as React.Context<IPioneerContext>);

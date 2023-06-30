@@ -1,4 +1,4 @@
-import { Popover, PopoverTrigger, PopoverContent, PopoverBody, InputGroup, Spinner, InputLeftAddon, FormControl, Textarea, FormLabel, FormHelperText, Input, Button, Box, FormErrorMessage } from '@chakra-ui/react';
+import { Card, CardBody, Popover, PopoverTrigger, PopoverContent, PopoverBody, InputGroup, Spinner, InputLeftAddon, FormControl, Textarea, FormLabel, FormHelperText, Input, Button, Box, FormErrorMessage } from '@chakra-ui/react';
 import { Steps, Step } from 'chakra-ui-steps';
 import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
@@ -329,182 +329,190 @@ const SubmitDapps = () => {
     onStart();
   }, [api]); //once on startup
 
+  if (!api) {
+    return <Spinner size="xl" />;
+  }
+
   return (
-    <Steps activeStep={activeStep} colorScheme="teal" size="lg">
-      <Step label="Basic Information">
-        <Box padding={4}>
-          <div>
-            {isLoading ? (
-              <p>
-                <Spinner size="xl"></Spinner>Loading...
-              </p>
-            ) : (
-              <>
-                <div>
-                  <Popover isOpen={Boolean(urlError)} onClose={() => setUrlError('')}>
-                    <PopoverTrigger>
-                      <div> {/* Trigger element */}</div>
-                    </PopoverTrigger>
-                    <PopoverContent>
-                      <PopoverBody>
-                        <div style={{ padding: '10px' }}>{urlError}</div>
-                      </PopoverBody>
-                    </PopoverContent>
-                  </Popover>
+    <Card w="1300px" justifyContent="left">
+      <CardBody>
+        <Steps activeStep={activeStep} colorScheme="teal" size="lg">
+          <Step label="Basic Information">
+            <Box padding={4}>
+              <div>
+                {isLoading ? (
+                  <p>
+                    <Spinner size="xl"></Spinner>Loading...
+                  </p>
+                ) : (
+                  <>
+                    <div>
+                      <Popover isOpen={Boolean(urlError)} onClose={() => setUrlError('')}>
+                        <PopoverTrigger>
+                          <div> {/* Trigger element */}</div>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <PopoverBody>
+                            <div style={{ padding: '10px' }}>{urlError}</div>
+                          </PopoverBody>
+                        </PopoverContent>
+                      </Popover>
 
-                  <Popover isOpen={Boolean(homepageError)} onClose={() => setHomepageError('')}>
-                    <PopoverTrigger>
-                      <div> {/* Trigger element */}</div>
-                    </PopoverTrigger>
-                    <PopoverContent>
-                      <PopoverBody>
-                        <div style={{ padding: '10px' }}>{homepageError}</div>
-                      </PopoverBody>
-                    </PopoverContent>
-                  </Popover>
+                      <Popover isOpen={Boolean(homepageError)} onClose={() => setHomepageError('')}>
+                        <PopoverTrigger>
+                          <div> {/* Trigger element */}</div>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <PopoverBody>
+                            <div style={{ padding: '10px' }}>{homepageError}</div>
+                          </PopoverBody>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div>
+                      <FormControl isInvalid={isError}>
+                        <FormLabel>Homepage URL</FormLabel>
+                        <Input type="email" value={homepage} onChange={handleInputChangeHomepage} />
+                        {!isError ? <FormHelperText>Homepage is the Landing, generally designed to be indexed by crawlers.</FormHelperText> : <FormErrorMessage>Homepage URL is required.</FormErrorMessage>}
+                      </FormControl>
+                    </div>
+                    <div>
+                      <FormControl isInvalid={isError}>
+                        <FormLabel>App URL</FormLabel>
+                        <Input type="email" value={app} onChange={handleInputChangeApp} />
+                        {!isError ? <FormHelperText>{'(optional) Enter the URL of the dapp application itself, generally app.serviceName*.com'}</FormHelperText> : <FormErrorMessage>App URL is required.</FormErrorMessage>}
+                      </FormControl>
+                    </div>
+                    <div>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <textarea rows={2} cols={50} placeholder="(optional) Describe why this app is useful and relevant." value={description} onChange={handleDescriptionChange}></textarea>
+                      </FormControl>
+                    </div>
+                    <Button onClick={onNext} disabled={activeStep === 0} padding="10px 20px" borderRadius="5px" backgroundColor={activeStep === 0 ? 'gray' : 'blue'} color="white" boxShadow="0px 2px 4px rgba(0, 0, 0, 0.3)" textTransform="uppercase" fontWeight="bold" transition="background-color 0.3s ease" cursor={activeStep === 0 ? 'not-allowed' : 'pointer'}>
+                      Next
+                    </Button>
+                  </>
+                )}
+              </div>
+            </Box>
+          </Step>
+          <Step label="Technical Details">
+            <div>
+              <FormControl isInvalid={isError}>
+                <FormLabel>Name</FormLabel>
+                <Input type="email" value={name} onChange={handleInputChangeName} />
+                {!isError ? <FormHelperText>Enter the name of the app.</FormHelperText> : <FormErrorMessage>name is required.</FormErrorMessage>}
+              </FormControl>
+              <FormControl isInvalid={isError}>
+                <FormLabel>Homepage URL</FormLabel>
+                <Input type="email" value={homepage} onChange={handleInputChangeApp} />
+                {!isError ? <FormHelperText>Homepage is the Landing, gernally designed to be indexed by crawlers.</FormHelperText> : <FormErrorMessage>URL is required.</FormErrorMessage>}
+              </FormControl>
+              <FormControl isInvalid={isError}>
+                <FormLabel>App URL</FormLabel>
+                <Input type="email" value={app} onChange={handleInputChangeApp} />
+                {!isError ? <FormHelperText>Enter the URL of the dapp application itself, gerneally app.serviceName*.com</FormHelperText> : <FormErrorMessage>URL is required.</FormErrorMessage>}
+              </FormControl>
+              <FormControl isInvalid={isError}>
+                <div style={{ border: '1px solid #ccc', padding: '10px', marginTop: '10px' }}>
+                  {image && <img src={image} alt="Image Preview" style={{ width: '100px', height: '100px' }} />}
+                  <FormLabel>Image URL</FormLabel>
+                  <Input type="email" value={image} onChange={handleInputChangeImage} />
                 </div>
-                <div>
-                  <FormControl isInvalid={isError}>
-                    <FormLabel>Homepage URL</FormLabel>
-                    <Input type="email" value={homepage} onChange={handleInputChangeHomepage} />
-                    {!isError ? <FormHelperText>Homepage is the Landing, generally designed to be indexed by crawlers.</FormHelperText> : <FormErrorMessage>Homepage URL is required.</FormErrorMessage>}
-                  </FormControl>
-                </div>
-                <div>
-                  <FormControl isInvalid={isError}>
-                    <FormLabel>App URL</FormLabel>
-                    <Input type="email" value={app} onChange={handleInputChangeApp} />
-                    {!isError ? <FormHelperText>{'(optional) Enter the URL of the dapp application itself, generally app.serviceName*.com'}</FormHelperText> : <FormErrorMessage>App URL is required.</FormErrorMessage>}
-                  </FormControl>
-                </div>
-                <div>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <textarea rows={2} cols={50} placeholder="(optional) Describe why this app is useful and relevant." value={description} onChange={handleDescriptionChange}></textarea>
-                  </FormControl>
-                </div>
-                <Button onClick={onNext} disabled={activeStep === 0} padding="10px 20px" borderRadius="5px" backgroundColor={activeStep === 0 ? 'gray' : 'blue'} color="white" boxShadow="0px 2px 4px rgba(0, 0, 0, 0.3)" textTransform="uppercase" fontWeight="bold" transition="background-color 0.3s ease" cursor={activeStep === 0 ? 'not-allowed' : 'pointer'}>
-                  Next
-                </Button>
-              </>
-            )}
-          </div>
-        </Box>
-      </Step>
-      <Step label="Technical Details">
-        <div>
-          <FormControl isInvalid={isError}>
-            <FormLabel>Name</FormLabel>
-            <Input type="email" value={name} onChange={handleInputChangeName} />
-            {!isError ? <FormHelperText>Enter the name of the app.</FormHelperText> : <FormErrorMessage>name is required.</FormErrorMessage>}
-          </FormControl>
-          <FormControl isInvalid={isError}>
-            <FormLabel>Homepage URL</FormLabel>
-            <Input type="email" value={homepage} onChange={handleInputChangeApp} />
-            {!isError ? <FormHelperText>Homepage is the Landing, gernally designed to be indexed by crawlers.</FormHelperText> : <FormErrorMessage>URL is required.</FormErrorMessage>}
-          </FormControl>
-          <FormControl isInvalid={isError}>
-            <FormLabel>App URL</FormLabel>
-            <Input type="email" value={app} onChange={handleInputChangeApp} />
-            {!isError ? <FormHelperText>Enter the URL of the dapp application itself, gerneally app.serviceName*.com</FormHelperText> : <FormErrorMessage>URL is required.</FormErrorMessage>}
-          </FormControl>
-          <FormControl isInvalid={isError}>
-            <div style={{ border: '1px solid #ccc', padding: '10px', marginTop: '10px' }}>
-              {image && <img src={image} alt="Image Preview" style={{ width: '100px', height: '100px' }} />}
-              <FormLabel>Image URL</FormLabel>
-              <Input type="email" value={image} onChange={handleInputChangeImage} />
+                {!isError ? <FormHelperText>Enter the URL of the image for the Dapp. This MUST be a valid URL and not an encoding!</FormHelperText> : <FormErrorMessage>Image URL is required.</FormErrorMessage>}
+              </FormControl>
+              <FormControl isInvalid={isError}>
+                <FormLabel>Dapp Desription</FormLabel>
+                <Textarea placeholder="This Dapp is great because it does..... " value={description} onChange={handleInputChangeDescription} />
+                {!isError ? <FormHelperText>Describe the Dapp in a short paragraph.</FormHelperText> : <FormErrorMessage>description is required.</FormErrorMessage>}
+              </FormControl>
+              <FormControl isInvalid={isError}>
+                Blockchains Supported By Dapp
+                <SelectImported
+                  isMulti
+                  name="assets"
+                  options={blockchains}
+                  placeholder="ethereum... bitcoin... avalanche...."
+                  closeMenuOnSelect={true}
+                  value={blockchainsSupported}
+                  // components={{ Option: IconOption }}
+                  onChange={onSelectedBlockchains}
+                ></SelectImported>
+                <FormHelperText>Enter all the blockchains that the dapp supports.</FormHelperText>
+              </FormControl>
+              <FormControl isInvalid={isError}>
+                <FormLabel>Protocols Supported</FormLabel>
+                <SelectImported
+                  isMulti
+                  name="assets"
+                  options={protocols}
+                  placeholder="wallet-connect... wallet-connect-v2... REST...."
+                  closeMenuOnSelect={true}
+                  value={protocolsSupported}
+                  // components={{ Option: IconOption }}
+                  onChange={onSelectedProtocols}
+                ></SelectImported>
+              </FormControl>
+              <FormControl isInvalid={isError}>
+                <FormLabel>Features Supported</FormLabel>
+                <SelectImported
+                  isMulti
+                  name="features"
+                  options={features}
+                  placeholder="basic-transfers... defi-earn...."
+                  closeMenuOnSelect={true}
+                  // components={{ Option: IconOption }}
+                  onChange={onSelectedFeatures}
+                ></SelectImported>
+              </FormControl>
+              <FormControl isInvalid={isError}>
+                <FormLabel>Social Media</FormLabel>
+                <InputGroup>
+                  <InputLeftAddon children="Twitter" />
+                  <Input type="text" name="twitter" value={socialMedia.twitter} onChange={handleSocialMediaChange} />
+                </InputGroup>
+              </FormControl>
+
+              <FormControl isInvalid={isError}>
+                <FormLabel>Social Media</FormLabel>
+                <InputGroup>
+                  <InputLeftAddon children="Telegram" />
+                  <Input type="text" name="telegram" value={socialMedia.telegram} onChange={handleSocialMediaChange} />
+                </InputGroup>
+              </FormControl>
+
+              <FormControl isInvalid={isError}>
+                <FormLabel>Social Media</FormLabel>
+                <InputGroup>
+                  <InputLeftAddon children="GitHub" />
+                  <Input type="text" name="github" value={socialMedia.github} onChange={handleSocialMediaChange} />
+                </InputGroup>
+              </FormControl>
+              <Button
+                mt={4}
+                colorScheme="teal"
+                //isLoading={props.isSubmitting}
+                type="submit"
+                onClick={onSubmit}
+              >
+                Submit
+              </Button>
             </div>
-            {!isError ? <FormHelperText>Enter the URL of the image for the Dapp. This MUST be a valid URL and not an encoding!</FormHelperText> : <FormErrorMessage>Image URL is required.</FormErrorMessage>}
-          </FormControl>
-          <FormControl isInvalid={isError}>
-            <FormLabel>Dapp Desription</FormLabel>
-            <Textarea placeholder="This Dapp is great because it does..... " value={description} onChange={handleInputChangeDescription} />
-            {!isError ? <FormHelperText>Describe the Dapp in a short paragraph.</FormHelperText> : <FormErrorMessage>description is required.</FormErrorMessage>}
-          </FormControl>
-          <FormControl isInvalid={isError}>
-            Blockchains Supported By Dapp
-            <SelectImported
-              isMulti
-              name="assets"
-              options={blockchains}
-              placeholder="ethereum... bitcoin... avalanche...."
-              closeMenuOnSelect={true}
-              value={blockchainsSupported}
-              // components={{ Option: IconOption }}
-              onChange={onSelectedBlockchains}
-            ></SelectImported>
-            <FormHelperText>Enter all the blockchains that the dapp supports.</FormHelperText>
-          </FormControl>
-          <FormControl isInvalid={isError}>
-            <FormLabel>Protocols Supported</FormLabel>
-            <SelectImported
-              isMulti
-              name="assets"
-              options={protocols}
-              placeholder="wallet-connect... wallet-connect-v2... REST...."
-              closeMenuOnSelect={true}
-              value={protocolsSupported}
-              // components={{ Option: IconOption }}
-              onChange={onSelectedProtocols}
-            ></SelectImported>
-          </FormControl>
-          <FormControl isInvalid={isError}>
-            <FormLabel>Features Supported</FormLabel>
-            <SelectImported
-              isMulti
-              name="features"
-              options={features}
-              placeholder="basic-transfers... defi-earn...."
-              closeMenuOnSelect={true}
-              // components={{ Option: IconOption }}
-              onChange={onSelectedFeatures}
-            ></SelectImported>
-          </FormControl>
-          <FormControl isInvalid={isError}>
-            <FormLabel>Social Media</FormLabel>
-            <InputGroup>
-              <InputLeftAddon children="Twitter" />
-              <Input type="text" name="twitter" value={socialMedia.twitter} onChange={handleSocialMediaChange} />
-            </InputGroup>
-          </FormControl>
-
-          <FormControl isInvalid={isError}>
-            <FormLabel>Social Media</FormLabel>
-            <InputGroup>
-              <InputLeftAddon children="Telegram" />
-              <Input type="text" name="telegram" value={socialMedia.telegram} onChange={handleSocialMediaChange} />
-            </InputGroup>
-          </FormControl>
-
-          <FormControl isInvalid={isError}>
-            <FormLabel>Social Media</FormLabel>
-            <InputGroup>
-              <InputLeftAddon children="GitHub" />
-              <Input type="text" name="github" value={socialMedia.github} onChange={handleSocialMediaChange} />
-            </InputGroup>
-          </FormControl>
-          <Button
-            mt={4}
-            colorScheme="teal"
-            //isLoading={props.isSubmitting}
-            type="submit"
-            onClick={onSubmit}
-          >
-            Submit
-          </Button>
-        </div>
-        <Button onClick={onBack}>Back</Button>
-      </Step>
-      <Step label="Submit">
-        <Box padding={4}>
-          {/* Your form fields for Submit */}
-          <Button mt={4} colorScheme="teal" type="submit" onClick={onSubmit}>
-            Submit
-          </Button>
-          <Button onClick={onBack}>Back</Button>
-        </Box>
-      </Step>
-    </Steps>
+            <Button onClick={onBack}>Back</Button>
+          </Step>
+          <Step label="Submit">
+            <Box padding={4}>
+              {/* Your form fields for Submit */}
+              <Button mt={4} colorScheme="teal" type="submit" onClick={onSubmit}>
+                Submit
+              </Button>
+              <Button onClick={onBack}>Back</Button>
+            </Box>
+          </Step>
+        </Steps>
+      </CardBody>
+    </Card>
   );
 };
 

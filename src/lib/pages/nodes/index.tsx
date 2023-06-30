@@ -12,27 +12,27 @@ const Header = () => (
 const Nodes = () => {
   return (
     <Box display="flex" justifyContent="center" height="100vh">
-        <Box>
-            <Header></Header>
-            <Tabs >
-                <TabList  justifyContent="center">
-                    <Tab>Charted</Tab>
-                    <Tab>Discovered</Tab>
-                    <Tab>Submit a new Node</Tab>
-                </TabList>
-                <TabPanels>
-                    <TabPanel>
-                        <WhitelistNodes />
-                    </TabPanel>
-                    <TabPanel>
-                        <WhitelistNodes />
-                    </TabPanel>
-                    <TabPanel>
-                        <ChartNode />
-                    </TabPanel>
-                </TabPanels>
-            </Tabs>
-        </Box>
+      <Box>
+        <Header></Header>
+        <Tabs>
+          <TabList justifyContent="center">
+            <Tab>Charted</Tab>
+            <Tab>Discovered</Tab>
+            <Tab>Submit a new Node</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <WhitelistNodes />
+            </TabPanel>
+            <TabPanel>
+              <WhitelistNodes />
+            </TabPanel>
+            <TabPanel>
+              <ChartNode />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </Box>
     </Box>
   );
 };

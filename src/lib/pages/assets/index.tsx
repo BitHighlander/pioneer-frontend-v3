@@ -6,34 +6,32 @@ import SubmitAssets from './components/ChartAsset';
 const Header = () => (
   <Box textAlign="center">
     <Heading>Assets</Heading>
-      <br/>
+    <br />
   </Box>
 );
 
 const Assets = () => {
   return (
     <Box display="flex" justifyContent="center" height="100vh">
-        <Box>
-            <Header />
-            <Tabs>
-                <TabList justifyContent="center">
-                    <Tab>Charted</Tab>
-                    <Tab>Discovered</Tab>
-                    <Tab>Submit a new Assets</Tab>
-                </TabList>
-                <TabPanels>
-                    <TabPanel>
-                        <AssetsList />
-                    </TabPanel>
-                    <TabPanel>
-                        {/*<AssetsList />*/}
-                    </TabPanel>
-                    <TabPanel>
-                        <SubmitAssets />
-                    </TabPanel>
-                </TabPanels>
-            </Tabs>
-        </Box>
+      <Box>
+        <Header />
+        <Tabs>
+          <TabList justifyContent="center">
+            <Tab>Charted</Tab>
+            <Tab>Discovered</Tab>
+            <Tab>Submit a new Assets</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <AssetsList />
+            </TabPanel>
+            <TabPanel>{/*<AssetsList />*/}</TabPanel>
+            <TabPanel>
+              <SubmitAssets />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </Box>
     </Box>
   );
 };
