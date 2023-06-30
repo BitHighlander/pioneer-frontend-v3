@@ -195,6 +195,7 @@ const DiscoverdBlockchains = () => {
       } else if (i === currentPage - 3 || i === currentPage + 3) {
         // @ts-ignore
         pageNumbers.push(
+            // @ts-ignore
           <Text mx={1} key={i}>
             ...
           </Text>
