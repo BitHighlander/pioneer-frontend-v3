@@ -202,7 +202,9 @@ const ReviewDapps = () => {
     if (isPioneer) {
       columnDefinitions.push({
         id: 'reject',
+        // @ts-ignore
         accessor: 'name',
+        // @ts-ignore
         cell: ({ value }) => useMemo(() => <Button onClick={() => onRevokeEntry(value)}>reject</Button>, [value]),
         header: () => <span>reject</span>,
         footer: (info) => info.column.id,

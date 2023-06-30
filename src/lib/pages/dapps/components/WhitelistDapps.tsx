@@ -1,70 +1,74 @@
-/* eslint-disable no-await-in-loop */
 import { Spinner, CardBody, Card, Grid, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Textarea, useDisclosure } from '@chakra-ui/react';
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import React, { useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
-import { v4 as uuidv4 } from 'uuid';
+import React, { useEffect, useState, useMemo } from 'react';
 import { usePioneer } from 'lib/context/Pioneer';
+
 const columnHelper = createColumnHelper<any>();
 
 const WhitelistDapps = () => {
   const { state } = usePioneer();
-  const { api, user, wallet } = state;
+  const { api, wallet } = state;
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [value, setValue] = React.useState('');
-  // const alert = useAlert()
-  const [data, setData] = React.useState([]);
+  const [data, setData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [value, setValue] = useState('');
+  const itemsPerPage = 10;
 
-  const columns = [
-    columnHelper.accessor('image', {
-      cell: (info) => (info.getValue() ? <Image src={info.getValue()} alt="keepkey api" objectFit="cover" height="60px" width="60px" objectPosition="center" /> : null),
-      footer: (info) => info.column.id,
-    }),
-    columnHelper.accessor('name', {
-      cell: (info) => info.getValue(),
-      footer: (info) => info.column.id,
-    }),
-    columnHelper.accessor('app', {
-      cell: (info) => (
-        <div style={{ width: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          <a href={info.getValue()}>{info.getValue()}</a>
-        </div>
-      ),
-      footer: (info) => info.column.id,
-    }),
-    columnHelper.accessor('name', {
-      id: 'edit',
-      cell: (info) => <Button onClick={() => editEntry(info.getValue())}>Edit</Button>,
-      header: () => <span>edit</span>,
-      footer: (info) => info.column.id,
-    }),
-    columnHelper.accessor('name', {
-      id: 'approve',
-      cell: (info) => <Button onClick={() => whitelistEntry(info.getValue())}>approve</Button>,
-      header: () => <span>approve</span>,
-      footer: (info) => info.column.id,
-    }),
-    columnHelper.accessor('name', {
-      id: 'reject',
-      cell: (info) => (
-        <Button colorScheme="red" onClick={() => rejectEntry(info.row.original.app)}>
-          reject
-        </Button>
-      ),
-      header: () => <span>reject</span>,
-      footer: (info) => info.column.id,
-    }),
-  ];
+  const columns = useMemo(
+      () => [
+        columnHelper.accessor('image', {
+          cell: (info) => (info.getValue() ? <Image src={info.getValue()} alt="keepkey api" objectFit="cover" height="60px" width="60px" objectPosition="center" /> : null),
+          footer: (info) => info.column.id,
+        }),
+        columnHelper.accessor('name', {
+          cell: (info) => info.getValue(),
+          footer: (info) => info.column.id,
+          // @ts-ignore
+          sortType: 'alphanumeric', // Enable sorting in ascending and descending order
+        }),
+        columnHelper.accessor('app', {
+          cell: (info) => (
+              <div style={{ width: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <a href={info.getValue()}>{info.getValue()}</a>
+              </div>
+          ),
+          footer: (info) => info.column.id,
+        }),
+        columnHelper.accessor('name', {
+          id: 'edit',
+          cell: (info) => <Button onClick={() => editEntry(info.getValue())}>Edit</Button>,
+          header: () => <span>edit</span>,
+          footer: (info) => info.column.id,
+        }),
+        columnHelper.accessor('name', {
+          id: 'approve',
+          cell: (info) => <Button onClick={() => whitelistEntry(info.getValue())}>approve</Button>,
+          header: () => <span>approve</span>,
+          footer: (info) => info.column.id,
+        }),
+        columnHelper.accessor('name', {
+          id: 'reject',
+          cell: (info) => (
+              <Button colorScheme="red" onClick={() => rejectEntry(info.row.original.app)}>
+                reject
+              </Button>
+          ),
+          header: () => <span>reject</span>,
+          footer: (info) => info.column.id,
+        }),
+      ],
+      []
+  );
 
   const editEntry = async function (name: string) {
     try {
-      // open modal
       console.log('edit name: ', name);
       onOpen();
-      const entry = data.filter(function (e) {
-        // @ts-ignore
-        return e.name === name;
-      })[0];
+      // @ts-ignore
+      const entry = data.find((e) => e.name === name);
       console.log('entry: ', entry);
       const prettyJson = JSON.stringify(entry, null, 2);
       setValue(prettyJson);
@@ -75,14 +79,10 @@ const WhitelistDapps = () => {
 
   const rejectEntry = async function (app: string) {
     try {
-      // open modal
       console.log('revoke entry: ', app);
-      //submit as pioneer
-
       const payload = `{"type": "revoke", "app": "${app}"}`;
       console.log('payload: ', payload);
 
-      //
       const signature = await wallet.ethSignMessage({
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
         message: payload,
@@ -103,7 +103,6 @@ const WhitelistDapps = () => {
       console.log('resultWhitelist: ', resultWhitelist);
 
       onStart();
-      //sign
     } catch (e) {
       console.error(e);
     }
@@ -111,19 +110,15 @@ const WhitelistDapps = () => {
 
   const whitelistEntry = async function (name: any) {
     try {
-      // open modal
       console.log('whitelist name: ', name);
-      const entry = data.filter(function (e) {
-        // @ts-ignore
-        return e.name === name;
-      })[0];
+      // @ts-ignore
+      const entry = data.find((e) => e.name === name);
       console.log('whitelist entry: ', entry);
 
       // @ts-ignore
       const payload = `{"type": "dapp", "name": "${name}", "url": "${entry.app}"}`;
       console.log('payload: ', entry);
 
-      //
       const signature = await wallet.ethSignMessage({
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
         message: payload,
@@ -144,9 +139,7 @@ const WhitelistDapps = () => {
       const resultWhitelist = await api.WhitelistApp(whitelist);
       console.log('resultWhitelist: ', resultWhitelist.data);
 
-      //if not pioneer show Call to action
       if (resultWhitelist.data.success) {
-        //show success message
         console.log('SUCCESS: ', resultWhitelist.data);
         alert('SUCCESS! app added to store');
         onStart();
@@ -159,95 +152,56 @@ const WhitelistDapps = () => {
     }
   };
 
-  const onSubmitEdit = async function () {
-    try {
-      // try {
-      //     const diffJson = (
-      //         obj1: { [x: string]: any },
-      //         obj2: { [x: string]: any }
-      //     ) => {
-      //         const diffArray = [];
-      //         for (const key in obj1) {
-      //             if (obj2[key] !== undefined && typeof obj2[key] !== "object") {
-      //                 if (obj1[key] !== obj2[key]) {
-      //                     diffArray.push({
-      //                         key,
-      //                         value: obj2[key],
-      //                     });
-      //                 }
-      //             }
-      //         }
-      //         return diffArray;
-      //     };
-      //     value = JSON.parse(value);
-      //     // entry DB
-      //     const entry = data.filter(function (e) {
-      //         // @ts-ignore
-      //         return e.name === value.name;
-      //     })[0];
-      //     console.log("entry: ", entry);
-      //     // @ts-ignore
-      //     const diffs = diffJson(entry, value);
-      //
-      //     for (let i = 0; i < diffs.length; i++) {
-      //         const diff: any = diffs[i];
-      //         // @ts-ignore
-      //         diff.name = value.name;
-      //         const payload = JSON.stringify(diff);
-      //
-      //         if (!wallet || !wallet.provider) throw Error("Onbord not setup!");
-      //         const ethersProvider = new ethers.providers.Web3Provider(
-      //             wallet.provider,
-      //             "any"
-      //         );
-      //         const signer = ethersProvider.getSigner();
-      //         const signature = await signer.signMessage(payload);
-      //         const address = wallet?.accounts[0]?.address;
-      //         const update: any = {};
-      //         update.signer = address;
-      //         update.payload = payload;
-      //         update.signature = signature;
-      //         if (!address) throw Error("address required!");
-      //         // submit as admin
-      //         console.log("update: ", update);
-      //         const resultWhitelist = await pioneer.UpdateApp("", update);
-      //         console.log("resultWhitelist: ", resultWhitelist);
-      //     }
-      // } catch (e) {
-      //     // alert invalid JSON!
-      //     console.error("e: ", e);
-      // }
-    } catch (e) {
-      console.error(e);
+  const handleSortBy = (columnName) => {
+    if (sortBy === columnName) {
+      // If already sorted by the same column, toggle the sorting order
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // If sorting by a new column, set it as the sortBy parameter and default to ascending order
+      setSortBy(columnName);
+      setSortOrder('asc');
     }
   };
 
   const onStart = async function () {
     try {
-      // get all unapproved dapps
-      const apps = await api.ListAppsPending({ limit: 1000, skip: 0 });
-      console.log('apps: ', apps.data.length);
-      console.log('apps: ', apps.data[0]);
-      // setData
-      setData(apps.data);
+      const skip = (currentPage - 1) * itemsPerPage;
+      let params = {
+        limit: itemsPerPage,
+        skip: skip,
+        sortBy: sortBy,
+        sortOrder: sortOrder,
+        customFilters: {
+          whitelist: false,
+        }
+      }
+      console.log("params: ",params)
+      const response = await api.ListAppsSearch(params);
+      const { results, total } = response.data;
+      console.log("results: ", results)
+      console.log("total: ", total)
+      const totalPages = Math.ceil(total / itemsPerPage);
+      setTotalPages(totalPages);
+
+      setData(results);
     } catch (e) {
       console.error(e);
     }
   };
 
-  // onstart get data
   useEffect(() => {
     onStart();
-  }, []);
+  }, [api]);
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
-  const handleInputChange = (e: { target: { value: any } }) => {
-    const inputValue = e.target.value;
-    setValue(inputValue);
+
+  const handlePaginationChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    onStart();
   };
 
   if (!api) {
@@ -255,57 +209,58 @@ const WhitelistDapps = () => {
   }
 
   return (
-    <Card w="1300px" justifyContent="left">
-      <CardBody>
-        <div>
+      <Card w="1300px" justifyContent="left">
+        <CardBody>
           <Modal isOpen={isOpen} onClose={onClose} size="100px">
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Edit Entry</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <Textarea height="600px" value={value} onChange={handleInputChange} placeholder="Here is a sample placeholder" size="sm" />
-              </ModalBody>
-
-              <ModalFooter>
-                <Button colorScheme="blue" mr={3} onClick={onClose}>
-                  Close
-                </Button>
-                <Button onClick={onSubmitEdit} variant="green">
-                  Submit changes
-                </Button>
-              </ModalFooter>
-            </ModalContent>
+            {/* Modal code */}
           </Modal>
           <div className="p-2">
             <table>
               <thead>
-                {table.getHeaderGroups().map((headerGroup) => (
+              {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <th key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</th>
+                        <th key={header.id}>
+                          {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                        </th>
                     ))}
                   </tr>
-                ))}
+              ))}
               </thead>
               <tbody>
-                {table.getRowModel().rows.map((row) => (
+              {table.getRowModel().rows.map((row) => (
                   <tr key={row.id}>
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                        <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                     ))}
                   </tr>
-                ))}
+              ))}
               </tbody>
             </table>
             <div className="h-4" />
           </div>
           <br />
           <Button onClick={onStart}>Refresh</Button>
-        </div>
-      </CardBody>
-      <Button onClick={onStart}>Refresh</Button>
-    </Card>
+          <div>
+            {totalPages > 0 && (
+                <div>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+                      <Button
+                          key={pageNumber}
+                          onClick={() => handlePaginationChange(pageNumber)}
+                          disabled={pageNumber === currentPage}
+                          colorScheme={pageNumber === currentPage ? 'blue' : undefined}
+                          variant={pageNumber === currentPage ? 'solid' : 'outline'}
+                          mx={1}
+                      >
+                        {pageNumber}
+                      </Button>
+                  ))}
+                </div>
+            )}
+          </div>
+        </CardBody>
+      </Card>
   );
 };
 
