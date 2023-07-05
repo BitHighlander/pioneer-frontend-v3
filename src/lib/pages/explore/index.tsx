@@ -78,6 +78,7 @@ const SearchBar = () => {
   ];
   const handleSearch = async () => {
     try {
+      console.log("handleSearch: ")
       setIsLoading(true);
       setShowSearchNav(true)
       const start = Date.now();
@@ -105,27 +106,27 @@ const SearchBar = () => {
         setNodes(globals.data.info.nodes);
         setDapps(globals.data.info.dapps);
 
-        let events = await app.startSocket();
-        console.log('events: ', events);
-
-        events.on('message', (event) => {
-          console.log('message: ', event);
-          event = JSON.parse(event)
-          if(event.height){
-            // // @ts-ignore
-            // setEventLog((prevLog) => [...prevLog, event]);
-            let eventString = "event: " + event.network + " " + event.type + " " + event.height;
-            console.log('eventString: ', eventString);
-            // @ts-ignore
-            setEventLog((prevLog) => [...prevLog, eventString]);
-          }
-
-        });
-
-        events.on('blocks', (event:any) => {
-          //console.log('blocks: ', event);
-
-        });
+        // let events = await app.startSocket();
+        // console.log('events: ', events);
+        //
+        // events.on('message', (event) => {
+        //   console.log('message: ', event);
+        //   event = JSON.parse(event)
+        //   if(event.height){
+        //     // // @ts-ignore
+        //     // setEventLog((prevLog) => [...prevLog, event]);
+        //     let eventString = "event: " + event.network + " " + event.type + " " + event.height;
+        //     console.log('eventString: ', eventString);
+        //     // @ts-ignore
+        //     setEventLog((prevLog) => [...prevLog, eventString]);
+        //   }
+        //
+        // });
+        //
+        // events.on('blocks', (event:any) => {
+        //   //console.log('blocks: ', event);
+        //
+        // });
       }
     } catch (e) {
       console.error(e);
@@ -138,12 +139,11 @@ const SearchBar = () => {
 
   return (
       <>
-        <Header />
         {showSearchNav ? (
             <Box
                 backgroundColor="gray.900"
                 height="100vh"
-                width="33%"
+                width="20%"
                 position="fixed"
                 top="0"
                 left="0"
@@ -203,116 +203,70 @@ const SearchBar = () => {
               </VStack>
             </Box>
         ) : (<div>
+          <Header />
         </div>)}
-
-        <Card>
-          <CardBody>
-            <Flex direction="column" p={6} borderRadius="2xl">
-              <Flex alignItems="center">
-                <Avatar src={PIONEER} name="Blockchain explorer" size="xl" mr={6} />
-                <InputGroup size="lg" flex="1">
-                  <Input
-                      pr="4.5rem"
-                      value={searchTerm}
-                      onChange={(event) => setSearchTerm(event.target.value)}
-                      placeholder="Search blockchain worlds..."
-                      borderRadius="2xl"
-                  />
-                  <InputRightElement width="4.5rem">
-                    <Button h="1.75rem" size="sm" colorScheme="blue" variant="outline" onClick={handleSearch}>
-                      {isLoading ? <Spinner /> : <Search2Icon />}
-                    </Button>
-                  </InputRightElement>
-                </InputGroup>
-              </Flex>
-              <Flex justifyContent="flex-end" mt={2}>
-                <Tooltip label="Advanced View" fontSize="md">
-                  <Icon
-                      as={SettingsIcon}
-                      w={5}
-                      h={5}
-                      onClick={() => setIsAdvancedViewOpen(!isAdvancedViewOpen)}
-                      cursor="pointer"
-                  />
-                </Tooltip>
-              </Flex>
-              {searchResults && (
-                  <Card>
-                    <Flex>
-                      <Card>{searchResults}</Card>
-                    </Flex>
-                  </Card>
-              )}
-            </Flex>
-          </CardBody>
-        </Card>
-        <Collapse in={isAdvancedViewOpen}>
-          <Card mt={4}>
-            <Flex>
-              <SimpleGrid columns={[1, 1, 3]} spacing={4}>
-                <Card>
-                  <CardHeader>
-                    <Heading size="md">Pioneer Tracking</Heading>
-                    <Text>Pioneers: {pioneers.charted}</Text>
-                  </CardHeader>
-                  <CardBody>
-                    <Table variant="simple" size="sm" mt={4}>
-                      <Thead>
-                        <Tr>
-                          <Th>Category</Th>
-                          <Th>Charted</Th>
-                          <Th>Discovered</Th>
-                        </Tr>
-                      </Thead>
-                      <Tbody>
-                        <Tr>
-                          <Td>Assets</Td>
-                          <Td>{assets.charted}</Td>
-                          <Td>{assets.discovered}</Td>
-                        </Tr>
-                        <Tr>
-                          <Td>Blockchains</Td>
-                          <Td>{blockchains.charted}</Td>
-                          <Td>{blockchains.discovered}</Td>
-                        </Tr>
-                        <Tr>
-                          <Td>Nodes</Td>
-                          <Td>{nodes.charted}</Td>
-                          <Td>{nodes.discovered}</Td>
-                        </Tr>
-                        <Tr>
-                          <Td>Dapps</Td>
-                          <Td>{dapps.charted}</Td>
-                          <Td>{dapps.discovered}</Td>
-                        </Tr>
-                      </Tbody>
-                    </Table>
-                  </CardBody>
-                  <CardFooter>
-                    <Button>View here</Button>
-                  </CardFooter>
-                </Card>
-              </SimpleGrid>
-            </Flex>
-          </Card>
+        <Box ml={showSearchNav ? '20%' : '0'} >
           <Card>
-            <Card p={4} borderWidth="1px" borderColor="gray.400" borderRadius="md" maxH="200px" overflowY="auto">
-              <Heading size="sm" mb={2}>
-                Events
-              </Heading>
-              <List spacing={2}>
-                {eventLog.map((event, index) => {
-                  return (
-                      <ListItem key={index}>
-                        <ListIcon as={InfoIcon} color="blue.500" />
-                        Event: {event}
-                      </ListItem>
-                  );
-                })}
-              </List>
-            </Card>
+            <CardBody>
+              <Flex direction="column" p={6} borderRadius="2xl">
+                <Flex alignItems="center">
+                  <Avatar src={PIONEER} name="Blockchain explorer" size="xl" mr={6} />
+                  <InputGroup size="lg" flex="1">
+                    <Input
+                        pr="4.5rem"
+                        value={searchTerm}
+                        onChange={(event) => setSearchTerm(event.target.value)}
+                        placeholder="Search blockchain worlds..."
+                        borderRadius="2xl"
+                    />
+                    <InputRightElement width="4.5rem">
+                      <Button h="1.75rem" size="sm" colorScheme="blue" variant="outline" onClick={handleSearch}>
+                        {isLoading ? <Spinner /> : <Search2Icon />}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+                </Flex>
+                <Flex justifyContent="flex-end" mt={2}>
+                  <Tooltip label="Advanced View" fontSize="md">
+                    <Icon
+                        as={SettingsIcon}
+                        w={5}
+                        h={5}
+                        onClick={() => setIsAdvancedViewOpen(!isAdvancedViewOpen)}
+                        cursor="pointer"
+                    />
+                  </Tooltip>
+                </Flex>
+                {searchResults && (
+                    <Card>
+                      <Flex>
+                        <Card>{searchResults}</Card>
+                      </Flex>
+                    </Card>
+                )}
+              </Flex>
+            </CardBody>
           </Card>
-        </Collapse>
+          <Collapse in={isAdvancedViewOpen}>
+            <Card>
+              <Card p={4} borderWidth="1px" borderColor="gray.400" borderRadius="md" maxH="200px" overflowY="auto">
+                <Heading size="sm" mb={2}>
+                  Events
+                </Heading>
+                <List spacing={2}>
+                  {eventLog.map((event, index) => {
+                    return (
+                        <ListItem key={index}>
+                          <ListIcon as={InfoIcon} color="blue.500" />
+                          Event: {event}
+                        </ListItem>
+                    );
+                  })}
+                </List>
+              </Card>
+            </Card>
+          </Collapse>
+        </Box>
       </>
   );
 };
