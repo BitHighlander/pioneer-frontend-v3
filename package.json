@@ -33,7 +33,7 @@
     "@keepkey/hdwallet-keepkey-rest": "^1.40.29",
     "@keepkey/keepkey-sdk": "^0.2.48",
     "@pioneer-platform/pioneer-client": "^9.0.6",
-    "@pioneer-sdk/sdk": "1.1.123",
+    "@pioneer-sdk/sdk": "1.1.125",
     "@rollup/plugin-url": "^8.0.1",
     "@shapeshiftoss/hdwallet-core": "^1.50.0",
     "@shapeshiftoss/hdwallet-metamask": "^1.50.0",

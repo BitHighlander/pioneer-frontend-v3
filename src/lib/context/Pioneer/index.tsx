@@ -403,6 +403,7 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
         // @ts-ignore
         const api = await appInit.init(walletPreferred);
         console.log('api: ', api);
+        console.log('appInit: ', appInit);
 
         // @ts-ignore
         if (api) {

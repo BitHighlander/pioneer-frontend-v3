@@ -13,7 +13,7 @@ const Chart = React.lazy(() => import('lib/pages/chart'));
 export const routes: Array<PathRouteProps> = [
   {
     path: '/',
-    element: <Home />,
+    element: <Explore />,
   },
   {
     path: '/dapps',
@@ -29,7 +29,7 @@ export const routes: Array<PathRouteProps> = [
   },
   {
     path: '/explore',
-    element: <Explore />,
+    element: <Home />,
   },
   {
     path: '/chart',
