@@ -1,7 +1,6 @@
 import { CardBody, Spinner, Grid, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, InputGroup, InputLeftAddon, ModalBody, Textarea, ModalFooter, useDisclosure, FormControl, FormLabel, Input, FormHelperText, FormErrorMessage, Card, Avatar, Heading, Text, Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, Box, Tabs, TabList, TabPanels, Tab, TabPanel, Flex, Select } from '@chakra-ui/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-// import { useAlert } from 'react-alert'
 import { ArrowUpIcon, ArrowDownIcon, StarIcon } from '@chakra-ui/icons';
 import { useToast } from '@chakra-ui/react';
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
@@ -214,74 +213,6 @@ const ReviewDapps = () => {
     return columnDefinitions;
   }, [isPioneer]);
 
-  // @ts-ignore
-  // const columns = [
-  //   columnHelper.accessor('image', {
-  //     cell: (info) =>
-  //       info.getValue() ? (
-  //         <div onClick={() => openEntry(info.row.original.name)}>
-  //           <Image src={info.getValue()} alt="keepkey api" objectFit="cover" height="60px" width="60px" objectPosition="center" />
-  //         </div>
-  //       ) : null,
-  //     footer: (info) => info.column.id,
-  //   }),
-  //   columnHelper.accessor('name', {
-  //     cell: (info) => <div onClick={() => openEntry(info.getValue())}>{info.getValue()}</div>,
-  //     footer: (info) => info.column.id,
-  //   }),
-  //   columnHelper.accessor('app', {
-  //     cell: (info) => <div onClick={() => openEntry(info.getValue())}>{info.getValue()}</div>,
-  //     footer: (info) => info.column.id,
-  //   }),
-  //   columnHelper.accessor('score', {
-  //     cell: (info) => Math.round(info.getValue()),
-  //     //@ts-ignore
-  //     footer: (info) => Math.round(info.column.id),
-  //   }),
-  //   columnHelper.accessor('name', {
-  //     id: 'upvote',
-  //     cell: (info) => (
-  //       <Button onClick={() => upVote(info.getValue())}>
-  //         <ArrowUpIcon w={8} h={8} color="green.500" />
-  //       </Button>
-  //     ),
-  //     header: () => <span>upvote</span>,
-  //     footer: (info) => info.column.id,
-  //   }),
-  //   columnHelper.accessor('name', {
-  //     id: 'downvote',
-  //     cell: (info) => (
-  //       <Button onClick={() => downVote(info.getValue())}>
-  //         <ArrowDownIcon w={8} h={8} color="red.500" />
-  //       </Button>
-  //     ),
-  //     header: () => <span>downvote</span>,
-  //     footer: (info) => info.column.id,
-  //   }),
-  //   columnHelper.accessor('name', {
-  //     id: 'edit',
-  //     cell: (info) => <Button onClick={() => editEntry(info.row.original.name)}>Review</Button>,
-  //     header: () => <span>review</span>,
-  //     footer: (info) => info.column.id,
-  //   }),
-  //   columnHelper.accessor('revoke', {
-  //     id: 'revoke',
-  //     cell: (info) => (
-  //       <Button colorScheme="red" onClick={() => onRevokeEntry(info.row.original.app)}>
-  //         revoke
-  //       </Button>
-  //     ),
-  //     header: () => <span>edit</span>,
-  //     footer: (info) => info.column.id,
-  //   }),
-  //   // columnHelper.accessor('name', {
-  //   //   id: 'approve',
-  //   //   cell: info => <Button onClick={() => whitelistEntry(info.getValue())}>approve</Button>,
-  //   //   header: () => <span>approve</span>,
-  //   //   footer: info => info.column.id,
-  //   // }),
-  // ];
-
   const onStart = async function () {
     try {
       //get all unapproved dapps
@@ -368,7 +299,6 @@ const ReviewDapps = () => {
       console.log('update: ', update);
       const resultWhitelist = await api.VoteOnApp(update);
       console.log('resultWhitelist: ', resultWhitelist);
-
       toast({
         title: 'User Voted!.',
         description: 'You UP voted for ' + name + ' result: ' + resultWhitelist.data?.message,
@@ -777,7 +707,7 @@ const ReviewDapps = () => {
             <Tabs index={tabIndex} onChange={handleTabChange}>
               <TabList>
                 <Tab>Info</Tab>
-                <Tab>Reviews</Tab>
+                {/*<Tab>Reviews</Tab>*/}
                 <Tab>Form</Tab>
                 <Tab>Vote History</Tab>
               </TabList>
@@ -818,7 +748,7 @@ const ReviewDapps = () => {
                                 </Text>
                               ))
                             : null}
-                          <Button size={'xs'} onClick={() => handleTabChange(2)}>
+                          <Button size={'xs'} onClick={() => handleTabChange(1)}>
                             edit
                           </Button>
                         </Box>
@@ -832,7 +762,7 @@ const ReviewDapps = () => {
                                 </Text>
                               ))
                             : null}
-                          <Button size={'xs'} onClick={() => handleTabChange(2)}>
+                          <Button size={'xs'} onClick={() => handleTabChange(1)}>
                             edit
                           </Button>
                         </Box>
@@ -846,7 +776,7 @@ const ReviewDapps = () => {
                                 </Text>
                               ))
                             : null}
-                          <Button size={'xs'} onClick={() => handleTabChange(2)}>
+                          <Button size={'xs'} onClick={() => handleTabChange(1)}>
                             edit
                           </Button>
                         </Box>
@@ -862,76 +792,13 @@ const ReviewDapps = () => {
                           <Text>
                             <strong>Github:</strong> {socialMedia.github}
                           </Text>
-                          <Button size={'xs'} onClick={() => handleTabChange(2)}>
+                          <Button size={'xs'} onClick={() => handleTabChange(1)}>
                             edit
                           </Button>
                         </Box>
                       </Box>
                     </Box>
                   </Card>
-                </TabPanel>
-                <TabPanel>
-                  <Box>
-                    <Heading color="teal.400" fontSize={{ base: '.8rem', md: '1rem' }} my="1rem">
-                      dApp Reviews
-                    </Heading>
-
-                    {isSubmitingReview ? (
-                      <div>
-                        <form>
-                          <FormControl id="star-rating" my="1rem">
-                            <FormLabel>Star Rating</FormLabel>
-                            <Select placeholder="Select rating" value={starRating} onChange={(e) => setStarRating(e.target.value)}>
-                              <option value="1">1 star</option>
-                              <option value="2">2 stars</option>
-                              <option value="3">3 stars</option>
-                              <option value="4">4 stars</option>
-                              <option value="5">5 stars</option>
-                            </Select>
-                          </FormControl>
-                          <FormControl id="review-text" my="1rem">
-                            <FormLabel>Review Text</FormLabel>
-                            <Textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Write your review..." />
-                          </FormControl>
-                          {/*<FormControl id="blockchains-supported" my="1rem">*/}
-                          {/*    <FormLabel>Blockchains Supported</FormLabel>*/}
-                          {/*    <Input*/}
-                          {/*        value={blockchainsSupported}*/}
-                          {/*        onChange={(e) => setBlockchainsSupported(e.target.value)}*/}
-                          {/*        placeholder="Enter the supported blockchains"*/}
-                          {/*    />*/}
-                          {/*</FormControl>*/}
-                        </form>
-                        <Button
-                          type="submit"
-                          colorScheme="blue"
-                          mr={3}
-                          onClick={async (event) => {
-                            event.preventDefault(); // prevent form from refreshing the page
-                            await handleSubmitReview(name);
-                          }}
-                        >
-                          Submit
-                        </Button>
-                      </div>
-                    ) : (
-                      <div>
-                        <Button colorScheme="blue" mr={3} onClick={() => setIsSubmitingReview(true)}>
-                          Submit Review
-                        </Button>
-                      </div>
-                    )}
-                    {reviewList.map((review, index) => (
-                      <Review
-                        key={index}
-                        name={review.name}
-                        rating={review.rating}
-                        avatar={review.avatar}
-                        text={review.text}
-                        setRating={StarRating} // Pass setRating prop here
-                      />
-                    ))}
-                  </Box>
                 </TabPanel>
                 <TabPanel>
                   <ModalHeader>Edit Entry</ModalHeader>

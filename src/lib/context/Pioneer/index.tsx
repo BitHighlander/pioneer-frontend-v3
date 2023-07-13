@@ -46,6 +46,7 @@ import { NativeAdapter } from '@shapeshiftoss/hdwallet-native';
 import { entropyToMnemonic } from 'bip39';
 import { createContext, useReducer, useContext, useMemo, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import assert from "assert";
 
 export enum WalletActions {
   SET_STATUS = 'SET_STATUS',
@@ -287,18 +288,11 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
         }
 
         walletKeepKey = await KkRestAdapter.useKeyring(
-          keyring
-          // @ts-ignore
+            keyring
+            // @ts-ignore
         ).pairDevice(sdkKeepKey);
         // eslint-disable-next-line no-console
         console.log('walletKeepKey: ', walletKeepKey);
-
-        // pair keepkey
-        const successKeepKey = await appInit.pairWallet(walletKeepKey);
-        // eslint-disable-next-line no-console
-        console.log('successKeepKey: ', successKeepKey);
-        // @ts-ignore
-        dispatch({ type: WalletActions.ADD_WALLET, payload: walletKeepKey });
       }
 
       let walletSoftware: NativeHDWallet | null;
@@ -365,8 +359,6 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
         // prefure KeepKey
         // @ts-ignore
         const walletPreferred = walletKeepKey || walletMetaMask || walletSoftware;
-        // @ts-ignore
-        console.log('walletPreferred: ', walletPreferred.type);
 
         // get pubkeys
         // const pubkeys = await appInit.getPubkeys(walletPreferred);
@@ -375,14 +367,14 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
         // @ts-ignore
         // await appInit.refresh()
         // @ts-ignore
-        dispatch({
-          type: WalletActions.SET_CONTEXT,
-          // @ts-ignore
-          payload: walletPreferred.type,
-        });
-        // setSetWallets(wallets.push(walletMetaMask))
-        // @ts-ignore
-        dispatch({ type: WalletActions.SET_WALLET, payload: walletPreferred });
+        // dispatch({
+        //   type: WalletActions.SET_CONTEXT,
+        //   // @ts-ignore
+        //   payload: walletPreferred.type,
+        // });
+        // // setSetWallets(wallets.push(walletMetaMask))
+        // // @ts-ignore
+        // dispatch({ type: WalletActions.SET_WALLET, payload: walletPreferred });
 
         // now pair the rest
         // @ts-ignore
@@ -407,6 +399,14 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
 
         // @ts-ignore
         if (api) {
+          // pair keepkey
+          if(isKeepkeyAvailable){
+            const successKeepKey = await appInit.pairWallet(walletKeepKey);
+            // @ts-ignore
+            dispatch({ type: WalletActions.ADD_WALLET, payload: walletKeepKey });
+          }
+          
+          
           // @ts-ignore
           dispatch({ type: WalletActions.SET_APP, payload: appInit });
           // @ts-ignore
@@ -416,7 +416,13 @@ export const PioneerProvider = ({ children }: { children: React.ReactNode }): JS
           const user = await api.User();
           // eslint-disable-next-line no-console
           console.log('user: ', user.data);
+          let pubkey = appInit.pubkeys.filter((e:any) => e.symbol === "ETH")
+          console.log('pubkey: ', pubkey);
 
+          //syn eth
+          let pubkeySynced = await appInit.getPubkey(pubkey[0].symbol, true)
+          console.log('pubkeySynced: ', pubkeySynced);
+          
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           dispatch({ type: WalletActions.SET_USER, payload: user.data });

@@ -2,10 +2,12 @@ import { Spinner, CardBody, Card, Grid, Image, Button, Modal, ModalOverlay, Moda
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import React, { useEffect, useState, useMemo } from 'react';
 import { usePioneer } from 'lib/context/Pioneer';
+// @ts-ignore
+import { DappModal } from 'lib/components/modals/DappModal';
 
 const columnHelper = createColumnHelper<any>();
 
-const WhitelistDapps = () => {
+const ChartDapps = () => {
   const { state } = usePioneer();
   const { api, wallet } = state;
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -14,7 +16,7 @@ const WhitelistDapps = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState({});
   const itemsPerPage = 10;
 
   const columns = useMemo(
@@ -69,9 +71,11 @@ const WhitelistDapps = () => {
       onOpen();
       // @ts-ignore
       const entry = data.find((e) => e.name === name);
-      console.log('entry: ', entry);
-      const prettyJson = JSON.stringify(entry, null, 2);
-      setValue(prettyJson);
+      console.log('edit entry: ', entry);
+      setValue(entry);
+      // console.log('entry: ', entry);
+      // const prettyJson = JSON.stringify(entry, null, 2);
+      // setValue(prettyJson);
     } catch (e) {
       console.error(e);
     }
@@ -211,9 +215,7 @@ const WhitelistDapps = () => {
   return (
       <Card w="1300px" justifyContent="left">
         <CardBody>
-          <Modal isOpen={isOpen} onClose={onClose} size="100px">
-            {/* Modal code */}
-          </Modal>
+          <DappModal isOpen={isOpen} onClose={onClose} value={value} />
           <div className="p-2">
             <table>
               <thead>
@@ -264,4 +266,4 @@ const WhitelistDapps = () => {
   );
 };
 
-export default WhitelistDapps;
+export default ChartDapps;
