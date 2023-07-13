@@ -23,7 +23,7 @@ export default defineConfig(({}) => {
     plugins: [react(),url()],
     resolve: {
       alias: {
-        lib: resolve(__dirname, "src/lib"),
+        web: resolve(__dirname, "src/web"),
         routes: resolve(__dirname, "src/routes"),
         util: 'rollup-plugin-node-polyfills/polyfills/util',
         sys: 'util',
