@@ -72,6 +72,7 @@ const ChartDapps = () => {
       // @ts-ignore
       const entry = data.find((e) => e.name === name);
       console.log('edit entry: ', entry);
+      // @ts-ignore
       setValue(entry);
       // console.log('entry: ', entry);
       // const prettyJson = JSON.stringify(entry, null, 2);
