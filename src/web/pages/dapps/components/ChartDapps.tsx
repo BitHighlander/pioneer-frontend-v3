@@ -1,4 +1,4 @@
-import { Spinner, CardBody, Card, Grid, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Textarea, useDisclosure } from '@chakra-ui/react';
+import { Text, Checkbox, Box, Spinner, CardBody, Card, Grid, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Textarea, useDisclosure } from '@chakra-ui/react';
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import React, { useEffect, useState, useMemo } from 'react';
 import { usePioneer } from 'web/context/Pioneer';
@@ -11,9 +11,11 @@ const ChartDapps = () => {
   const { state } = usePioneer();
   const { api, wallet } = state;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [query, setQuery] = useState('');
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [timeOut, setTimeOut] = useState(null);
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
   const [value, setValue] = useState({});
@@ -209,15 +211,46 @@ const ChartDapps = () => {
     onStart();
   };
 
+  const search = async (query) => {
+    console.log('query: ', query);
+    const KeepKeyPage1 = await api.SearchByBlockchainName(query);
+    console.log('KeepKeyPage1: ', KeepKeyPage1.data);
+    setData(KeepKeyPage1.data);
+  };
+  
+  const onClear = () => {
+    setQuery('');
+  };
+
+  const handleKeyPress = (event) => {
+    if (timeOut) {
+      clearTimeout(timeOut);
+    }
+    const inputValue = event.target.value;
+    setQuery(inputValue);
+    setTimeOut(
+        // @ts-ignore
+        setTimeout(() => {
+          search(inputValue);
+        }, 1000)
+    );
+  };
+
+
   if (!api) {
     return <Spinner size="xl" />;
   }
 
+  // @ts-ignore
   return (
       <Card w="1300px" justifyContent="left">
         <CardBody>
           <DappModal isOpen={isOpen} onClose={onClose} value={value} />
           <div className="p-2">
+            <Box>
+              <Text>Search:</Text>
+              <input onFocus={onClear} value={query} onChange={handleKeyPress} type="search" style={{ border: '2px solid black', padding: '15px' }} />
+            </Box>
             <table>
               <thead>
               {table.getHeaderGroups().map((headerGroup) => (

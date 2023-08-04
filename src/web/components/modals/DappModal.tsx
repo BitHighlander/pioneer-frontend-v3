@@ -72,7 +72,7 @@ const features = [
 ];
 
 
-export function DappModal({ isOpen, onClose, data }) {
+export function DappModal({ isOpen, onClose, value }) {
     const [tabIndex, setTabIndex] = useState(0);
     const { state } = usePioneer();
     const { api, wallet } = state;
@@ -80,6 +80,7 @@ export function DappModal({ isOpen, onClose, data }) {
     const [allUpVotesContext, setAllUpVotesContext] = useState<any[]>([]);
     const [allDownVotesContext, setAllDownVotesContext] = useState<any[]>([]);
     const [app, setApp] = useState('');
+    const [name, setName] = useState('');
     const [image, setImage] = useState('');
     const [url, setUrl] = useState('');
     const [isValid, setIsValid] = useState(false);
@@ -336,6 +337,7 @@ export function DappModal({ isOpen, onClose, data }) {
     );
 
 
+    // @ts-ignore
     // @ts-ignore
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="xl">

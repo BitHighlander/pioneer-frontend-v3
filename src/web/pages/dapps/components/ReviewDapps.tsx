@@ -373,6 +373,42 @@ const ReviewDapps = () => {
       getVotes(name);
       onOpen();
       setTabIndex(0);
+
+      // Find the selected entry by name
+      // @ts-ignore
+      const selectedEntry = data.find((entry) => entry.name === name);
+      if (!selectedEntry) {
+        console.error('Entry not found');
+        return;
+      }
+      console.log("selectedEntry: ", selectedEntry)
+      // Set the local state variables with the selected entry's values
+      // @ts-ignore
+      setName(selectedEntry.name);
+      // @ts-ignore
+      setApp(selectedEntry.app);
+      // @ts-ignore
+      setImage(selectedEntry.image);
+      // @ts-ignore
+      setDescription(selectedEntry.description);
+      // @ts-ignore
+      setHomepage(selectedEntry.homepage);
+      // @ts-ignore
+      setBlockchainsSupported(selectedEntry.blockchains);
+      // @ts-ignore
+      setProtocolsSupported(selectedEntry.protocols);
+      // @ts-ignore
+      setFeaturesSupported(selectedEntry.features);
+      // @ts-ignore
+      setSocialMedia({
+        // @ts-ignore
+        twitter: selectedEntry.socialMedia?.twitter || '',
+        // @ts-ignore
+        telegram: selectedEntry.socialMedia?.telegram || '',
+        // @ts-ignore
+        github: selectedEntry.socialMedia?.github || 'https://github.com/shapeshift/',
+      });
+
     } catch (e) {
       console.error(e);
     }
@@ -404,7 +440,7 @@ const ReviewDapps = () => {
         console.error('Entry not found');
         return;
       }
-
+      console.log("selectedEntry: ", selectedEntry)
       // Set the local state variables with the selected entry's values
       // @ts-ignore
       setName(selectedEntry.name);

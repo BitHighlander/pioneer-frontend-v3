@@ -334,7 +334,7 @@ const SubmitDapps = () => {
   }
 
   return (
-    <Card w="1300px" justifyContent="left">
+    <Card w="600px" justifyContent="left">
       <CardBody>
         <Steps activeStep={activeStep} colorScheme="teal" size="lg">
           <Step label="Basic Information">

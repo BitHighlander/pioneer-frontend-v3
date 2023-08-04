@@ -14,18 +14,18 @@
 
                              A Product of the CoinMasters Guild
                                               - Highlander
-  
+
     Wallet Providers:
-    
+
     1. Metmask:
       if metamask derivice pioneer seed from metamask
-      
+
     2. keepkey:
       If keepkey detected: use it, otherwise use the native adapter
-      
+
     3. Native Adapter:
         If no wallets, use the native adapter
-  
+
 
 
       Api Docs:
@@ -71,6 +71,8 @@ export enum WalletActions {
   SET_WALLET_DESCRIPTIONS = "SET_WALLET_DESCRIPTIONS",
   ADD_WALLET = "ADD_WALLET",
   RESET_STATE = "RESET_STATE",
+  PAIR_WALLET = "PAIR_WALLET",
+  SWITCH_WALLET = "SWITCH_WALLET",
 }
 
 export interface InitialState {
@@ -135,7 +137,10 @@ export type ActionTypes =
     | { type: WalletActions.ADD_WALLET; payload: any }
     // | { type: WalletActions.SET_WALLET_DESCRIPTIONS; payload: any }
     // | { type: WalletActions.INIT_PIONEER; payload: boolean }
-    | { type: WalletActions.RESET_STATE };
+    | { type: WalletActions.RESET_STATE }
+    | { type: WalletActions.PAIR_WALLET; payload: any } // New action type for pairing a wallet
+    | { type: WalletActions.SWITCH_WALLET; payload: any }; // New action type for switching the active wallet
+
 
 const reducer = (state: InitialState, action: ActionTypes) => {
   switch (action.type) {
@@ -157,6 +162,10 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, api: action.payload };
     case WalletActions.SET_USER:
       return { ...state, user: action.payload };
+    case WalletActions.PAIR_WALLET:
+      return { ...state, wallets: action.payload };
+    case WalletActions.SWITCH_WALLET:
+      return { ...state, wallet: action.payload };
     case WalletActions.RESET_STATE:
       return {
         ...state,
@@ -191,6 +200,27 @@ export const PioneerProvider = ({
   );
   const [assetContext, setAssetContext] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
+
+  // New pairWallet function
+  const pairWallet = async (wallet: any) => {
+    // Call the API to pair the wallet
+    // For example: await appInit.pairWallet(wallet);
+    console.log("pairWallet called!")
+    // Dispatch the action to update the state with the new wallet
+    // @ts-ignore
+    dispatch({ type: WalletActions.PAIR_WALLET, payload: wallet });
+  };
+
+  // New switchWallet function
+  const switchWallet = async (wallet: any) => {
+    // Call the API or perform any necessary operations to switch the active wallet
+    // For example: await appInit.switchWallet(wallet);
+    console.log("switchWallet called!")
+    // Dispatch the action to update the state with the switched wallet
+    // @ts-ignore
+    dispatch({ type: WalletActions.SWITCH_WALLET, payload: wallet });
+  };
+
 
   const onStart = async function () {
     try {
@@ -335,58 +365,6 @@ export const PioneerProvider = ({
       }
 
       let walletSoftware: NativeHDWallet | null;
-      // let mnemonic;
-      // let hashStored;
-      // let hash;
-      // const nativeAdapter = NativeAdapter.useKeyring(keyring);
-      // //is metamask available AND no KeepKey
-      // if (walletMetaMask && !isKeepkeyAvailable) {
-      //   //generate software from metamask
-      //   hashStored = localStorage.getItem('hash');
-      //   if (!hashStored) {
-      //     //generate from MM
-      //     const message = 'Pioneers:0xD9B4BEF9:gen1';
-      //     const { hardenedPath, relPath } = walletMetaMask.ethGetAccountPaths({
-      //       coin: 'Ethereum',
-      //       accountIdx: 0,
-      //     })[0];
-      //     const sig = await walletMetaMask.ethSignMessage({
-      //       addressNList: hardenedPath.concat(relPath),
-      //       message,
-      //     });
-      //     // @ts-ignore
-      //     console.log('sig: ', sig.signature);
-      //     // @ts-ignore
-      //     localStorage.setItem('hash', sig.signature);
-      //     // @ts-ignore
-      //     hashStored = sig.signature;
-      //   }
-      //   console.log('hashStored: ', hashStored);
-      //   const hashSplice = (str: string | any[] | null) => {
-      //     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //     // @ts-ignore
-      //     return str.slice(0, 34);
-      //   };
-      //   // @ts-ignore
-      //   hash = hashSplice(hashStored);
-      //   // eslint-disable-next-line no-console
-      //   console.log('hash (trimmed): ', hash);
-      //   // @ts-ignore
-      //   const hashBytes = hash.replace('0x', '');
-      //   console.log('hashBytes', hashBytes);
-      //   console.log('hashBytes', hashBytes.length);
-      //   mnemonic = entropyToMnemonic(hashBytes.toString(`hex`));
-      //
-      //   // get walletSoftware
-      //   walletSoftware = await nativeAdapter.pairDevice('testid');
-      //   await nativeAdapter.initialize();
-      //   // @ts-ignore
-      //   await walletSoftware.loadDevice({ mnemonic });
-      //   const successSoftware = await appInit.pairWallet(walletSoftware);
-      //   console.log('successSoftware: ', successSoftware);
-      //   // @ts-ignore
-      //   dispatch({ type: WalletActions.ADD_WALLET, payload: walletSoftware });
-      // }
 
       // if NO metamask AND NO KeepKey then generate new seed
       // @ts-ignore
@@ -498,7 +476,11 @@ export const PioneerProvider = ({
   }, []);
 
   // end
-  const value: any = useMemo(() => ({ state, dispatch }), [state]);
+  // Add pairWallet and switchWallet to the context value
+  const value: any = useMemo(
+      () => ({ state, dispatch, pairWallet, switchWallet }),
+      [state]
+  );
 
   return (
       <PioneerContext.Provider value={value}>{children}</PioneerContext.Provider>

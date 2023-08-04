@@ -63,7 +63,7 @@ import {MetaMaskIcon} from "web/assets/Icons/MetaMaskIcon";
 import {TallyHoIcon} from "web/assets/Icons/TallyHoIcon";
 import {XDEFIIcon} from "web/assets/Icons/XDEFIIcon";
 
-const PROJECT_NAME = "*Your Project Name HERE*";
+const PROJECT_NAME = "Pioneer";
 
 // import type { ReactNode } from "react";
 // import { KeepKeySdk } from "@keepkey/keepkey-sdk";
@@ -538,7 +538,7 @@ const Header = () => {
         />
         <HStack spacing={8}>
           <Link onClick={handleToHome}>
-            <Box>{PROJECT_NAME}</Box>
+            <Box><Text fontSize='3xl'>{PROJECT_NAME}</Text></Box>
           </Link>
         </HStack>
         <Spacer />
