@@ -1,4 +1,4 @@
-import { CardBody, Spinner, Grid, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, InputGroup, InputLeftAddon, ModalBody, Textarea, ModalFooter, useDisclosure, FormControl, FormLabel, Input, FormHelperText, FormErrorMessage, Card, Avatar, Heading, Text, Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, Box, Tabs, TabList, TabPanels, Tab, TabPanel, Flex, Select } from '@chakra-ui/react';
+import { Checkbox, CardBody, Spinner, Grid, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, InputGroup, InputLeftAddon, ModalBody, Textarea, ModalFooter, useDisclosure, FormControl, FormLabel, Input, FormHelperText, FormErrorMessage, Card, Avatar, Heading, Text, Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, Box, Tabs, TabList, TabPanels, Tab, TabPanel, Flex, Select } from '@chakra-ui/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ArrowUpIcon, ArrowDownIcon, StarIcon } from '@chakra-ui/icons';
@@ -12,26 +12,24 @@ import { usePioneer } from 'web/context/Pioneer';
 import ReactPaginate from 'react-paginate';
 import Review from './Review';
 import StarRating from './StarRating';
-
-const Pagination = ({ totalPages, currentPage, onPageChange }) => {
-  const pages = [...Array(totalPages).keys()].map((num) => num + 1);
-
-  return (
-    <Box>
-      {pages.map((page) => (
-        <Button key={page} onClick={() => onPageChange(page)} colorScheme={currentPage === page ? 'blue' : 'gray'}>
-          {page}
-        </Button>
-      ))}
-    </Box>
-  );
-};
+import { useParams } from "react-router-dom";
 
 const ReviewDapps = () => {
+  const { search, showUncharted, filterByBlockchain } = useParams<{
+    search?: string;
+    showUncharted?: string; // Use string since it can be 'true' or 'false' in the URL
+    filterByBlockchain?: string;
+  }>();
   const { state } = usePioneer();
   const { api, user, wallet } = state;
   const { isOpen, onOpen, onClose } = useDisclosure();
   // const alert = useAlert()
+  const [selectedBlockchain, setSelectedBlockchain] = useState(null);
+  const [selectedWallet, setSelectedWallet] = useState(null);
+  const [query, setQuery] = useState('');
+  const [timeOut, setTimeOut] = useState(null);
+  const [showAllSelected, setShowAllSelected] = useState(false);
+  const [filterByBlockchainSelected, setFilterByBlockchainSelected] = useState("");
   const [entry, setEntry] = useState<any>({});
   const [tabIndex, setTabIndex] = useState(0);
   const [votedUpNames, setVotedUpNames] = React.useState(() => []);
@@ -189,13 +187,7 @@ const ReviewDapps = () => {
         cell: (info) => <Button onClick={() => editEntry(info.row.original.name)}>Review</Button>,
         header: () => <span>review</span>,
         footer: (info) => info.column.id,
-      }),
-      // columnHelper.accessor('name', {
-      //   id: 'approve',
-      //   cell: info => <Button onClick={() => whitelistEntry(info.getValue())}>approve</Button>,
-      //   header: () => <span>approve</span>,
-      //   footer: info => info.column.id,
-      // }),
+      })
     ];
 
     if (isPioneer) {
@@ -213,12 +205,13 @@ const ReviewDapps = () => {
     return columnDefinitions;
   }, [isPioneer]);
 
-  const onStart = async function () {
+  const onRefresh = async function () {
     try {
-      //get all unapproved dapps
-      const apps = await api.SearchDappsPageniate({ limit: 1000, skip: 0 });
-      console.log('apps: ', apps.data.length);
-      console.log('apps: ', apps.data[0]);
+      console.log("showAllSelected: ", showAllSelected)
+      let query = {limit:100,skip:0,sortBy:"score"};
+      const apps = await api.SearchDapps({limit:100,skip:0,sortBy:"score",isWhitelisted:!showAllSelected});
+      console.log('apps: ', apps.data.dapps.length);
+      console.log('apps: ', apps.data.dapps[0]);
       const sortArrayByScore = (arr: any[]) => {
         return arr.sort((a, b) => {
           if (a.score === undefined) a.score = 0;
@@ -226,11 +219,44 @@ const ReviewDapps = () => {
           return b.score - a.score;
         });
       };
-      apps.data = sortArrayByScore(apps.data);
+      apps.data.dapps = sortArrayByScore(apps.data.dapps);
       console.log('apps: ', apps.data);
 
       //setData
-      setData(apps.data);
+      setData(apps.data.dapps);
+      //get reviews
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const onStart = async function () {
+    try {
+      console.log("search: ",search)
+      console.log("search: ",search)
+      if(showUncharted){
+        setShowAllSelected(true)
+      }
+      if(search){
+        performSearch(search);
+      } else {
+        //get all unapproved dapps
+        const apps = await api.SearchDapps({limit:100,skip:0,sortBy:"score",isWhitelisted:!showAllSelected});
+        console.log('apps: ', apps.data.dapps.length);
+        console.log('apps: ', apps.data.dapps[0]);
+        const sortArrayByScore = (arr: any[]) => {
+          return arr.sort((a, b) => {
+            if (a.score === undefined) a.score = 0;
+            if (b.score === undefined) b.score = 0;
+            return b.score - a.score;
+          });
+        };
+        apps.data.dapps = sortArrayByScore(apps.data.dapps);
+        console.log('apps: ', apps.data);
+
+        //setData
+        setData(apps.data.dapps);
+      }
 
       let blockchains = await api.SearchBlockchainsPaginate({ limit: 1000, skip: 0 });
       blockchains = blockchains.data;
@@ -552,11 +578,6 @@ const ReviewDapps = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // let handleInputChange = (e: { target: { value: any; }; }) => {
-  //   let inputValue = e.target.value
-  //   setValue(inputValue)
-  // }
-
   const onSubmitReview = async function (inputs: any) {
     try {
       console.log('input: onSelectedBlockchains: ', inputs);
@@ -722,263 +743,351 @@ const ReviewDapps = () => {
     </>
   );
 
+  const performSearch = async (query) => {
+    console.log('query: ', query);
+    let searchQuery = {
+      collection: 'apps',
+      string: query,
+    }
+    const apps = await api.SearchDappsByName({name:query});
+    console.log('apps: ', apps.data.length);
+    console.log('apps: ', apps.data[0]);
+    const sortArrayByScore = (arr: any[]) => {
+      return arr.sort((a, b) => {
+        if (a.score === undefined) a.score = 0;
+        if (b.score === undefined) b.score = 0;
+        return b.score - a.score;
+      });
+    };
+    apps.data = sortArrayByScore(apps.data);
+    console.log('apps: ', apps.data);
+
+    //setData
+    setData(apps.data);
+  };
+
+  const handleKeyPress = (event) => {
+    if (timeOut) {
+      clearTimeout(timeOut);
+    }
+    const inputValue = event.target.value;
+    setQuery(inputValue);
+    setTimeOut(
+        // @ts-ignore
+        setTimeout(() => {
+          performSearch(inputValue);
+        }, 1000)
+    );
+  };
+
+  const onClear = () => {
+    setQuery('');
+  };
+
   const handlePageChange = ({ selected }) => {
     setCurrentPage(selected);
   };
 
+  // Function to handle the Show Uncharted checkbox change
+  const handleShowUnchartedChange = (event) => {
+    //update data
+    if(event.target.checked){
+      setShowAllSelected(true);
+    } else {
+      setShowAllSelected(false);
+    }
+  };
+
+  // Function to handle the Blockchain filter select change
+  const handleBlockchainFilterChange = (selectedOption) => {
+    setSelectedBlockchain(selectedOption);
+  };
+
+  // Function to handle the Wallet filter select change
+  const handleWalletFilterChange = (selectedOption) => {
+    setSelectedWallet(selectedOption);
+  };
+  
   if (!api) {
     return <Spinner size="xl" />;
   }
 
   return (
-    <Card w="1300px" justifyContent="left">
-      <CardBody>
-        <Modal isOpen={isOpen} onClose={onClose} size="xl">
-          <ModalHeader>
-            Review dApp
-            <ModalCloseButton />
-          </ModalHeader>
-          <ModalOverlay />
-          <ModalContent width="80%">
-            <Tabs index={tabIndex} onChange={handleTabChange}>
-              <TabList>
-                <Tab>Info</Tab>
-                {/*<Tab>Reviews</Tab>*/}
-                <Tab>Form</Tab>
-                <Tab>Vote History</Tab>
-              </TabList>
-              <TabPanels>
-                <TabPanel>
-                  <Card>
-                    <Box p={4}>
-                      <Box display="flex" alignItems="center">
-                        <Avatar src={image} size="xl" border="4px solid #000" />
-                        <Box ml={4}>
-                          <Button colorScheme="blue" size="lg" onClick={() => window.open(app, '_blank')}>
-                            Launch App
-                          </Button>
-                          <Heading as="h3" size="lg" fontWeight="bold">
-                            {name}
-                          </Heading>
+      <div>
+        <Card w="1300px" justifyContent="left">
+          <CardBody>
+            <Text fontWeight="bold">Advanced Search</Text>
+            <Box>
+              <Text>Search:</Text>
+              <input onFocus={onClear} value={query} onChange={handleKeyPress} type="search" style={{ border: '2px solid black', padding: '15px' }} />
+            </Box>
+            <FormControl>
+              <Checkbox isChecked={showAllSelected} onChange={handleShowUnchartedChange}>
+                Show Uncharted
+              </Checkbox>
+            </FormControl>
+            <Button onClick={onRefresh}>Refresh</Button>
+            {/*<FormControl>*/}
+            {/*  <FormLabel>Filter by Blockchain:</FormLabel>*/}
+            {/*  <SelectImported*/}
+            {/*      name="blockchainFilter"*/}
+            {/*      options={blockchainsSupported}*/}
+            {/*      value={selectedBlockchain}*/}
+            {/*      onChange={handleBlockchainFilterChange}*/}
+            {/*      isClearable*/}
+            {/*      placeholder="Select a blockchain..."*/}
+            {/*  />*/}
+            {/*</FormControl>*/}
+          </CardBody>
+        </Card>
+        <Card w="1300px" justifyContent="left">
+          <CardBody>
+            <Modal isOpen={isOpen} onClose={onClose} size="xl">
+              <ModalHeader>
+                Review dApp
+                <ModalCloseButton />
+              </ModalHeader>
+              <ModalOverlay />
+              <ModalContent width="80%">
+                <Tabs index={tabIndex} onChange={handleTabChange}>
+                  <TabList>
+                    <Tab>Info</Tab>
+                    {/*<Tab>Reviews</Tab>*/}
+                    <Tab>Form</Tab>
+                    <Tab>Vote History</Tab>
+                  </TabList>
+                  <TabPanels>
+                    <TabPanel>
+                      <Card>
+                        <Box p={4}>
+                          <Box display="flex" alignItems="center">
+                            <Avatar src={image} size="xl" border="4px solid #000" />
+                            <Box ml={4}>
+                              <Button colorScheme="blue" size="lg" onClick={() => window.open(app, '_blank')}>
+                                Launch App
+                              </Button>
+                              <Heading as="h3" size="lg" fontWeight="bold">
+                                {name}
+                              </Heading>
+                            </Box>
+                          </Box>
+                          <Box mt={4}>
+                            <Box border="1px solid gray" borderRadius="md" p={2} mt={4}>
+                              <Text>
+                                <strong>App:</strong> {app}
+                              </Text>
+                              <Text>
+                                <strong>Homepage:</strong> {homepage}
+                              </Text>
+                              <Text>
+                                <strong>Description:</strong> {description}
+                              </Text>
+                            </Box>
+
+                            <Box border="1px solid gray" borderRadius="md" p={2} mt={4}>
+                              <Text fontWeight="bold">Blockchains Supported:</Text>
+                              {blockchainsSupported
+                                  ? blockchainsSupported.map((blockchain) => (
+                                      <Text key={blockchain?.value} pl={4}>
+                                        - {blockchain?.label}
+                                      </Text>
+                                  ))
+                                  : null}
+                              <Button size={'xs'} onClick={() => handleTabChange(1)}>
+                                edit
+                              </Button>
+                            </Box>
+
+                            <Box border="1px solid gray" borderRadius="md" p={2} mt={4}>
+                              <Text fontWeight="bold">Protocols Supported:</Text>
+                              {protocolsSupported
+                                  ? protocolsSupported.map((protocol) => (
+                                      <Text key={protocol.value} pl={4}>
+                                        - {protocol?.label}
+                                      </Text>
+                                  ))
+                                  : null}
+                              <Button size={'xs'} onClick={() => handleTabChange(1)}>
+                                edit
+                              </Button>
+                            </Box>
+
+                            <Box border="1px solid gray" borderRadius="md" p={2} mt={4}>
+                              <Text fontWeight="bold">Features Supported:</Text>
+                              {featuresSupported
+                                  ? featuresSupported.map((feature) => (
+                                      <Text key={feature.value} pl={4}>
+                                        - {feature.label}
+                                      </Text>
+                                  ))
+                                  : null}
+                              <Button size={'xs'} onClick={() => handleTabChange(1)}>
+                                edit
+                              </Button>
+                            </Box>
+
+                            <Box border="1px solid gray" borderRadius="md" p={2} mt={4}>
+                              <Text fontWeight="bold">Social Media:</Text>
+                              <Text>
+                                <strong>Twitter:</strong> {socialMedia.twitter}
+                              </Text>
+                              <Text>
+                                <strong>Telegram:</strong> {socialMedia.telegram}
+                              </Text>
+                              <Text>
+                                <strong>Github:</strong> {socialMedia.github}
+                              </Text>
+                              <Button size={'xs'} onClick={() => handleTabChange(1)}>
+                                edit
+                              </Button>
+                            </Box>
+                          </Box>
                         </Box>
-                      </Box>
-                      <Box mt={4}>
-                        <Box border="1px solid gray" borderRadius="md" p={2} mt={4}>
-                          <Text>
-                            <strong>App:</strong> {app}
-                          </Text>
-                          <Text>
-                            <strong>Homepage:</strong> {homepage}
-                          </Text>
-                          <Text>
-                            <strong>Description:</strong> {description}
-                          </Text>
-                        </Box>
+                      </Card>
+                    </TabPanel>
+                    <TabPanel>
+                      <ModalHeader>Edit Entry</ModalHeader>
+                      <ModalCloseButton />
+                      <ModalBody>
+                        <FormControl isInvalid={isError}>
+                          <FormLabel>Name</FormLabel>
+                          <Input type="email" value={name} onChange={handleInputChangeName} />
+                          {!isError ? <FormHelperText>Enter the name of the app.</FormHelperText> : <FormErrorMessage>name is required.</FormErrorMessage>}
+                        </FormControl>
+                        <FormControl isInvalid={isError}>
+                          <FormLabel>Homepage URL</FormLabel>
+                          <Input type="email" value={homepage} onChange={handleInputChangeApp} />
+                          {!isError ? <FormHelperText>Homepage is the Landing, generally designed to be indexed by crawlers.</FormHelperText> : <FormErrorMessage>URL is required.</FormErrorMessage>}
+                        </FormControl>
+                        <FormControl isInvalid={isError}>
+                          <FormLabel>App URL</FormLabel>
+                          <Input type="email" value={app} onChange={handleInputChangeApp} />
+                          {!isError ? <FormHelperText>Enter the URL of the dapp application itself, generally app.serviceName*.com</FormHelperText> : <FormErrorMessage>URL is required.</FormErrorMessage>}
+                        </FormControl>
+                        <FormControl isInvalid={isError}>
+                          <div style={{ border: '1px solid #ccc', padding: '10px', marginTop: '10px' }}>
+                            {image && <img src={image} alt="Image Preview" style={{ width: '100px', height: '100px' }} />}
+                            <FormLabel>Image URL</FormLabel>
+                            <Input type="email" value={image} onChange={handleInputChangeImage} />
+                          </div>
+                          {!isError ? <FormHelperText>Enter the URL of the image for the Dapp. This MUST be a valid URL and not an encoding!</FormHelperText> : <FormErrorMessage>Image URL is required.</FormErrorMessage>}
+                        </FormControl>
+                        <FormControl isInvalid={isError}>
+                          <FormLabel>Dapp Description</FormLabel>
+                          <Textarea placeholder="This Dapp is great because it does....." value={description} onChange={handleInputChangeDescription} />
+                          {!isError ? <FormHelperText>Describe the Dapp in a short paragraph.</FormHelperText> : <FormErrorMessage>Description is required.</FormErrorMessage>}
+                        </FormControl>
+                        <FormControl isInvalid={isError}>
+                          Blockchains Supported By Dapp
+                          <SelectImported
+                              isMulti
+                              name="assets"
+                              options={blockchains}
+                              placeholder="ethereum... bitcoin... avalanche...."
+                              closeMenuOnSelect={true}
+                              value={blockchainsSupported}
+                              // components={{ Option: IconOption }}
+                              onChange={onSelectedBlockchains}
+                          ></SelectImported>
+                          <FormHelperText>Enter all the blockchains that the dapp supports.</FormHelperText>
+                        </FormControl>
+                        <FormControl isInvalid={isError}>
+                          <FormLabel>Protocols Supported</FormLabel>
+                          <SelectImported
+                              isMulti
+                              name="assets"
+                              options={protocols}
+                              placeholder="wallet-connect... wallet-connect-v2... REST...."
+                              closeMenuOnSelect={true}
+                              value={protocolsSupported}
+                              // components={{ Option: IconOption }}
+                              onChange={onSelectedProtocols}
+                          ></SelectImported>
+                        </FormControl>
+                        <FormControl isInvalid={isError}>
+                          <FormLabel>Features Supported</FormLabel>
+                          <SelectImported
+                              isMulti
+                              name="features"
+                              options={features}
+                              placeholder="basic-transfers... defi-earn...."
+                              closeMenuOnSelect={true}
+                              // components={{ Option: IconOption }}
+                              onChange={onSelectedFeatures}
+                          ></SelectImported>
+                        </FormControl>
+                        <FormControl isInvalid={isError}>
+                          <FormLabel>Social Media</FormLabel>
+                          <InputGroup>
+                            <InputLeftAddon children="Twitter" />
+                            <Input type="text" name="twitter" value={socialMedia.twitter} onChange={handleSocialMediaChange} />
+                          </InputGroup>
+                        </FormControl>
 
-                        <Box border="1px solid gray" borderRadius="md" p={2} mt={4}>
-                          <Text fontWeight="bold">Blockchains Supported:</Text>
-                          {blockchainsSupported
-                            ? blockchainsSupported.map((blockchain) => (
-                                <Text key={blockchain?.value} pl={4}>
-                                  - {blockchain?.label}
-                                </Text>
-                              ))
-                            : null}
-                          <Button size={'xs'} onClick={() => handleTabChange(1)}>
-                            edit
-                          </Button>
-                        </Box>
+                        <FormControl isInvalid={isError}>
+                          <FormLabel>Social Media</FormLabel>
+                          <InputGroup>
+                            <InputLeftAddon children="Telegram" />
+                            <Input type="text" name="telegram" value={socialMedia.telegram} onChange={handleSocialMediaChange} />
+                          </InputGroup>
+                        </FormControl>
 
-                        <Box border="1px solid gray" borderRadius="md" p={2} mt={4}>
-                          <Text fontWeight="bold">Protocols Supported:</Text>
-                          {protocolsSupported
-                            ? protocolsSupported.map((protocol) => (
-                                <Text key={protocol.value} pl={4}>
-                                  - {protocol?.label}
-                                </Text>
-                              ))
-                            : null}
-                          <Button size={'xs'} onClick={() => handleTabChange(1)}>
-                            edit
-                          </Button>
-                        </Box>
+                        <FormControl isInvalid={isError}>
+                          <FormLabel>Social Media</FormLabel>
+                          <InputGroup>
+                            <InputLeftAddon children="GitHub" />
+                            <Input type="text" name="github" value={socialMedia.github} onChange={handleSocialMediaChange} />
+                          </InputGroup>
+                        </FormControl>
+                      </ModalBody>
 
-                        <Box border="1px solid gray" borderRadius="md" p={2} mt={4}>
-                          <Text fontWeight="bold">Features Supported:</Text>
-                          {featuresSupported
-                            ? featuresSupported.map((feature) => (
-                                <Text key={feature.value} pl={4}>
-                                  - {feature.label}
-                                </Text>
-                              ))
-                            : null}
-                          <Button size={'xs'} onClick={() => handleTabChange(1)}>
-                            edit
-                          </Button>
-                        </Box>
-
-                        <Box border="1px solid gray" borderRadius="md" p={2} mt={4}>
-                          <Text fontWeight="bold">Social Media:</Text>
-                          <Text>
-                            <strong>Twitter:</strong> {socialMedia.twitter}
-                          </Text>
-                          <Text>
-                            <strong>Telegram:</strong> {socialMedia.telegram}
-                          </Text>
-                          <Text>
-                            <strong>Github:</strong> {socialMedia.github}
-                          </Text>
-                          <Button size={'xs'} onClick={() => handleTabChange(1)}>
-                            edit
-                          </Button>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Card>
-                </TabPanel>
-                <TabPanel>
-                  <ModalHeader>Edit Entry</ModalHeader>
-                  <ModalCloseButton />
-                  <ModalBody>
-                    <FormControl isInvalid={isError}>
-                      <FormLabel>Name</FormLabel>
-                      <Input type="email" value={name} onChange={handleInputChangeName} />
-                      {!isError ? <FormHelperText>Enter the name of the app.</FormHelperText> : <FormErrorMessage>name is required.</FormErrorMessage>}
-                    </FormControl>
-                    <FormControl isInvalid={isError}>
-                      <FormLabel>Homepage URL</FormLabel>
-                      <Input type="email" value={homepage} onChange={handleInputChangeApp} />
-                      {!isError ? <FormHelperText>Homepage is the Landing, generally designed to be indexed by crawlers.</FormHelperText> : <FormErrorMessage>URL is required.</FormErrorMessage>}
-                    </FormControl>
-                    <FormControl isInvalid={isError}>
-                      <FormLabel>App URL</FormLabel>
-                      <Input type="email" value={app} onChange={handleInputChangeApp} />
-                      {!isError ? <FormHelperText>Enter the URL of the dapp application itself, generally app.serviceName*.com</FormHelperText> : <FormErrorMessage>URL is required.</FormErrorMessage>}
-                    </FormControl>
-                    <FormControl isInvalid={isError}>
-                      <div style={{ border: '1px solid #ccc', padding: '10px', marginTop: '10px' }}>
-                        {image && <img src={image} alt="Image Preview" style={{ width: '100px', height: '100px' }} />}
-                        <FormLabel>Image URL</FormLabel>
-                        <Input type="email" value={image} onChange={handleInputChangeImage} />
-                      </div>
-                      {!isError ? <FormHelperText>Enter the URL of the image for the Dapp. This MUST be a valid URL and not an encoding!</FormHelperText> : <FormErrorMessage>Image URL is required.</FormErrorMessage>}
-                    </FormControl>
-                    <FormControl isInvalid={isError}>
-                      <FormLabel>Dapp Description</FormLabel>
-                      <Textarea placeholder="This Dapp is great because it does....." value={description} onChange={handleInputChangeDescription} />
-                      {!isError ? <FormHelperText>Describe the Dapp in a short paragraph.</FormHelperText> : <FormErrorMessage>Description is required.</FormErrorMessage>}
-                    </FormControl>
-                    <FormControl isInvalid={isError}>
-                      Blockchains Supported By Dapp
-                      <SelectImported
-                        isMulti
-                        name="assets"
-                        options={blockchains}
-                        placeholder="ethereum... bitcoin... avalanche...."
-                        closeMenuOnSelect={true}
-                        value={blockchainsSupported}
-                        // components={{ Option: IconOption }}
-                        onChange={onSelectedBlockchains}
-                      ></SelectImported>
-                      <FormHelperText>Enter all the blockchains that the dapp supports.</FormHelperText>
-                    </FormControl>
-                    <FormControl isInvalid={isError}>
-                      <FormLabel>Protocols Supported</FormLabel>
-                      <SelectImported
-                        isMulti
-                        name="assets"
-                        options={protocols}
-                        placeholder="wallet-connect... wallet-connect-v2... REST...."
-                        closeMenuOnSelect={true}
-                        value={protocolsSupported}
-                        // components={{ Option: IconOption }}
-                        onChange={onSelectedProtocols}
-                      ></SelectImported>
-                    </FormControl>
-                    <FormControl isInvalid={isError}>
-                      <FormLabel>Features Supported</FormLabel>
-                      <SelectImported
-                        isMulti
-                        name="features"
-                        options={features}
-                        placeholder="basic-transfers... defi-earn...."
-                        closeMenuOnSelect={true}
-                        // components={{ Option: IconOption }}
-                        onChange={onSelectedFeatures}
-                      ></SelectImported>
-                    </FormControl>
-                    <FormControl isInvalid={isError}>
-                      <FormLabel>Social Media</FormLabel>
-                      <InputGroup>
-                        <InputLeftAddon children="Twitter" />
-                        <Input type="text" name="twitter" value={socialMedia.twitter} onChange={handleSocialMediaChange} />
-                      </InputGroup>
-                    </FormControl>
-
-                    <FormControl isInvalid={isError}>
-                      <FormLabel>Social Media</FormLabel>
-                      <InputGroup>
-                        <InputLeftAddon children="Telegram" />
-                        <Input type="text" name="telegram" value={socialMedia.telegram} onChange={handleSocialMediaChange} />
-                      </InputGroup>
-                    </FormControl>
-
-                    <FormControl isInvalid={isError}>
-                      <FormLabel>Social Media</FormLabel>
-                      <InputGroup>
-                        <InputLeftAddon children="GitHub" />
-                        <Input type="text" name="github" value={socialMedia.github} onChange={handleSocialMediaChange} />
-                      </InputGroup>
-                    </FormControl>
-                  </ModalBody>
-
-                  <ModalFooter>
-                    <Button colorScheme="blue" mr={3} onClick={onClose}>
-                      Close
-                    </Button>
-                    <Button onClick={onSubmitEdit} variant="green">
-                      Submit changes
-                    </Button>
-                  </ModalFooter>
-                </TabPanel>
-                <TabPanel>
-                  <FormControl>
-                    <table>
-                      <UpVotesTable />
-                      <DownVotesTable />
-                    </table>
-                  </FormControl>
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
-          </ModalContent>
-        </Modal>
-        <div className="p-2">
-          <table>
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <tr key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="h-4" />
-        </div>
-      </CardBody>
-      <Button onClick={onStart}>Refresh</Button>
-    </Card>
+                      <ModalFooter>
+                        <Button colorScheme="blue" mr={3} onClick={onClose}>
+                          Close
+                        </Button>
+                        <Button onClick={onSubmitEdit} variant="green">
+                          Submit changes
+                        </Button>
+                      </ModalFooter>
+                    </TabPanel>
+                    <TabPanel>
+                      <FormControl>
+                        <table>
+                          <UpVotesTable />
+                          <DownVotesTable />
+                        </table>
+                      </FormControl>
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              </ModalContent>
+            </Modal>
+            <div className="p-2">
+              <table>
+                <thead>
+                {table.getHeaderGroups().map((headerGroup) => (
+                    <tr key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                          <th key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</th>
+                      ))}
+                    </tr>
+                ))}
+                </thead>
+                <tbody>
+                {table.getRowModel().rows.map((row) => (
+                    <tr key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                          <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                      ))}
+                    </tr>
+                ))}
+                </tbody>
+              </table>
+              <div className="h-4" />
+            </div>
+          </CardBody>
+        </Card>
+      </div>
   );
 };
 

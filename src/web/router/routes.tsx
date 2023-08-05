@@ -16,7 +16,7 @@ export const routes: Array<PathRouteProps> = [
     element: <Home />,
   },
   {
-    path: '/dapps',
+    path: '/dapps/:search?/:showUncharted?/:filterByBlockchain?',
     element: <ExploreDapps />,
   },
   {

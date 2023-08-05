@@ -5,8 +5,8 @@ import Select from 'react-select';
 import { usePioneer } from 'web/context/Pioneer';
 import { protocols, features } from './Constants';
 import { Select as SelectImported, components } from 'chakra-react-select';
-
-const SubmitDapps = () => {
+import {useNavigate} from "react-router-dom";
+const SubmitDapps = ({ onTabChange }) => {
   const { state } = usePioneer();
   const { api, user, wallet } = state;
   const [name, setName] = useState('');
@@ -22,7 +22,7 @@ const SubmitDapps = () => {
   const [homepageError, setHomepageError] = useState('');
   const [blockchainsSupported, setBlockchainsSupported] = useState([]);
   const [protocolsSupported, setProtocolsSupported] = useState<any[]>(['wallet-connect']);
-  const [featuresSupported, setFeaturesSupported] = useState([]);
+  const [featuresSupported, setFeaturesSupported] = useState(['other']);
   const [activeStep, setActiveStep] = useState(0);
   const [isRest, setIsRest] = React.useState(false);
   const [blockchains, setBlockchains] = React.useState([]);
@@ -31,6 +31,7 @@ const SubmitDapps = () => {
     telegram: '',
     github: '',
   });
+  const navigate = useNavigate();
   const handleInputChangeName = (e) => setName(e.target.value);
   const handleInputChangeApp = (e) => setApp(e.target.value);
   const handleInputChangeHomepage = (e) => setHomepage(e.target.value);
@@ -43,6 +44,10 @@ const SubmitDapps = () => {
       ...prevState,
       [name]: value,
     }));
+  };
+  const handleGoBackToReview = () => {
+    // Call the function passed as prop to switch back to the "ReviewDapps" tab (index 0).
+    onTabChange(0);
   };
   const handleUrlChange = (event) => {
     setUrl(event.target.value);
@@ -143,7 +148,7 @@ const SubmitDapps = () => {
         setName(result.data.name);
         setDescription(result.data.description);
         setImage(result.data.image);
-        setFeaturesSupported(result.data.features);
+        if(result.data.features)setFeaturesSupported(result.data.features);
         // @ts-ignore
       }
       setIsLoading(false);
@@ -180,7 +185,7 @@ const SubmitDapps = () => {
     // Submit logic
     try {
       console.log('onSubmit()');
-
+      setIsLoading(true);
       //convert blockchains protocols and features to array of strings
       const blockchainsSupportedArray = [];
       for (let i = 0; i < blockchainsSupported.length; i++) {
@@ -192,7 +197,7 @@ const SubmitDapps = () => {
         // @ts-ignore
         protocolsSupportedArray.push(protocolsSupported[i].value);
       }
-      const featuresSupportedArray = [];
+      let featuresSupportedArray = [];
       for (let i = 0; i < featuresSupported.length; i++) {
         // @ts-ignore
         featuresSupportedArray.push(featuresSupported[i].value);
@@ -239,10 +244,19 @@ const SubmitDapps = () => {
       console.log('dapp: ', dapp);
       const txInfo = await api.ChartDapp(dapp);
       console.log('SUCCESS: ', txInfo.data);
+      setIsLoading(false);
       if (txInfo.data.success) {
+        // Navigate to the modified URL
+        handleGoBackToReview();
         //show success message
         console.log('SUCCESS: ', txInfo.data);
+        //open dapps tab with app searched
+        const specialCharPattern = /[^a-zA-Z0-9]+/; // Regular expression to match any non-alphanumeric character
+        const nameWithoutSpecialChars = name.split(specialCharPattern)[0]; // "stargate"
+        const showUncharted = true;
+        navigate(`/dapps/${nameWithoutSpecialChars}/${showUncharted}`);
       } else {
+        setIsLoading(false);
         alert(txInfo.error);
       }
     } catch (e) {
@@ -329,7 +343,7 @@ const SubmitDapps = () => {
     onStart();
   }, [api]); //once on startup
 
-  if (!api) {
+  if (!api || isLoading) {
     return <Spinner size="xl" />;
   }
 
